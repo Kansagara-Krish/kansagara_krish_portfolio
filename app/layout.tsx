@@ -20,7 +20,11 @@ export const metadata: Metadata = {
     template: "%s | Pratham Rajbhar"
   },
   description: "A production-grade portfolio with projects, writing, experience, and an admin panel.",
-  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(
+    (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL !== "") 
+      ? process.env.NEXTAUTH_URL 
+      : "http://localhost:3000"
+  ),
   keywords: ["Computer Engineer", "Software Developer", "Portfolio", "Full-Stack"],
   authors: [{ name: "Pratham Rajbhar" }],
   creator: "Pratham Rajbhar",

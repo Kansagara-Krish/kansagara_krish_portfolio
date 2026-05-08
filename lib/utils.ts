@@ -41,7 +41,7 @@ export function sanitizeHtml(html: string) {
 }
 
 export function getBaseUrl(headersList?: Headers) {
-  if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL;
+  if (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL !== "") return process.env.NEXTAUTH_URL;
   const host = headersList?.get("host") ?? "localhost:3000";
   const protocol = host.includes("localhost") ? "http" : "https";
   return `${protocol}://${host}`;
