@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  content     String
+  techStack   String[]
+  liveUrl     String?
+  githubUrl   String?
+  imageUrl    String?
+  featured    Boolean  @default(false)
+  status      String   @default("completed")
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tags        Tag[]    @relation("ProjectTags")
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String
+  coverImage  String?
+  published   Boolean  @default(false)
+  readingTime Int      @default(5)
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tags        Tag[]    @relation("BlogTags")
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  company     String
+  role        String
+  location    String?
+  type        String   @default("full-time")
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean  @default(false)
+  description String
+  skills      String[]
+  logoUrl     String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Skill {
+  id       String @id @default(cuid())
+  name     String
+  category String
+  level    Int    @default(3)
+  iconUrl  String?
+  order    Int    @default(0)
+}
+
+model Tag {
+  id       String     @id @default(cuid())
+  name     String     @unique
+  projects Project[]  @relation("ProjectTags")
+  posts    BlogPost[] @relation("BlogTags")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id              String   @id @default("singleton")
+  name            String   @default("Your Name")
+  title           String   @default("Full-Stack Engineer")
+  bio             String   @default("I build things for the web.")
+  email           String   @default("hello@example.com")
+  github          String?
+  linkedin        String?
+  twitter         String?
+  resumeUrl       String?
+  avatarUrl       String?
+  heroTagline     String?
+  openToWork      Boolean  @default(true)
+  resumeDownloads Int      @default(0)
+  updatedAt       DateTime @updatedAt
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}

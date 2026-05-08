@@ -1,0 +1,40 @@
+import { clsx, type ClassValue } from "clsx";
+import { format } from "date-fns";
+import slugifyLib from "slugify";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export function slugify(value: string) {
+  return slugifyLib(value, { lower: true, strict: true, trim: true });
+}
+
+export function formatDate(date: string | Date, pattern = "MMM d, yyyy") {
+  return format(new Date(date), pattern);
+}
+
+export function readingTimeFromHtml(html: string) {
+  const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return Math.max(1, Math.ceil(text.split(" ").filter(Boolean).length / 200));
+}
+
+export function sanitizeHtml(html: string) {
+  return html
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+    .replace(/\son\w+="[^"]*"/gi, "")
+    .replace(/\son\w+='[^']*'/gi, "")
+    .replace(/javascript:/gi, "");
+}
+
+export function getBaseUrl(headersList?: Headers) {
+  if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL;
+  const host = headersList?.get("host") ?? "localhost:3000";
+  const protocol = host.includes("localhost") ? "http" : "https";
+  return `${protocol}://${host}`;
+}
+
+export function skillDots(level: number) {
+  return Array.from({ length: 5 }, (_, index) => (index < level ? "●" : "○")).join(" ");
+}
