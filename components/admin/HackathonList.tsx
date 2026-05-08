@@ -32,7 +32,7 @@ export function HackathonList({ items }: { items: HackathonDTO[] }) {
             <tr key={item.id} className="border-b border-border last:border-0 hover:bg-bg/50 transition-colors">
               <td className="p-4">
                 <Link href={`/admin/hackathons/${item.id}`} className="font-bold text-primary hover:underline">
-                  {item.title || item.name}
+                  {item.title}
                 </Link>
               </td>
               <td className="p-4">{formatDate(item.date)}</td>
