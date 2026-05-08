@@ -1,12 +1,11 @@
 import { BlogTable } from "@/components/admin/BlogTable";
 import { Button } from "@/components/ui/Button";
-import { fetchApi } from "@/lib/server-data";
-import type { BlogPostDTO } from "@/lib/types";
+import { getBlogPosts } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminBlogPage() {
-  const posts = await fetchApi<BlogPostDTO[]>("/blog", []);
+  const posts = await getBlogPosts();
   return (
     <div className="grid gap-5">
       <div className="flex items-center justify-between gap-3">

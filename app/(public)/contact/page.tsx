@@ -4,11 +4,10 @@ import Link from "next/link";
 import { ContactForm } from "@/components/public/ContactForm";
 import { Badge } from "@/components/ui/Badge";
 import { defaultSettings } from "@/lib/defaults";
-import { fetchApi } from "@/lib/server-data";
+import { getSiteSettings } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import type { SiteSettingsDTO } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -16,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const settings = await fetchApi<SiteSettingsDTO>("/settings", defaultSettings);
+  const settings = await getSiteSettings().then(s => s || defaultSettings);
   const socials = [
     settings.github ? { href: settings.github, label: "GitHub", icon: Github, color: "hover:text-[#333] hover:bg-[#333]/5" } : null,
     settings.linkedin ? { href: settings.linkedin, label: "LinkedIn", icon: Linkedin, color: "hover:text-[#0077b5] hover:bg-[#0077b5]/5" } : null,

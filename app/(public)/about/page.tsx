@@ -4,10 +4,9 @@ import { SkillsCloud } from "@/components/public/SkillsCloud";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { defaultSettings } from "@/lib/defaults";
-import { fetchApi } from "@/lib/server-data";
-import type { SiteSettingsDTO, SkillDTO } from "@/lib/types";
+import { getSiteSettings, getSkills } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "About",
@@ -16,8 +15,8 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   const [settings, skills] = await Promise.all([
-    fetchApi<SiteSettingsDTO>("/settings", defaultSettings),
-    fetchApi<SkillDTO[]>("/skills", [])
+    getSiteSettings().then(s => s || defaultSettings),
+    getSkills()
   ]);
 
   return (

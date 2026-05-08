@@ -1,12 +1,11 @@
 import { ProjectTable } from "@/components/admin/ProjectTable";
 import { Button } from "@/components/ui/Button";
-import { fetchApi } from "@/lib/server-data";
-import type { ProjectDTO } from "@/lib/types";
+import { getProjects } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminProjectsPage() {
-  const projects = await fetchApi<ProjectDTO[]>("/projects", []);
+  const projects = await getProjects();
   return (
     <div className="grid gap-5">
       <div className="flex items-center justify-between gap-3">

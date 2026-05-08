@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
 import { BlogForm } from "@/components/admin/BlogForm";
-import { fetchApi } from "@/lib/server-data";
-import type { BlogPostDTO } from "@/lib/types";
+import { getBlogPostById } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditBlogPostPage({ params }: { params: { id: string } }) {
-  const post = await fetchApi<BlogPostDTO | null>(`/blog/${params.id}`, null);
+  const post = await getBlogPostById(params.id);
   if (!post) notFound();
   return <BlogForm post={post} />;
 }

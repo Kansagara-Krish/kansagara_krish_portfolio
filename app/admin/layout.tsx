@@ -1,14 +1,13 @@
 import { AdminShell } from "@/components/admin/AdminShell";
 import { auth } from "@/lib/auth";
-import { fetchApi } from "@/lib/server-data";
-import type { ContactMessageDTO } from "@/lib/types";
+import { getContactMessages } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const [session, messages] = await Promise.all([
     auth(),
-    fetchApi<ContactMessageDTO[]>("/messages", [])
+    getContactMessages()
   ]);
   const unread = messages.filter((message) => !message.read).length;
 

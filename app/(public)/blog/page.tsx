@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { FilterableBlog } from "@/components/public/FilterableBlog";
-import { fetchApi } from "@/lib/server-data";
-import type { BlogPostDTO } from "@/lib/types";
+import { getBlogPosts } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const posts = await fetchApi<BlogPostDTO[]>("/blog", []);
+  const posts = await getBlogPosts();
   return (
     <div className="relative overflow-hidden">
       {/* Background Visuals */}

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { FilterableProjects } from "@/components/public/FilterableProjects";
-import { fetchApi } from "@/lib/server-data";
-import type { ProjectDTO } from "@/lib/types";
+import { getProjects } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjectsPage() {
-  const projects = await fetchApi<ProjectDTO[]>("/projects", []);
+  const projects = await getProjects();
 
   return (
     <div className="relative overflow-hidden">

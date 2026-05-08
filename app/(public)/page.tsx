@@ -7,11 +7,10 @@ import { ProjectCard } from "@/components/public/ProjectCard";
 import { TechMarquee } from "@/components/public/TechMarquee";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { getSiteSettings, getProjects, getBlogPosts, getExperiences, getSkills } from "@/lib/data";
 import { defaultSettings } from "@/lib/defaults";
-import { fetchApi } from "@/lib/server-data";
-import type { BlogPostDTO, ExperienceDTO, ProjectDTO, SiteSettingsDTO, SkillDTO } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Home",
@@ -20,11 +19,11 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [settings, projects, posts, experiences, skills] = await Promise.all([
-    fetchApi<SiteSettingsDTO>("/settings", defaultSettings),
-    fetchApi<ProjectDTO[]>("/projects", []),
-    fetchApi<BlogPostDTO[]>("/blog", []),
-    fetchApi<ExperienceDTO[]>("/experience", []),
-    fetchApi<SkillDTO[]>("/skills", [])
+    getSiteSettings().then(s => s || defaultSettings),
+    getProjects(),
+    getBlogPosts(),
+    getExperiences(),
+    getSkills()
   ]);
   const featured = projects.filter((project) => project.featured).slice(0, 3);
 

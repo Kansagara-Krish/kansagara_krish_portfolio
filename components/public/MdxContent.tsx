@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import Image from "next/image";
 import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 
@@ -7,8 +7,16 @@ const components = {
   a: (props: ComponentPropsWithoutRef<"a">) => (
     <a {...props} target={props.href?.startsWith("http") ? "_blank" : props.target} rel={props.href?.startsWith("http") ? "noreferrer" : props.rel} />
   ),
-  img: ({ alt = "", ...props }: ComponentPropsWithoutRef<"img">) => (
-    <img {...props} alt={alt} className="my-10 w-full rounded-[8px] border border-border object-cover shadow-lg" loading="lazy" />
+  img: ({ alt = "", src, ...props }: ComponentPropsWithoutRef<"img">) => (
+    <div className="relative my-10 aspect-video w-full overflow-hidden rounded-[8px] border border-border shadow-lg">
+      <Image 
+        src={src || ""} 
+        alt={alt} 
+        fill 
+        className="object-cover" 
+        sizes="(min-width: 1200px) 800px, 100vw"
+      />
+    </div>
   ),
   table: (props: ComponentPropsWithoutRef<"table">) => (
     <div className="my-8 overflow-x-auto rounded-[8px] border border-border">

@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectDetailClient } from "@/components/public/ProjectDetailClient";
-import { fetchApi } from "@/lib/server-data";
-import type { ProjectDTO } from "@/lib/types";
+import { getProjectBySlug, getProjects, getAllProjectSlugs } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const slugs = await getAllProjectSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const project = await fetchApi<ProjectDTO | null>(`/projects/${params.slug}`, null);
+  const project = await getProjectBySlug(params.slug);
   return {
     title: project?.title ?? "Project",
     description: project?.description ?? "Project detail",
@@ -19,8 +23,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function ProjectDetailPage({ params }: { params: { slug: string } }) {
   const [project, allProjects] = await Promise.all([
-    fetchApi<ProjectDTO | null>(`/projects/${params.slug}`, null),
-    fetchApi<ProjectDTO[]>("/projects", [])
+    getProjectBySlug(params.slug),
+    getProjects()
   ]);
 
   if (!project) notFound();

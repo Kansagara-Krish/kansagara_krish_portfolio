@@ -4,17 +4,16 @@ import { StatsCard } from "@/components/admin/StatsCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { fetchApi } from "@/lib/server-data";
-import type { BlogPostDTO, ContactMessageDTO, ProjectDTO } from "@/lib/types";
+import { getProjects, getBlogPosts, getContactMessages } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const [projects, posts, messages] = await Promise.all([
-    fetchApi<ProjectDTO[]>("/projects", []),
-    fetchApi<BlogPostDTO[]>("/blog", []),
-    fetchApi<ContactMessageDTO[]>("/messages", [])
+    getProjects(),
+    getBlogPosts(),
+    getContactMessages()
   ]);
   const unread = messages.filter((message) => !message.read).length;
 

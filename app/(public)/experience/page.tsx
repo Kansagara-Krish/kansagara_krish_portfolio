@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { GraduationCap, Sparkles } from "lucide-react";
 import { ExperienceTimeline } from "@/components/public/ExperienceTimeline";
 import { SkillsCloud } from "@/components/public/SkillsCloud";
 import { Card } from "@/components/ui/Card";
-import { fetchApi } from "@/lib/server-data";
-import type { ExperienceDTO, SkillDTO } from "@/lib/types";
+import { getExperiences, getSkills } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Experience",
@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 
 export default async function ExperiencePage() {
   const [experiences, skills] = await Promise.all([
-    fetchApi<ExperienceDTO[]>("/experience", []),
-    fetchApi<SkillDTO[]>("/skills", [])
+    getExperiences(),
+    getSkills()
   ]);
 
   return (
@@ -78,7 +78,7 @@ export default async function ExperiencePage() {
                   <div key={skill.id} className="glass flex items-center gap-4 p-4 px-6 rounded-2xl transition-all hover:translate-x-1">
                     {skill.iconUrl ? (
                       <div className="relative h-6 w-6 flex-shrink-0">
-                        <img src={skill.iconUrl} alt={skill.name} className="h-full w-full object-contain" />
+                        <Image src={skill.iconUrl} alt={skill.name} fill className="object-contain" />
                       </div>
                     ) : (
                       <div className="flex h-6 w-6 items-center justify-center rounded bg-primary/10 text-[10px] font-bold text-primary">
