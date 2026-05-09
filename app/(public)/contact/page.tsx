@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import { Github, Linkedin, Mail, MapPin, Twitter, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { ContactForm } from "@/components/public/ContactForm";
 import { Badge } from "@/components/ui/Badge";
-import { defaultSettings } from "@/lib/defaults";
+import { ContactForm } from "@/components/public/ContactForm";
 import { getSiteSettings } from "@/lib/data";
+import { defaultSettings } from "@/lib/defaults";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Contact form and social links."
+  description: "Get in touch with the portfolio owner."
 };
 
 export default async function ContactPage() {

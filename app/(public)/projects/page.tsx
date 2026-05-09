@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { FilterableProjects } from "@/components/public/FilterableProjects";
 import { getProjects } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Projects",
-  description: "A complete project gallery with tag filtering."
+  description: "A showcase of software projects and applications."
 };
 
 export default async function ProjectsPage() {

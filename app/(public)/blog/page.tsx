@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { FilterableBlog } from "@/components/public/FilterableBlog";
 import { getBlogPosts } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Blog",
-  description: "Engineering writing, implementation notes, and product lessons."
+  description: "Thoughts, tutorials, and insights on software engineering."
 };
 
 export default async function BlogPage() {

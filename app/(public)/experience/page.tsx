@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import { Sparkles, GraduationCap } from "lucide-react";
 import Image from "next/image";
-import { GraduationCap, Sparkles } from "lucide-react";
 import { ExperienceTimeline } from "@/components/public/ExperienceTimeline";
 import { SkillsCloud } from "@/components/public/SkillsCloud";
 import { Card } from "@/components/ui/Card";
 import { getExperiences, getSkills } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Experience",
-  description: "Professional experience and education timeline."
+  description: "Professional experience and skills overview."
 };
 
 export default async function ExperiencePage() {

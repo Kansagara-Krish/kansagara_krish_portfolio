@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { getSiteSettings, getProjects, getBlogPosts, getExperiences, getSkills } from "@/lib/data";
 import { defaultSettings } from "@/lib/defaults";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
