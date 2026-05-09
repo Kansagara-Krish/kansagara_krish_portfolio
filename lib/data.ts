@@ -31,7 +31,9 @@ export const getExperiences = cache(async (): Promise<ExperienceDTO[]> => {
         });
         return toDTO<ExperienceDTO[]>(experiences);
       } catch (error) {
-        console.error("Prisma error in getExperiences:", error);
+        if (!process.env.CI) {
+          console.error("Prisma error in getExperiences:", error);
+        }
         return [];
       }
     },
@@ -50,7 +52,9 @@ export const getSkills = cache(async (): Promise<SkillDTO[]> => {
         });
         return toDTO<SkillDTO[]>(skills);
       } catch (error) {
-        console.error("Prisma error in getSkills:", error);
+        if (!process.env.CI) {
+          console.error("Prisma error in getSkills:", error);
+        }
         return [];
       }
     },
@@ -70,7 +74,9 @@ export const getProjects = cache(async (): Promise<ProjectDTO[]> => {
         });
         return toDTO<ProjectDTO[]>(projects);
       } catch (error) {
-        console.error("Prisma error in getProjects:", error);
+        if (!process.env.CI) {
+          console.error("Prisma error in getProjects:", error);
+        }
         return [];
       }
     },
@@ -89,7 +95,9 @@ export const getProjectBySlug = cache(async (slug: string): Promise<ProjectDTO |
         });
         return project ? toDTO<ProjectDTO>(project) : null;
       } catch (error) {
-        console.error(`Prisma error in getProjectBySlug(${slug}):`, error);
+        if (!process.env.CI) {
+          console.error(`Prisma error in getProjectBySlug(${slug}):`, error);
+        }
         return null;
       }
     },
@@ -127,7 +135,9 @@ export const getBlogPosts = cache(async (): Promise<BlogPostDTO[]> => {
         });
         return toDTO<BlogPostDTO[]>(posts);
       } catch (error) {
-        console.error("Prisma error in getBlogPosts:", error);
+        if (!process.env.CI) {
+          console.error("Prisma error in getBlogPosts:", error);
+        }
         return [];
       }
     },
@@ -146,7 +156,9 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPostDTO
         });
         return post ? toDTO<BlogPostDTO>(post) : null;
       } catch (error) {
-        console.error(`Prisma error in getBlogPostBySlug(${slug}):`, error);
+        if (!process.env.CI) {
+          console.error(`Prisma error in getBlogPostBySlug(${slug}):`, error);
+        }
         return null;
       }
     },
@@ -181,7 +193,9 @@ export const getSiteSettings = cache(async (): Promise<SiteSettingsDTO | null> =
         const settings = await prisma.siteSettings.findFirst();
         return settings ? toDTO<SiteSettingsDTO>(settings) : null;
       } catch (error) {
-        console.error("Prisma error in getSiteSettings:", error);
+        if (!process.env.CI) {
+          console.error("Prisma error in getSiteSettings:", error);
+        }
         return null;
       }
     },
