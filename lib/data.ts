@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
+import { prisma } from "@/lib/prisma";
 import type { 
   ExperienceDTO, 
   SkillDTO, 
@@ -12,11 +12,12 @@ import type {
   ContactMessageDTO 
 } from "@/lib/types";
 
-// Helper to convert Prisma types to DTOs and handle date serialization
-function toDTO<T>(data: NonNullable<unknown>): T {
-  if (!data) return data as T;
-  return JSON.parse(JSON.stringify(data, (_key, value: unknown) => {
-    if (value instanceof Date) return value.toISOString();
+// Helper function to serialize data
+function serializeData<T>(data: unknown): T {
+  return JSON.parse(JSON.stringify(data, (_key, value) => {
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
     return value;
   })) as T;
 }
@@ -25,17 +26,10 @@ function toDTO<T>(data: NonNullable<unknown>): T {
 export const getExperiences = cache(async (): Promise<ExperienceDTO[]> => {
   return unstable_cache(
     async () => {
-      try {
-        const experiences = await prisma.experience.findMany({
-          orderBy: { order: "asc" }
-        });
-        return toDTO<ExperienceDTO[]>(experiences);
-      } catch (error) {
-        if (!process.env.CI) {
-          console.error("Prisma error in getExperiences:", error);
-        }
-        return [];
-      }
+      const experiences = await prisma.experience.findMany({
+        orderBy: [{ order: 'asc' }, { startDate: 'desc' }]
+      });
+      return serializeData<ExperienceDTO[]>(experiences);
     },
     ["experiences"],
     { revalidate: 3600, tags: ["experiences"] }
@@ -46,17 +40,10 @@ export const getExperiences = cache(async (): Promise<ExperienceDTO[]> => {
 export const getSkills = cache(async (): Promise<SkillDTO[]> => {
   return unstable_cache(
     async () => {
-      try {
-        const skills = await prisma.skill.findMany({
-          orderBy: { order: "asc" }
-        });
-        return toDTO<SkillDTO[]>(skills);
-      } catch (error) {
-        if (!process.env.CI) {
-          console.error("Prisma error in getSkills:", error);
-        }
-        return [];
-      }
+      const skills = await prisma.skill.findMany({
+        orderBy: [{ category: 'asc' }, { order: 'asc' }]
+      });
+      return serializeData<SkillDTO[]>(skills);
     },
     ["skills"],
     { revalidate: 3600, tags: ["skills"] }
@@ -67,18 +54,10 @@ export const getSkills = cache(async (): Promise<SkillDTO[]> => {
 export const getProjects = cache(async (): Promise<ProjectDTO[]> => {
   return unstable_cache(
     async () => {
-      try {
-        const projects = await prisma.project.findMany({
-          include: { tags: true },
-          orderBy: { createdAt: "desc" }
-        });
-        return toDTO<ProjectDTO[]>(projects);
-      } catch (error) {
-        if (!process.env.CI) {
-          console.error("Prisma error in getProjects:", error);
-        }
-        return [];
-      }
+      const projects = await prisma.project.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+      return serializeData<ProjectDTO[]>(projects);
     },
     ["projects"],
     { revalidate: 3600, tags: ["projects"] }
@@ -88,18 +67,10 @@ export const getProjects = cache(async (): Promise<ProjectDTO[]> => {
 export const getProjectBySlug = cache(async (slug: string): Promise<ProjectDTO | null> => {
   return unstable_cache(
     async () => {
-      try {
-        const project = await prisma.project.findFirst({
-          where: { slug },
-          include: { tags: true }
-        });
-        return project ? toDTO<ProjectDTO>(project) : null;
-      } catch (error) {
-        if (!process.env.CI) {
-          console.error(`Prisma error in getProjectBySlug(${slug}):`, error);
-        }
-        return null;
-      }
+      const project = await prisma.project.findUnique({
+        where: { slug }
+      });
+      return project ? serializeData<ProjectDTO>(project) : null;
     },
     [`project-${slug}`],
     { revalidate: 3600, tags: ["projects", `project-${slug}`] }
@@ -109,14 +80,10 @@ export const getProjectBySlug = cache(async (slug: string): Promise<ProjectDTO |
 export const getAllProjectSlugs = cache(async (): Promise<string[]> => {
   return unstable_cache(
     async () => {
-      try {
-        const projects = await prisma.project.findMany({
-          select: { slug: true }
-        });
-        return projects.map(p => p.slug);
-      } catch {
-        return [];
-      }
+      const projects = await prisma.project.findMany({
+        select: { slug: true }
+      });
+      return projects.map((p: { slug: string }) => p.slug);
     },
     ["project-slugs"],
     { revalidate: 3600, tags: ["projects"] }
@@ -127,19 +94,11 @@ export const getAllProjectSlugs = cache(async (): Promise<string[]> => {
 export const getBlogPosts = cache(async (): Promise<BlogPostDTO[]> => {
   return unstable_cache(
     async () => {
-      try {
-        const posts = await prisma.blogPost.findMany({
-          include: { tags: true },
-          where: { published: true },
-          orderBy: { createdAt: "desc" }
-        });
-        return toDTO<BlogPostDTO[]>(posts);
-      } catch (error) {
-        if (!process.env.CI) {
-          console.error("Prisma error in getBlogPosts:", error);
-        }
-        return [];
-      }
+      const posts = await prisma.blogPost.findMany({
+        where: { published: true },
+        orderBy: { createdAt: 'desc' }
+      });
+      return serializeData<BlogPostDTO[]>(posts);
     },
     ["blog-posts"],
     { revalidate: 3600, tags: ["blog"] }
@@ -149,18 +108,10 @@ export const getBlogPosts = cache(async (): Promise<BlogPostDTO[]> => {
 export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPostDTO | null> => {
   return unstable_cache(
     async () => {
-      try {
-        const post = await prisma.blogPost.findFirst({
-          where: { slug, published: true },
-          include: { tags: true }
-        });
-        return post ? toDTO<BlogPostDTO>(post) : null;
-      } catch (error) {
-        if (!process.env.CI) {
-          console.error(`Prisma error in getBlogPostBySlug(${slug}):`, error);
-        }
-        return null;
-      }
+      const post = await prisma.blogPost.findUnique({
+        where: { slug }
+      });
+      return post ? serializeData<BlogPostDTO>(post) : null;
     },
     [`blog-post-${slug}`],
     { revalidate: 3600, tags: ["blog", `blog-post-${slug}`] }
@@ -170,15 +121,11 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPostDTO
 export const getAllBlogPostSlugs = cache(async (): Promise<string[]> => {
   return unstable_cache(
     async () => {
-      try {
-        const posts = await prisma.blogPost.findMany({
-          where: { published: true },
-          select: { slug: true }
-        });
-        return posts.map(p => p.slug);
-      } catch {
-        return [];
-      }
+      const posts = await prisma.blogPost.findMany({
+        where: { published: true },
+        select: { slug: true }
+      });
+      return posts.map((p: { slug: string }) => p.slug);
     },
     ["blog-slugs"],
     { revalidate: 3600, tags: ["blog"] }
@@ -189,15 +136,8 @@ export const getAllBlogPostSlugs = cache(async (): Promise<string[]> => {
 export const getSiteSettings = cache(async (): Promise<SiteSettingsDTO | null> => {
   return unstable_cache(
     async () => {
-      try {
-        const settings = await prisma.siteSettings.findFirst();
-        return settings ? toDTO<SiteSettingsDTO>(settings) : null;
-      } catch (error) {
-        if (!process.env.CI) {
-          console.error("Prisma error in getSiteSettings:", error);
-        }
-        return null;
-      }
+      const settings = await prisma.settings.findFirst();
+      return settings ? serializeData<SiteSettingsDTO>(settings) : null;
     },
     ["site-settings"],
     { revalidate: 3600, tags: ["settings"] }
@@ -208,14 +148,10 @@ export const getSiteSettings = cache(async (): Promise<SiteSettingsDTO | null> =
 export const getCertifications = cache(async (): Promise<CertificationDTO[]> => {
   return unstable_cache(
     async () => {
-      try {
-        const items = await prisma.certification.findMany({
-          orderBy: { date: "desc" }
-        });
-        return toDTO<CertificationDTO[]>(items);
-      } catch {
-        return [];
-      }
+      const certifications = await prisma.certification.findMany({
+        orderBy: { date: 'desc' }
+      });
+      return serializeData<CertificationDTO[]>(certifications);
     },
     ["certifications"],
     { revalidate: 3600, tags: ["certifications"] }
@@ -226,14 +162,10 @@ export const getCertifications = cache(async (): Promise<CertificationDTO[]> => 
 export const getHackathons = cache(async (): Promise<HackathonDTO[]> => {
   return unstable_cache(
     async () => {
-      try {
-        const items = await prisma.hackathon.findMany({
-          orderBy: { date: "desc" }
-        });
-        return toDTO<HackathonDTO[]>(items);
-      } catch {
-        return [];
-      }
+      const hackathons = await prisma.hackathon.findMany({
+        orderBy: { date: 'desc' }
+      });
+      return serializeData<HackathonDTO[]>(hackathons);
     },
     ["hackathons"],
     { revalidate: 3600, tags: ["hackathons"] }
@@ -242,57 +174,43 @@ export const getHackathons = cache(async (): Promise<HackathonDTO[]> => {
 
 // Admin/Direct Access (Uncached)
 export async function getContactMessages(): Promise<ContactMessageDTO[]> {
-  try {
-    const messages = await prisma.contactMessage.findMany({
-      orderBy: { createdAt: "desc" }
-    });
-    return toDTO<ContactMessageDTO[]>(messages);
-  } catch {
-    return [];
-  }
+  const messages = await prisma.message.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
+  return serializeData<ContactMessageDTO[]>(messages);
 }
 
-export async function getProjectById(id: string): Promise<ProjectDTO | null> {
-  try {
-    const item = await prisma.project.findUnique({ where: { id }, include: { tags: true } });
-    return item ? toDTO<ProjectDTO>(item) : null;
-  } catch {
-    return null;
-  }
+export async function getProjectById(_id: string): Promise<ProjectDTO | null> {
+  const project = await prisma.project.findUnique({
+    where: { id: _id }
+  });
+  return project ? serializeData<ProjectDTO>(project) : null;
 }
 
-export async function getBlogPostById(id: string): Promise<BlogPostDTO | null> {
-  try {
-    const item = await prisma.blogPost.findUnique({ where: { id }, include: { tags: true } });
-    return item ? toDTO<BlogPostDTO>(item) : null;
-  } catch {
-    return null;
-  }
+export async function getBlogPostById(_id: string): Promise<BlogPostDTO | null> {
+  const post = await prisma.blogPost.findUnique({
+    where: { id: _id }
+  });
+  return post ? serializeData<BlogPostDTO>(post) : null;
 }
 
-export async function getExperienceById(id: string): Promise<ExperienceDTO | null> {
-  try {
-    const item = await prisma.experience.findUnique({ where: { id } });
-    return item ? toDTO<ExperienceDTO>(item) : null;
-  } catch {
-    return null;
-  }
+export async function getExperienceById(_id: string): Promise<ExperienceDTO | null> {
+  const experience = await prisma.experience.findUnique({
+    where: { id: _id }
+  });
+  return experience ? serializeData<ExperienceDTO>(experience) : null;
 }
 
-export async function getCertificationById(id: string): Promise<CertificationDTO | null> {
-  try {
-    const item = await prisma.certification.findUnique({ where: { id } });
-    return item ? toDTO<CertificationDTO>(item) : null;
-  } catch {
-    return null;
-  }
+export async function getCertificationById(_id: string): Promise<CertificationDTO | null> {
+  const certification = await prisma.certification.findUnique({
+    where: { id: _id }
+  });
+  return certification ? serializeData<CertificationDTO>(certification) : null;
 }
 
-export async function getHackathonById(id: string): Promise<HackathonDTO | null> {
-  try {
-    const item = await prisma.hackathon.findUnique({ where: { id } });
-    return item ? toDTO<HackathonDTO>(item) : null;
-  } catch {
-    return null;
-  }
+export async function getHackathonById(_id: string): Promise<HackathonDTO | null> {
+  const hackathon = await prisma.hackathon.findUnique({
+    where: { id: _id }
+  });
+  return hackathon ? serializeData<HackathonDTO>(hackathon) : null;
 }

@@ -1,27 +1,36 @@
-import { prisma } from "@/lib/prisma";
 import { dataResponse, errorResponse, requireAdmin, validationErrorResponse } from "@/lib/api";
 import { certificationSchema } from "@/lib/validations";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
     const certifications = await prisma.certification.findMany({
-      orderBy: { date: "desc" }
+      orderBy: { date: 'desc' }
     });
     return dataResponse(certifications);
-  } catch {
+  } catch (_error) {
     return errorResponse("Unable to fetch certifications");
   }
 }
 
 export async function POST(request: Request) {
+  const session = await requireAdmin();
+  if (!session) return errorResponse("Unauthorized", 401);
+
   try {
-    const session = await requireAdmin();
-    if (!session) return errorResponse("Unauthorized", 401);
-    const parsed = certificationSchema.safeParse(await request.json());
-    if (!parsed.success) return validationErrorResponse(parsed.error);
-    const certification = await prisma.certification.create({ data: parsed.data });
+    const body = await request.json();
+    const validated = certificationSchema.safeParse(body);
+    
+    if (!validated.success) {
+      return validationErrorResponse(validated.error);
+    }
+
+    const certification = await prisma.certification.create({
+      data: validated.data
+    });
+
     return dataResponse(certification, 201);
-  } catch {
+  } catch (_error) {
     return errorResponse("Unable to create certification");
   }
 }

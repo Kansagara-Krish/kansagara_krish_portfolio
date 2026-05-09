@@ -1,29 +1,42 @@
-import { prisma } from "@/lib/prisma";
 import { dataResponse, errorResponse, requireAdmin, validationErrorResponse } from "@/lib/api";
 import { hackathonSchema } from "@/lib/validations";
+import { prisma } from "@/lib/prisma";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const session = await requireAdmin();
+  if (!session) return errorResponse("Unauthorized", 401);
+
   try {
-    const session = await requireAdmin();
-    if (!session) return errorResponse("Unauthorized", 401);
-    const parsed = hackathonSchema.safeParse(await request.json());
-    if (!parsed.success) return validationErrorResponse(parsed.error);
-    const hackathon = await prisma.hackathon.update({ where: { id: id }, data: parsed.data });
+    const { id } = await params;
+    const body = await request.json();
+    const validated = hackathonSchema.safeParse(body);
+    
+    if (!validated.success) {
+      return validationErrorResponse(validated.error);
+    }
+
+    const hackathon = await prisma.hackathon.update({
+      where: { id },
+      data: validated.data
+    });
+
     return dataResponse(hackathon);
-  } catch {
+  } catch (_error) {
     return errorResponse("Unable to update hackathon");
   }
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const session = await requireAdmin();
+  if (!session) return errorResponse("Unauthorized", 401);
+
   try {
-    const session = await requireAdmin();
-    if (!session) return errorResponse("Unauthorized", 401);
-    await prisma.hackathon.delete({ where: { id: id } });
-    return dataResponse({ deleted: true });
-  } catch {
+    const { id } = await params;
+    await prisma.hackathon.delete({
+      where: { id }
+    });
+    return dataResponse({ message: "Hackathon deleted" });
+  } catch (_error) {
     return errorResponse("Unable to delete hackathon");
   }
 }

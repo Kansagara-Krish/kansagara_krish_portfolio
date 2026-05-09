@@ -59,8 +59,8 @@ export function ExperienceTimeline({ experiences }: { experiences: ExperienceDTO
               </p>
 
               <div className="mt-8 flex flex-wrap gap-2">
-                {item.skills.map((skill) => (
-                  <Badge key={skill} variant="muted" className="border-border/50 bg-surface/50 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-muted/80">
+                {item.skills.map((skill, index) => (
+                  <Badge key={`${skill}-${index}`} variant="muted" className="border-border/50 bg-surface/50 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-muted/80">
                     {skill}
                   </Badge>
                 ))}

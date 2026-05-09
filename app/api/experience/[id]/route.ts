@@ -1,53 +1,72 @@
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 import { dataResponse, errorResponse, requireAdmin, validationErrorResponse } from "@/lib/api";
 import { experienceSchema } from "@/lib/validations";
+import { prisma } from "@/lib/prisma";
 
 const reorderSchema = z.object({ order: z.coerce.number().int() });
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  try {
-    const session = await requireAdmin();
-    if (!session) return errorResponse("Unauthorized", 401);
+  const session = await requireAdmin();
+  if (!session) return errorResponse("Unauthorized", 401);
 
-    const parsed = experienceSchema.safeParse(await request.json());
-    if (!parsed.success) return validationErrorResponse(parsed.error);
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const validated = experienceSchema.safeParse(body);
+    
+    if (!validated.success) {
+      return validationErrorResponse(validated.error);
+    }
+
     const experience = await prisma.experience.update({
-      where: { id: id },
-      data: parsed.data
+      where: { id },
+      data: {
+        ...validated.data,
+        skills: validated.data.skills
+      }
     });
+
     return dataResponse(experience);
-  } catch {
+  } catch (_error) {
     return errorResponse("Unable to update experience");
   }
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const session = await requireAdmin();
+  if (!session) return errorResponse("Unauthorized", 401);
+
   try {
-    const session = await requireAdmin();
-    if (!session) return errorResponse("Unauthorized", 401);
-    const parsed = reorderSchema.safeParse(await request.json());
-    if (!parsed.success) return validationErrorResponse(parsed.error);
+    const { id } = await params;
+    const body = await request.json();
+    const validated = reorderSchema.safeParse(body);
+    
+    if (!validated.success) {
+      return validationErrorResponse(validated.error);
+    }
+
     const experience = await prisma.experience.update({
-      where: { id: id },
-      data: { order: parsed.data.order }
+      where: { id },
+      data: { order: validated.data.order }
     });
+
     return dataResponse(experience);
-  } catch {
+  } catch (_error) {
     return errorResponse("Unable to reorder experience");
   }
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const session = await requireAdmin();
+  if (!session) return errorResponse("Unauthorized", 401);
+
   try {
-    const session = await requireAdmin();
-    if (!session) return errorResponse("Unauthorized", 401);
-    await prisma.experience.delete({ where: { id: id } });
-    return dataResponse({ deleted: true });
-  } catch {
+    const { id } = await params;
+    await prisma.experience.delete({
+      where: { id }
+    });
+    return dataResponse({ message: "Experience deleted" });
+  } catch (_error) {
     return errorResponse("Unable to delete experience");
   }
 }

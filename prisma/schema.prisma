@@ -1,9 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlogPost {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  excerpt      String
+  content      String
+  contentFormat String   @default("mdx")
+  coverImage   String?
+  published    Boolean  @default(false)
+  readingTime  Int      @default(5)
+  tags         Json     @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Project {
@@ -12,45 +40,28 @@ model Project {
   slug          String   @unique
   description   String
   content       String
-  techStack     String[]
+  subtitle      String?
+  role          String?
+  client        String?
+  category      String?
+  timeline      String?
+  year          String?
+  problem       String?
+  solution      String?
+  impact        String?
+  features      Json     @default("[]")
+  outcomes      Json     @default("[]")
+  techStack     Json     @default("[]")
   liveUrl       String?
   githubUrl     String?
   imageUrl      String?
+  galleryImages Json     @default("[]")
+  projectLinks  Json     @default("[]")
   featured      Boolean  @default(false)
   status        String   @default("completed")
-  views         Int      @default(0)
+  tags          Json     @default("[]")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  category      String?
-  client        String?
-  features      String[] @default([])
-  galleryImages String[] @default([])
-  impact        String?
-  outcomes      String[] @default([])
-  problem       String?
-  projectLinks  Json     @default("[]")
-  role          String?
-  solution      String?
-  subtitle      String?
-  timeline      String?
-  year          String?
-  tags          Tag[]    @relation("ProjectTags")
-}
-
-model BlogPost {
-  id            String   @id @default(cuid())
-  title         String
-  slug          String   @unique
-  excerpt       String
-  content       String
-  coverImage    String?
-  published     Boolean  @default(false)
-  readingTime   Int      @default(5)
-  views         Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  contentFormat String   @default("mdx")
-  tags          Tag[]    @relation("BlogTags")
 }
 
 model Experience {
@@ -63,59 +74,33 @@ model Experience {
   endDate     DateTime?
   current     Boolean   @default(false)
   description String
-  skills      String[]
+  skills      Json      @default("[]")
   logoUrl     String?
   order       Int       @default(0)
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Certification {
+  id           String   @id @default(cuid())
+  name         String
+  issuer       String
+  date         DateTime
+  url          String?
+  credentialId String?
+  image        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Skill {
-  id       String  @id @default(cuid())
-  name     String
-  category String
-  iconUrl  String?
-  order    Int     @default(0)
-}
-
-model Tag {
-  id       String     @id @default(cuid())
-  name     String     @unique
-  posts    BlogPost[] @relation("BlogTags")
-  projects Project[]  @relation("ProjectTags")
-}
-
-model ContactMessage {
   id        String   @id @default(cuid())
   name      String
-  email     String
-  subject   String
-  message   String
-  read      Boolean  @default(false)
+  category  String
+  iconUrl   String?
+  order     Int      @default(0)
   createdAt DateTime @default(now())
-}
-
-model SiteSettings {
-  id              String   @id @default("singleton")
-  name            String   @default("Your Name")
-  title           String   @default("Full-Stack Engineer")
-  bio             String   @default("I build things for the web.")
-  email           String   @default("hello@example.com")
-  github          String?
-  linkedin        String?
-  twitter         String?
-  resumeUrl       String?
-  avatarUrl       String?
-  heroTagline     String?
-  openToWork      Boolean  @default(true)
-  resumeDownloads Int      @default(0)
-  updatedAt       DateTime @updatedAt
-}
-
-model AdminUser {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Hackathon {
@@ -130,30 +115,32 @@ model Hackathon {
   description String
   image       String?
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-model Certification {
-  id           String   @id @default(cuid())
-  name         String
-  issuer       String
-  date         DateTime
-  url          String?
-  credentialId String?
-  image        String?
-  createdAt    DateTime @default(now())
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
-model Education {
-  id          String    @id @default(cuid())
-  institution String
-  degree      String
-  field       String?
-  location    String?
-  startDate   DateTime
-  endDate     DateTime?
-  current     Boolean   @default(false)
-  description String?
-  gpa         String?
-  order       Int       @default(0)
-  createdAt   DateTime  @default(now())
+model Settings {
+  id            String   @id @default(cuid())
+  name          String
+  title         String
+  bio           String
+  email         String
+  github        String?
+  linkedin      String?
+  twitter       String?
+  resumeUrl     String?
+  avatarUrl     String?
+  heroTagline   String?
+  openToWork    Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

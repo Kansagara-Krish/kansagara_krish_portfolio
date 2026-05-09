@@ -1,29 +1,33 @@
-import { prisma } from "@/lib/prisma";
 import { dataResponse, errorResponse, requireAdmin } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 export async function PATCH(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const session = await requireAdmin();
+  if (!session) return errorResponse("Unauthorized", 401);
+
   try {
-    const session = await requireAdmin();
-    if (!session) return errorResponse("Unauthorized", 401);
-    const message = await prisma.contactMessage.update({
-      where: { id: id },
+    const { id } = await params;
+    const message = await prisma.message.update({
+      where: { id },
       data: { read: true }
     });
     return dataResponse(message);
-  } catch {
+  } catch (_error) {
     return errorResponse("Unable to mark message as read");
   }
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const session = await requireAdmin();
+  if (!session) return errorResponse("Unauthorized", 401);
+
   try {
-    const session = await requireAdmin();
-    if (!session) return errorResponse("Unauthorized", 401);
-    await prisma.contactMessage.delete({ where: { id: id } });
-    return dataResponse({ deleted: true });
-  } catch {
+    const { id } = await params;
+    await prisma.message.delete({
+      where: { id }
+    });
+    return dataResponse({ message: "Message deleted" });
+  } catch (_error) {
     return errorResponse("Unable to delete message");
   }
 }

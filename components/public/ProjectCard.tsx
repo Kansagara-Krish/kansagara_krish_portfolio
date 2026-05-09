@@ -37,8 +37,8 @@ export function ProjectCard({ project }: { project: ProjectDTO }) {
         
         <div className="mt-auto">
           <div className="mb-5 flex flex-wrap gap-1.5">
-            {project.techStack.slice(0, 3).map((tech) => (
-              <Badge key={tech} variant="muted" className="bg-primary/5 text-[10px] font-semibold uppercase tracking-wider text-primary dark:bg-primary/10">
+            {project.techStack.slice(0, 3).map((tech, index) => (
+              <Badge key={`${tech}-${index}`} variant="muted" className="bg-primary/5 text-[10px] font-semibold uppercase tracking-wider text-primary dark:bg-primary/10">
                 {tech}
               </Badge>
             ))}

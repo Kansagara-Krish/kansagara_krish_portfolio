@@ -1,471 +1,432 @@
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@/generated/prisma/client";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
-import { slugify } from "../lib/utils";
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not set");
+}
 
-const longPost = (topic: string) => `
-## ${topic}
+const adapter = new PrismaPg({
+  connectionString,
+});
 
-${topic} is strongest when architecture decisions stay close to real user workflows. In portfolio projects, dashboards, and internal tools, the best systems are rarely the ones with the most ceremony. They are the ones where data models, validation, loading states, and visual hierarchy work together so the next action feels obvious.
-
-![Desk with code and interface notes](https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&h=800&fit=crop)
-
-### Practical constraints
-
-- Who maintains the feature after launch?
-- What data can be trusted?
-- Which failures are likely in production?
-- What does the user need to decide next?
-
-| Area | Detail |
-| --- | --- |
-| Content | Draft states, predictable slugs, image support |
-| Projects | Case-study fields, galleries, useful external links |
-| Contact | Validation, feedback, and reliable delivery |
-
-<Callout>
-Good engineering is a habit of finishing the details: accessible labels, readable empty states, confirmation dialogs, consistent dates, and meaningful admin screens.
-</Callout>
-
-The same mindset applies to performance. Server-rendered data, small client components, and focused animations let the page feel polished without hiding slow interactions behind visual noise.
-`;
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const adminEmail = (process.env.ADMIN_EMAIL ?? "admin@example.com").toLowerCase();
-  const adminPassword = process.env.ADMIN_PASSWORD ?? "admin123456";
+  console.log('Starting seed...');
 
-  await prisma.adminUser.upsert({
-    where: { email: adminEmail },
-    update: { password: await bcrypt.hash(adminPassword, 12) },
+  // Create admin user
+  const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 10);
+  const admin = await prisma.user.upsert({
+    where: { email: process.env.ADMIN_EMAIL || 'admin@example.com' },
+    update: {},
     create: {
-      email: adminEmail,
-      password: await bcrypt.hash(adminPassword, 12)
-    }
+      email: process.env.ADMIN_EMAIL || 'admin@example.com',
+      password: hashedPassword,
+      name: 'Admin User',
+    },
   });
+  console.log('Created admin user:', admin.email);
 
-  const siteSettings = {
-    name: "Pratham Rajbhar",
-    title: "Computer Engineering Student",
-    bio: "Motivated Computer Engineering undergraduate (B.Tech, 6th Semester, Ganpat University) with a 9.4 CGPA in Diploma and real-world experience across 6 hackathons where I built and shipped working products under tight deadlines. I am comfortable across the full stack, from building interfaces to designing backend systems and integrating AI features.",
-    email: "pratham.rajbhar@gmail.com",
-    github: "https://github.com/prathamrajbhar",
-    linkedin: "https://linkedin.com/in/prathamrajbhar",
-    twitter: null,
-    resumeUrl: "/resume.pdf",
-    avatarUrl: null,
-    heroTagline: "Computer Engineering student building full-stack AI applications and real-time systems.",
-    openToWork: true
-  };
-
-  await prisma.siteSettings.upsert({
-    where: { id: "singleton" },
-    update: siteSettings,
+  // Create default settings
+  await prisma.settings.upsert({
+    where: { id: 'default' },
+    update: {},
     create: {
-      id: "singleton",
-      ...siteSettings
-    }
+      name: 'Pratham Rajbhar',
+      title: 'Full Stack Developer',
+      bio: 'Passionate developer with expertise in building modern web applications using React, Next.js, Node.js, and PostgreSQL. I love creating efficient, scalable solutions and exploring new technologies.',
+      email: process.env.ADMIN_EMAIL || 'admin@example.com',
+      github: 'https://github.com/prathamrajbhar',
+      linkedin: 'https://linkedin.com/in/prathamrajbhar',
+      twitter: 'https://twitter.com/prathamrajbhar',
+      heroTagline: 'Building the future, one line of code at a time',
+      openToWork: true,
+    },
   });
+  console.log('Created default settings');
 
-  const tagNames = [
-    "FastAPI", "React", "Next.js", "Flutter", "AI", "LangChain", "WebSockets", "Blockchain", 
-    "Python", "JavaScript", "SQL", "Dart", "Node.js", "Docker", "PostgreSQL", "MongoDB", 
-    "SQLite", "Mobile", "LangGraph", "Vector Databases", "RAG", "Education", "Frontend", "Backend"
-  ];
-  await Promise.all(
-    tagNames.map((name) =>
-      prisma.tag.upsert({
-        where: { name },
-        update: {},
-        create: { name }
-      })
-    )
-  );
-
-  const projects = [
-    {
-      title: "KeplerLab AI Notebook",
-      description: "Full-stack AI platform with modular FastAPI routes, AI chat agents, and sandboxed code execution.",
-      subtitle: "Comprehensive AI development and learning platform",
-      content: "<p>Built a full-stack AI platform with 25+ modular FastAPI routes covering JWT + OAuth authentication, AI chat agents, flashcard/quiz generation, mind maps, podcast creation with live text-to-speech, and sandboxed code execution.</p><p>Implemented production-ready backend infrastructure including LangChain AI pipelines, realtime WebSocket communication, rate limiting, circuit breakers, and performance monitoring.</p>",
-      role: "Lead Developer",
-      client: "Personal Project",
-      category: "AI / Web",
-      timeline: "Ongoing",
-      year: "2024",
-      problem: "Fragmented tools for AI learning and development.",
-      solution: "A unified notebook experience with integrated AI agents and sandboxed execution.",
-      impact: "Streamlined AI workflow for developers.",
-      features: ["AI chat agents", "Flashcard/quiz generation", "Mind maps", "Podcast creation", "Sandboxed code execution"],
-      outcomes: ["Full implementation of LangChain pipelines", "Real-time collaboration features"],
-      galleryImages: [],
-      projectLinks: [],
-      techStack: ["FastAPI", "Next.js", "LangChain", "Zustand", "WebSockets"],
-      liveUrl: "https://keplerlab.tech",
-      githubUrl: "https://github.com/prathamrajbhar",
-      imageUrl: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&h=800&fit=crop",
-      featured: true,
-      status: "completed",
-      tags: ["FastAPI", "Next.js", "AI", "LangChain"]
-    },
-    {
-      title: "Smart Tourist Safety Monitoring",
-      description: "Flutter app with background GPS tracking and live AI safety scoring.",
-      subtitle: "Real-time safety for travelers powered by AI",
-      content: "<p>Built a Flutter app with background GPS tracking, live AI safety score (0–100), and an SOS panic button, powered by a FastAPI backend using Isolation Forest + Temporal Analysis + Geofencing models that retrain every 60 seconds on live Supabase data.</p><p>Delivered a React.js police dashboard with real-time WebSocket alerts, polygon zone management, broadcast notifications, and blockchain-backed E-FIR PDF reports.</p>",
-      role: "Full-stack Developer",
-      client: "Hackathon Project",
-      category: "Mobile / AI",
-      timeline: "Hackathon",
-      year: "2024",
-      problem: "Lack of real-time safety monitoring for tourists in unfamiliar areas.",
-      solution: "Predictive safety scoring using environmental data and real-time GPS tracking.",
-      impact: "Improved emergency response times and proactive threat detection.",
-      features: ["Background GPS tracking", "AI safety score", "SOS panic button", "Police dashboard", "Blockchain E-FIR"],
-      outcomes: ["Successful deployment during hackathon", "Real-time alert system verified"],
-      galleryImages: [],
-      projectLinks: [],
-      techStack: ["Flutter", "FastAPI", "Supabase", "React.js", "Blockchain"],
-      liveUrl: null,
-      githubUrl: "https://github.com/prathamrajbhar",
-      imageUrl: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&h=800&fit=crop",
-      featured: true,
-      status: "completed",
-      tags: ["Flutter", "FastAPI", "AI", "Blockchain"]
-    },
-    {
-      title: "Balanza Finance Tracker",
-      description: "Cross-platform mobile app for real-time income and expense tracking.",
-      subtitle: "Simple and secure personal finance management",
-      content: "<p>Built a cross-platform mobile app using Flutter for real-time income and expense tracking with dynamic balance updates and interactive spending charts.</p><p>Secured all financial data locally using SQLite encryption, ensuring user privacy with consistent read/write performance on both Android and iOS.</p>",
-      role: "Mobile Developer",
-      client: "Personal Project",
-      category: "Mobile",
-      timeline: "4 weeks",
-      year: "2023",
-      problem: "Complex finance trackers with poor privacy.",
-      solution: "Local-first, encrypted finance tracking with simple visualization.",
-      impact: "Users can manage finances securely without cloud dependency.",
-      features: ["Income/expense tracking", "Dynamic balance updates", "Spending charts", "SQLite encryption"],
-      outcomes: ["Cross-platform performance optimization", "Secure local storage implementation"],
-      galleryImages: [],
-      projectLinks: [],
-      techStack: ["Flutter", "SQLite", "Dart"],
-      liveUrl: null,
-      githubUrl: "https://github.com/prathamrajbhar",
-      imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&h=800&fit=crop",
-      featured: true,
-      status: "completed",
-      tags: ["Flutter", "SQLite", "Dart"]
-    }
+  // Create comprehensive skills
+  const skills = [
+    { name: 'TypeScript', category: 'Frontend', order: 1 },
+    { name: 'JavaScript', category: 'Frontend', order: 2 },
+    { name: 'React', category: 'Frontend', order: 3 },
+    { name: 'Next.js', category: 'Frontend', order: 4 },
+    { name: 'Vue.js', category: 'Frontend', order: 5 },
+    { name: 'Node.js', category: 'Backend', order: 6 },
+    { name: 'Express', category: 'Backend', order: 7 },
+    { name: 'NestJS', category: 'Backend', order: 8 },
+    { name: 'PostgreSQL', category: 'Database', order: 9 },
+    { name: 'MongoDB', category: 'Database', order: 10 },
+    { name: 'Prisma', category: 'Backend', order: 11 },
+    { name: 'Tailwind CSS', category: 'Frontend', order: 12 },
+    { name: 'CSS3', category: 'Frontend', order: 13 },
+    { name: 'HTML5', category: 'Frontend', order: 14 },
+    { name: 'Git', category: 'Tools', order: 15 },
+    { name: 'Docker', category: 'DevOps', order: 16 },
+    { name: 'AWS', category: 'DevOps', order: 17 },
+    { name: 'REST APIs', category: 'Backend', order: 18 },
+    { name: 'GraphQL', category: 'Backend', order: 19 },
+    { name: 'Testing', category: 'Tools', order: 20 },
   ];
 
-  await prisma.project.deleteMany({});
-  for (const project of projects) {
-    await prisma.project.create({
-      data: {
-        title: project.title,
-        slug: slugify(project.title),
-        description: project.description,
-        content: project.content,
-        subtitle: project.subtitle,
-        role: project.role,
-        client: project.client,
-        category: project.category,
-        timeline: project.timeline,
-        year: project.year,
-        problem: project.problem,
-        solution: project.solution,
-        impact: project.impact,
-        features: project.features,
-        outcomes: project.outcomes,
-        techStack: project.techStack,
-        liveUrl: project.liveUrl,
-        githubUrl: project.githubUrl,
-        imageUrl: project.imageUrl,
-        galleryImages: project.galleryImages,
-        projectLinks: project.projectLinks,
-        featured: project.featured,
-        status: project.status,
-        tags: {
-          connect: project.tags.map((name) => ({ name }))
-        }
-      }
+  for (const skill of skills) {
+    await prisma.skill.upsert({
+      where: { id: skill.name.toLowerCase().replace(/\s+/g, '-') },
+      update: {},
+      create: skill,
     });
   }
+  console.log('Created sample skills');
 
-  await prisma.blogPost.deleteMany({});
-  const posts = [
-    {
-      title: "The Rise of Agentic AI: Why LLMs Need Tools",
-      excerpt: "Exploring the shift from simple chatbots to autonomous AI agents that can use tools and perform complex workflows.",
-      content: longPost("The Rise of Agentic AI"),
-      published: true,
-      tags: ["AI", "Next.js", "LangChain"]
-    },
-    {
-      title: "FastAPI vs. Node.js: Choosing the Right Backend for 2024",
-      excerpt: "A deep dive into performance, developer experience, and ecosystem for high-concurrency applications.",
-      content: longPost("FastAPI vs. Node.js"),
-      published: true,
-      tags: ["FastAPI", "Node.js", "PostgreSQL"]
-    },
-    {
-      title: "Flutter for AI Applications: A Match Made in Heaven?",
-      excerpt: "How to integrate complex AI models into mobile applications with Flutter's reactive architecture.",
-      content: longPost("Flutter for AI"),
-      published: true,
-      tags: ["Flutter", "AI", "Mobile"]
-    },
-    {
-      title: "Mastering React 19: New Hooks and Features",
-      excerpt: "What's new in React 19 and how it changes the way we build modern web interfaces.",
-      content: longPost("Mastering React 19"),
-      published: true,
-      tags: ["React", "Next.js", "JavaScript"]
-    }
-  ];
-
-  for (const post of posts) {
-    await prisma.blogPost.create({
-      data: {
-        title: post.title,
-        slug: slugify(post.title),
-        excerpt: post.excerpt,
-        content: post.content,
-        published: post.published,
-        tags: {
-          connect: post.tags.map(name => ({ name }))
-        }
-      }
-    });
-  }
-
-  await prisma.experience.deleteMany({});
+  // Create comprehensive experience
   const experiences = [
     {
-      company: "AI Research Lab, Ganpat University",
-      role: "AI Research Intern",
-      location: "Mehsana, Gujarat",
-      type: "internship",
-      startDate: new Date("2024-06-01"),
+      id: 'exp-1',
+      company: 'Tech Innovations Inc',
+      role: 'Senior Full Stack Developer',
+      location: 'San Francisco, CA',
+      type: 'full-time',
+      startDate: new Date('2023-06-01'),
       current: true,
-      description: "Leading research on autonomous agents using LangChain and LangGraph. Developed a system for automated research paper summarization and knowledge graph extraction.",
-      skills: ["LangChain", "Python", "Vector Databases"],
-      order: 1
+      description: 'Leading a team of 5 developers to build scalable web applications. Implemented microservices architecture and improved system performance by 40%. Mentoring junior developers and conducting code reviews.',
+      skills: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'AWS', 'Docker'],
+      order: 1,
     },
     {
-      company: "Tech Solutions Inc.",
-      role: "Full-Stack Developer Intern",
-      location: "Ahmedabad, Gujarat",
-      type: "internship",
-      startDate: new Date("2024-01-01"),
-      endDate: new Date("2024-05-31"),
+      id: 'exp-2',
+      company: 'Digital Solutions LLC',
+      role: 'Full Stack Developer',
+      location: 'Remote',
+      type: 'full-time',
+      startDate: new Date('2021-03-01'),
+      endDate: new Date('2023-05-31'),
       current: false,
-      description: "Developed and maintained several client-facing web applications using Next.js and FastAPI. Optimized database queries resulting in a 40% reduction in API latency.",
-      skills: ["Next.js", "FastAPI", "PostgreSQL"],
-      order: 2
+      description: 'Developed and maintained multiple client-facing applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions on time.',
+      skills: ['JavaScript', 'React', 'Express', 'MongoDB', 'Git'],
+      order: 2,
     },
     {
-      company: "Freelance Development",
-      role: "Web Developer",
-      location: "Remote",
-      type: "contract",
-      startDate: new Date("2022-08-01"),
-      endDate: new Date("2023-12-31"),
+      id: 'exp-3',
+      company: 'StartUp Hub',
+      role: 'Junior Developer',
+      location: 'New York, NY',
+      type: 'full-time',
+      startDate: new Date('2019-07-01'),
+      endDate: new Date('2021-02-28'),
       current: false,
-      description: "Delivered custom web solutions for 10+ local businesses. Focused on SEO, performance, and responsive design using React and Tailwind CSS.",
-      skills: ["React", "Tailwind CSS", "JavaScript"],
-      order: 3
-    }
+      description: 'Built responsive web applications and APIs using modern JavaScript frameworks. Participated in agile development processes and contributed to project planning.',
+      skills: ['HTML5', 'CSS3', 'JavaScript', 'Vue.js', 'Node.js'],
+      order: 3,
+    },
   ];
 
   for (const exp of experiences) {
-    await prisma.experience.create({ data: exp });
+    await prisma.experience.upsert({
+      where: { id: exp.id },
+      update: {},
+      create: exp,
+    });
   }
+  console.log('Created sample experience');
 
-  const skills = [
-    ["Python", "Languages", 1],
-    ["JavaScript", "Languages", 2],
-    ["SQL", "Languages", 3],
-    ["Dart", "Languages", 4],
-    ["TypeScript", "Languages", 5],
-    ["React.js", "Frontend", 6],
-    ["Next.js", "Frontend", 7],
-    ["Tailwind CSS", "Frontend", 8],
-    ["Zustand", "Frontend", 9],
-    ["Flutter", "Mobile", 10],
-    ["React Native", "Mobile", 11],
-    ["FastAPI", "Backend", 12],
-    ["Node.js", "Backend", 13],
-    ["REST APIs", "Backend", 14],
-    ["WebSockets", "Backend", 15],
-    ["Prisma", "Backend", 16],
-    ["LangChain", "AI & LLMs", 17],
-    ["LangGraph", "AI & LLMs", 18],
-    ["Vector Databases", "AI & LLMs", 19],
-    ["Prompt Engineering", "AI & LLMs", 20],
-    ["TensorFlow", "AI & LLMs", 21],
-    ["PyTorch", "AI & LLMs", 22],
-    ["PostgreSQL", "Databases", 23],
-    ["MongoDB", "Databases", 24],
-    ["Redis", "Databases", 25],
-    ["Docker", "Tools", 26],
-    ["CI/CD", "Tools", 27],
-    ["Git", "Tools", 28],
-    ["Linux", "Tools", 29]
-  ] as const;
+  // Create comprehensive certifications
+  const certifications = [
+    {
+      id: 'cert-1',
+      name: 'AWS Certified Solutions Architect',
+      issuer: 'Amazon Web Services',
+      date: new Date('2023-09-15'),
+      url: 'https://aws.amazon.com/certification/',
+      credentialId: 'AWS-SA-2023',
+    },
+    {
+      id: 'cert-2',
+      name: 'Meta Front-End Developer Professional Certificate',
+      issuer: 'Meta',
+      date: new Date('2022-11-20'),
+      url: 'https://www.coursera.org/professional-certificates/meta-front-end-developer',
+    },
+    {
+      id: 'cert-3',
+      name: 'Google Cloud Professional Developer',
+      issuer: 'Google Cloud',
+      date: new Date('2022-08-10'),
+      url: 'https://cloud.google.com/certification/cloud-developer',
+    },
+    {
+      id: 'cert-4',
+      name: 'MongoDB Certified Developer',
+      issuer: 'MongoDB',
+      date: new Date('2022-03-15'),
+      url: 'https://www.mongodb.com/docs/manual/administration/developer-certification/',
+    },
+  ];
 
-  await prisma.skill.deleteMany({});
-  for (const [name, category, order] of skills) {
-    await prisma.skill.create({ data: { name, category, order } });
+  for (const cert of certifications) {
+    await prisma.certification.upsert({
+      where: { id: cert.id },
+      update: {},
+      create: cert,
+    });
   }
+  console.log('Created sample certifications');
 
-  await prisma.education.deleteMany({});
-  await prisma.education.createMany({
-    data: [
-      {
-        institution: "Ganpat University",
-        degree: "Bachelor of Technology",
-        field: "Computer Engineering",
-        startDate: new Date("2024-08-01"),
-        current: true,
-        description: "Focus Areas: LLMs & AI Agents · Full-Stack Development · Real-Time Systems · Generative AI",
-        order: 1
-      },
-      {
-        institution: "Ganpat University",
-        degree: "Diploma",
-        field: "Computer Engineering",
-        startDate: new Date("2021-09-01"),
-        endDate: new Date("2024-07-01"),
-        current: false,
-        description: "CGPA: 9.4 | Distinguished Member",
-        gpa: "9.4",
-        order: 2
-      }
-    ]
-  });
+  // Create comprehensive hackathons
+  const hackathons = [
+    {
+      id: 'hack-1',
+      title: 'Global Tech Hackathon 2023',
+      project: 'AI-Powered Task Manager',
+      role: 'Full Stack Developer',
+      date: new Date('2023-10-15'),
+      location: 'San Francisco, CA',
+      result: '2nd Place',
+      link: 'https://devpost.com/',
+      description: 'Built an AI-powered task management application using OpenAI API, React, and Node.js. The app uses natural language processing to categorize and prioritize tasks automatically.',
+    },
+    {
+      id: 'hack-2',
+      title: 'EcoHack 2023',
+      project: 'Carbon Footprint Tracker',
+      role: 'Frontend Developer',
+      date: new Date('2023-04-20'),
+      location: 'Virtual',
+      result: 'Winner',
+      link: 'https://devpost.com/',
+      description: 'Developed a web application to track and visualize carbon footprint using real-time data. Implemented interactive charts and gamification features to encourage eco-friendly behavior.',
+    },
+    {
+      id: 'hack-3',
+      title: 'FinTech Innovation Challenge',
+      project: 'Personal Finance Dashboard',
+      role: 'Team Lead',
+      date: new Date('2022-11-10'),
+      location: 'New York, NY',
+      result: 'Finalist',
+      link: 'https://devpost.com/',
+      description: 'Led a team of 4 to build a comprehensive personal finance dashboard with budget tracking, investment analysis, and financial goal setting features.',
+    },
+  ];
 
-  await prisma.hackathon.deleteMany({});
-  await prisma.hackathon.createMany({
-    data: [
-      {
-        title: "Smart India Hackathon 2024",
-        project: "Smart Tourist Safety Monitoring System",
-        role: "Lead Developer",
-        date: new Date("2024-09-15"),
-        location: "Nodal Center, India",
-        result: "Winner / Finalist",
-        link: "https://github.com/prathamrajbhar",
-        description: "Developed an AI-driven safety system for tourists with real-time tracking and emergency response orchestration.",
-        image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop"
-      },
-      {
-        title: "HackGujarat 2024",
-        project: "AI Health Assistant",
-        role: "AI Lead",
-        date: new Date("2024-07-20"),
-        location: "Virtual",
-        result: "Finalist",
-        link: "https://github.com/prathamrajbhar",
-        description: "Built a diagnostic assistant using RAG (Retrieval Augmented Generation) to provide medical insights based on health records.",
-        image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop"
-      },
-      {
-        title: "University Innovation Hack",
-        project: "Balanza Finance",
-        role: "Mobile Lead",
-        date: new Date("2023-11-20"),
-        location: "Ganpat University",
-        result: "Top 3",
-        link: "https://github.com/prathamrajbhar",
-        description: "Created a privacy-focused finance tracker with local encryption and real-time visualization.",
-        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop"
-      },
-      {
-        title: "Google Cloud Community Day Hack",
-        project: "EcoTrack",
-        role: "Full-Stack Developer",
-        date: new Date("2023-08-10"),
-        location: "Ahmedabad",
-        result: "Runner Up",
-        link: "https://github.com/prathamrajbhar",
-        description: "Application to track carbon footprint of individual users based on their daily commute and utility usage.",
-        image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=600&fit=crop"
-      },
-      {
-        title: "Buildathon 2.0",
-        project: "SkillChain",
-        role: "Backend Developer",
-        date: new Date("2023-05-05"),
-        location: "Ganpat University",
-        result: "Top 5",
-        link: "https://github.com/prathamrajbhar",
-        description: "Blockchain-based credential verification system integrated with AI for skill gap analysis.",
-        image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc4b?w=800&h=600&fit=crop"
-      },
-      {
-        title: "DevFest Ahmedabad Hack",
-        project: "Local Connect",
-        role: "Participant",
-        date: new Date("2022-10-15"),
-        location: "Ahmedabad",
-        result: "Participated",
-        link: "https://github.com/prathamrajbhar",
-        description: "A community platform to connect local artisans with urban customers.",
-        image: "https://images.unsplash.com/photo-1522071823991-b96c0d3eccc0?w=800&h=600&fit=crop"
-      }
-    ]
-  });
+  for (const hack of hackathons) {
+    await prisma.hackathon.upsert({
+      where: { id: hack.id },
+      update: {},
+      create: hack,
+    });
+  }
+  console.log('Created sample hackathons');
 
-  await prisma.certification.deleteMany({});
-  await prisma.certification.createMany({
-    data: [
-      {
-        name: "Deep Learning Specialization",
-        issuer: "DeepLearning.AI / Coursera",
-        date: new Date("2024-05-01"),
-        url: "https://coursera.org",
-        credentialId: "DL-123456",
-        image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop"
-      },
-      {
-        name: "Google Cloud Certified Associate Cloud Engineer",
-        issuer: "Google Cloud",
-        date: new Date("2024-03-15"),
-        url: "https://cloud.google.com",
-        credentialId: "GCP-ACE-789",
-        image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&h=600&fit=crop"
-      },
-      {
-        name: "TensorFlow Developer Certificate",
-        issuer: "Google",
-        date: new Date("2024-01-10"),
-        url: "https://www.tensorflow.org/certificate",
-        credentialId: "TF-DEV-999",
-        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=600&fit=crop"
-      },
-      {
-        name: "Meta Front-End Developer Professional Certificate",
-        issuer: "Meta / Coursera",
-        date: new Date("2023-11-05"),
-        url: "https://coursera.org",
-        credentialId: "META-FE-555",
-        image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&h=600&fit=crop"
-      }
-    ]
-  });
+  // Create comprehensive blog posts
+  const blogPosts = [
+    {
+      id: 'blog-1',
+      title: 'Getting Started with Next.js 15 and Prisma 7',
+      slug: 'getting-started-with-nextjs-15-and-prisma-7',
+      excerpt: 'A comprehensive guide to setting up a modern web application with the latest versions of Next.js and Prisma.',
+      content: '# Getting Started with Next.js 15 and Prisma 7\n\nIn this tutorial, we will explore how to build a modern web application using Next.js 15 and Prisma 7. These latest versions bring significant improvements in performance and developer experience.\n\n## Prerequisites\n\n- Node.js 20+\n- Basic knowledge of React and TypeScript\n- PostgreSQL database\n\n## Setting Up the Project\n\nFirst, create a new Next.js project using the CLI:\n\n```bash\nnpx create-next-app@latest my-app\n```\n\n## Installing Prisma\n\nInstall Prisma and the PostgreSQL adapter:\n\n```bash\nnpm install @prisma/client @prisma/adapter-pg\nnpm install -D prisma\n```\n\n## Conclusion\n\nThis setup provides a solid foundation for building scalable web applications with modern tools.',
+      contentFormat: 'mdx',
+      coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c',
+      published: true,
+      readingTime: 8,
+      tags: [{ id: 'nextjs', name: 'Next.js' }, { id: 'prisma', name: 'Prisma' }, { id: 'typescript', name: 'TypeScript' }, { id: 'tutorial', name: 'Tutorial' }],
+    },
+    {
+      id: 'blog-2',
+      title: 'Building Scalable APIs with Node.js and Express',
+      slug: 'building-scalable-apis-with-nodejs-and-express',
+      excerpt: 'Learn best practices for building production-ready APIs that can handle high traffic and maintain code quality.',
+      content: '# Building Scalable APIs with Node.js and Express\n\nBuilding scalable APIs requires careful consideration of architecture, performance, and maintainability. In this article, we will explore key principles and patterns for creating robust API services.\n\n## Architecture Patterns\n\n### Layered Architecture\n\nSeparate your application into distinct layers:\n- Controllers: Handle HTTP requests\n- Services: Business logic\n- Repositories: Data access\n\n## Performance Optimization\n\n### Caching Strategies\n\nImplement caching at multiple levels:\n- Application-level caching\n- Database query caching\n- CDN for static assets\n\n## Security Best Practices\n\nAlways validate input and implement proper authentication and authorization.',
+      contentFormat: 'mdx',
+      coverImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31',
+      published: true,
+      readingTime: 12,
+      tags: [{ id: 'nodejs', name: 'Node.js' }, { id: 'express', name: 'Express' }, { id: 'api', name: 'API' }, { id: 'architecture', name: 'Architecture' }],
+    },
+    {
+      id: 'blog-3',
+      title: 'Mastering TypeScript: Advanced Patterns',
+      slug: 'mastering-typescript-advanced-patterns',
+      excerpt: 'Deep dive into advanced TypeScript patterns that will help you write more maintainable and type-safe code.',
+      content: '# Mastering TypeScript: Advanced Patterns\n\nTypeScript offers powerful features that go beyond basic type checking. Let us explore some advanced patterns that can significantly improve your code quality.\n\n## Generic Types\n\nGenerics allow you to create reusable components:\n\n```typescript\nfunction identity<T>(arg: T): T {\n  return arg;\n}\n```\n\n## Utility Types\n\nTypeScript provides built-in utility types:\n- Partial<T>\n- Required<T>\n- Readonly<T>\n- Pick<T, K>\n\n## Conditional Types\n\nCreate types that depend on other types:\n\n```typescript\ntype NonNullable<T> = T extends null | undefined ? never : T;\n```',
+      contentFormat: 'mdx',
+      coverImage: 'https://images.unsplash.com/photo-1516117172878-fd2c41f4a759',
+      published: true,
+      readingTime: 15,
+      tags: [{ id: 'typescript', name: 'TypeScript' }, { id: 'advanced', name: 'Advanced' }, { id: 'patterns', name: 'Patterns' }],
+    },
+    {
+      id: 'blog-4',
+      title: 'Introduction to Microservices Architecture',
+      slug: 'introduction-to-microservices-architecture',
+      excerpt: 'Understanding the fundamentals of microservices and when to use them in your applications.',
+      content: '# Introduction to Microservices Architecture\n\nMicroservices architecture has become a popular approach for building complex applications. This guide will help you understand the core concepts and decide if it is right for your project.\n\n## What are Microservices?\n\nMicroservices are an architectural style that structures an application as a collection of loosely coupled services.\n\n## Benefits\n\n- Independent deployment\n- Technology diversity\n- Scalability\n- Fault isolation\n\n## Challenges\n\n- Increased complexity\n- Distributed system debugging\n- Data consistency\n\n## When to Use\n\nConsider microservices when:\n- You need independent scaling\n- Multiple teams work on different parts\n- You require technology diversity',
+      contentFormat: 'mdx',
+      coverImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa',
+      published: false,
+      readingTime: 10,
+      tags: [{ id: 'architecture', name: 'Architecture' }, { id: 'microservices', name: 'Microservices' }, { id: 'design', name: 'Design' }],
+    },
+  ];
 
-  await prisma.contactMessage.deleteMany({});
+  for (const post of blogPosts) {
+    await prisma.blogPost.upsert({
+      where: { id: post.id },
+      update: {},
+      create: post,
+    });
+  }
+  console.log('Created sample blog posts');
+
+  // Create comprehensive projects
+  const projects = [
+    {
+      id: 'proj-1',
+      title: 'E-Commerce Platform',
+      slug: 'e-commerce-platform',
+      description: 'A full-featured e-commerce platform with real-time inventory management, payment processing, and order tracking.',
+      content: '# E-Commerce Platform\n\nA comprehensive e-commerce solution built with modern technologies.',
+      subtitle: 'Modern Shopping Experience',
+      role: 'Lead Developer',
+      client: 'Retail Co',
+      category: 'Web Application',
+      timeline: '6 months',
+      year: '2023',
+      problem: 'The client needed a scalable e-commerce solution that could handle high traffic during peak seasons while maintaining excellent performance and user experience.',
+      solution: 'Built a microservices-based architecture with Next.js frontend and Node.js backend. Implemented Redis caching, CDN integration, and database sharding for optimal performance.',
+      impact: 'Increased sales by 40% and improved page load times by 60%. System can now handle 10x more concurrent users.',
+      features: ['Real-time inventory', 'Multi-payment support', 'Advanced search', 'Analytics dashboard', 'Mobile-responsive design'],
+      outcomes: ['40% increase in sales', '60% faster page loads', '10x scalability', '99.9% uptime'],
+      techStack: ['Next.js', 'Node.js', 'PostgreSQL', 'Redis', 'Stripe', 'AWS'],
+      liveUrl: 'https://example.com',
+      githubUrl: 'https://github.com/prathamrajbhar/ecommerce',
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+      galleryImages: [
+        'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d',
+        'https://images.unsplash.com/photo-1563013544-824ae1b704d3',
+      ],
+      projectLinks: [
+        { title: 'Live Demo', url: 'https://example.com' },
+        { title: 'Case Study', url: 'https://example.com/case-study' },
+      ],
+      featured: true,
+      status: 'completed',
+      tags: ['E-Commerce', 'Full Stack', 'Scalability'],
+    },
+    {
+      id: 'proj-2',
+      title: 'Task Management App',
+      slug: 'task-management-app',
+      description: 'A collaborative task management application with real-time updates, team collaboration features, and advanced project tracking.',
+      content: '# Task Management App\n\nA modern solution for team productivity and project management.',
+      subtitle: 'Team Productivity Solution',
+      role: 'Full Stack Developer',
+      client: 'Tech Startup',
+      category: 'SaaS',
+      timeline: '4 months',
+      year: '2022',
+      problem: 'Teams were struggling with project coordination and needed a unified platform to manage tasks, deadlines, and team communication.',
+      solution: 'Developed a real-time task management system using WebSocket connections, drag-and-drop interfaces, and comprehensive reporting features.',
+      impact: 'Improved team productivity by 35% and reduced project delivery time by 25%.',
+      features: ['Real-time collaboration', 'Drag-and-drop interface', 'Time tracking', 'Gantt charts', 'Team analytics'],
+      outcomes: ['35% productivity increase', '25% faster delivery', '95% user adoption'],
+      techStack: ['React', 'Node.js', 'MongoDB', 'Socket.io', 'Material-UI'],
+      liveUrl: 'https://taskapp.example.com',
+      githubUrl: 'https://github.com/prathamrajbhar/taskapp',
+      imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40',
+      galleryImages: [
+        'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40',
+        'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b',
+      ],
+      projectLinks: [
+        { title: 'Live Demo', url: 'https://taskapp.example.com' },
+      ],
+      featured: true,
+      status: 'completed',
+      tags: [{ id: 'saas', name: 'SaaS' }, { id: 'realtime', name: 'Real-time' }, { id: 'productivity', name: 'Productivity' }],
+    },
+    {
+      id: 'proj-3',
+      title: 'Healthcare Dashboard',
+      slug: 'healthcare-dashboard',
+      description: 'A secure healthcare dashboard for patient management, appointment scheduling, and medical record tracking with HIPAA compliance.',
+      content: '# Healthcare Dashboard\n\nA secure and compliant healthcare management system.',
+      subtitle: 'Healthcare Management System',
+      role: 'Senior Developer',
+      client: 'Health Tech Inc',
+      category: 'Healthcare',
+      timeline: '8 months',
+      year: '2023',
+      problem: 'Healthcare providers needed a secure, compliant system to manage patient data, appointments, and medical records efficiently.',
+      solution: 'Built a HIPAA-compliant dashboard with end-to-end encryption, role-based access control, and comprehensive audit logging.',
+      impact: 'Reduced administrative time by 50% and improved patient satisfaction scores by 30%.',
+      features: ['Patient management', 'Appointment scheduling', 'Medical records', 'Secure messaging', 'Analytics'],
+      outcomes: ['50% time reduction', '30% satisfaction increase', '100% HIPAA compliance'],
+      techStack: ['Next.js', 'Python', 'PostgreSQL', 'AWS', 'Docker'],
+      liveUrl: 'https://health.example.com',
+      githubUrl: null,
+      imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d',
+      galleryImages: [
+        'https://images.unsplash.com/photo-1555066931-4365d14bab8c',
+        'https://images.unsplash.com/photo-1504813184591-01572f98c85f',
+      ],
+      projectLinks: [],
+      featured: false,
+      status: 'completed',
+      tags: [{ id: 'healthcare', name: 'Healthcare' }, { id: 'security', name: 'Security' }, { id: 'compliance', name: 'Compliance' }],
+    },
+    {
+      id: 'proj-4',
+      title: 'Social Media Analytics',
+      slug: 'social-media-analytics',
+      description: 'An analytics platform that aggregates social media data from multiple platforms and provides actionable insights through visualizations.',
+      content: '# Social Media Analytics\n\nComprehensive social media data analysis and visualization platform.',
+      subtitle: 'Social Intelligence Platform',
+      role: 'Full Stack Developer',
+      client: 'Marketing Agency',
+      category: 'Analytics',
+      timeline: '5 months',
+      year: '2022',
+      problem: 'Marketing teams needed a unified platform to analyze social media performance across multiple platforms without manual data aggregation.',
+      solution: 'Created an automated data pipeline that fetches data from social media APIs, processes it, and presents insights through interactive dashboards.',
+      impact: 'Reduced reporting time by 80% and improved campaign optimization by 45%.',
+      features: ['Multi-platform integration', 'Real-time analytics', 'Custom dashboards', 'Automated reports', 'Trend analysis'],
+      outcomes: ['80% faster reporting', '45% better optimization', '500+ active users'],
+      techStack: ['React', 'Python', 'PostgreSQL', 'Redis', 'Chart.js'],
+      liveUrl: null,
+      githubUrl: 'https://github.com/prathamrajbhar/social-analytics',
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+      galleryImages: [
+        'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+      ],
+      projectLinks: [
+        { title: 'GitHub', url: 'https://github.com/prathamrajbhar/social-analytics' },
+      ],
+      featured: false,
+      status: 'completed',
+      tags: [{ id: 'analytics', name: 'Analytics' }, { id: 'dataviz', name: 'Data Visualization' }, { id: 'automation', name: 'Automation' }],
+    },
+  ];
+
+  for (const project of projects) {
+    await prisma.project.upsert({
+      where: { id: project.id },
+      update: {},
+      create: project,
+    });
+  }
+  console.log('Created sample projects');
+
+  console.log('Seed completed successfully!');
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (error) => {
-    console.error(error);
-    await prisma.$disconnect();
+  .catch((e) => {
+    console.error('Error seeding database:', e);
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });

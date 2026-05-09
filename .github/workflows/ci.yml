@@ -12,10 +12,6 @@ jobs:
 
     env:
       NEXT_TELEMETRY_DISABLED: 1
-      # Dummy URL used only during CI build — Prisma requires a non-empty URL
-      # for client initialization. All data-fetching is guarded with try/catch
-      # and returns safe fallback values when no real DB is present.
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
 
     steps:
       - uses: actions/checkout@v4
@@ -29,16 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
       - name: Lint
         run: npm run lint
 
       - name: Build
         run: npm run build
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://ci:ci@localhost:5432/ci' }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'ci-placeholder-secret-not-for-production' }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'http://localhost:3000' }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'admin@ci.local' }}
