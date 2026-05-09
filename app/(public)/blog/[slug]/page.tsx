@@ -2,15 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BlogPostClient } from "@/components/public/BlogPostClient";
 import { MdxContent } from "@/components/public/MdxContent";
-import { getAllBlogPostSlugs, getBlogPostBySlug } from "@/lib/data";
+import { getBlogPostBySlug } from "@/lib/data";
 import { getBaseUrl } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-
-export async function generateStaticParams() {
-  const slugs = await getAllBlogPostSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
