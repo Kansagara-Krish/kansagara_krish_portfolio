@@ -1,33 +1,76 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), Outfit, Inter, ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--color-bg-val);
+  --color-surface: var(--color-surface-val);
+  --color-border: var(--color-border-val);
+  --color-text: var(--color-text-val);
+  --color-muted: var(--color-muted-val);
+  --color-primary: var(--color-primary-val);
+  --color-primary-hover: var(--color-primary-hover-val);
+
+  --shadow-sm: var(--shadow-sm-val);
+  --shadow-md: var(--shadow-md-val);
+  --shadow-lg: var(--shadow-lg-val);
+  --shadow-xl: var(--shadow-xl-val);
+}
 
 :root {
   --font-inter: Inter, ui-sans-serif, system-ui, sans-serif;
   --font-outfit: Outfit, Inter, ui-sans-serif, system-ui, sans-serif;
-  --color-bg: #ffffff;
-  --color-surface: #f9fafb;
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-text: #111827;
-  --color-muted: #4b5563;
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  --color-bg-val: #ffffff;
+  --color-surface-val: #f9fafb;
+  --color-border-val: rgba(0, 0, 0, 0.08);
+  --color-text-val: #111827;
+  --color-muted-val: #4b5563;
+  --color-primary-val: #6366f1;
+  --color-primary-hover-val: #4f46e5;
+
+  --shadow-sm-val: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md-val: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg-val: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl-val: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
   color-scheme: light;
 }
 
 html[data-theme="dark"] {
-  --color-bg: #030712;
-  --color-surface: #111827;
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-text: #f9fafb;
-  --color-muted: #9ca3af;
-  --color-primary: #818cf8;
-  --color-primary-hover: #6366f1;
+  --color-bg-val: #030712;
+  --color-surface-val: #111827;
+  --color-border-val: rgba(255, 255, 255, 0.1);
+  --color-text-val: #f9fafb;
+  --color-muted-val: #9ca3af;
+  --color-primary-val: #818cf8;
+  --color-primary-hover-val: #6366f1;
+  
   color-scheme: dark;
+}
+
+@utility mesh-gradient {
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+}
+
+@utility glass {
+  backdrop-blur: var(--blur-md);
+  border: 1px solid var(--color-border);
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+html[data-theme="dark"] .glass {
+  background-color: rgba(17, 24, 39, 0.7);
+}
+
+@utility text-gradient {
+  background-image: linear-gradient(to bottom right, var(--color-text), var(--color-muted));
+  background-clip: text;
+  color: transparent;
 }
 
 * {
@@ -47,46 +90,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-@layer base {
-  *, ::before, ::after {
-    border-color: var(--color-border);
-  }
+/* Base styles for borders using the new theme variables */
+*, ::before, ::after {
+  border-color: var(--color-border);
 }
 
-@layer utilities {
-  .mesh-gradient {
-    background-image: 
-      radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-      radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-      radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-  }
-  
-  html[data-theme="light"] .mesh-gradient {
-    background-image: 
-      radial-gradient(at 0% 0%, hsla(253,100%,95%,1) 0, transparent 50%), 
-      radial-gradient(at 50% 0%, hsla(225,100%,95%,1) 0, transparent 50%), 
-      radial-gradient(at 100% 0%, hsla(339,100%,95%,1) 0, transparent 50%);
-  }
-
-  .glass {
-    @apply backdrop-blur-md border border-border;
-    background-color: rgba(255, 255, 255, 0.7);
-  }
-  
-  html[data-theme="dark"] .glass {
-    background-color: rgba(17, 24, 39, 0.7);
-  }
-
-  .text-gradient {
-    @apply bg-gradient-to-br from-text to-muted bg-clip-text text-transparent;
-  }
-}
-
-a,
-button,
-input,
-textarea,
-select {
+a, button, input, textarea, select {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -104,7 +113,7 @@ select {
 .prose-content h3 {
   margin-top: 2rem;
   margin-bottom: 0.75rem;
-  font-family: var(--font-outfit), sans-serif;
+  font-family: var(--font-display), sans-serif;
   font-weight: 700;
 }
 

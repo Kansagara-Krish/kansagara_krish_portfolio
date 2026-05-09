@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Github, Linkedin, Mail, Twitter, Sparkles } from "lucide-react";
+import { Mail, Sparkles } from "lucide-react";
+import { Github, Linkedin, X } from "@/components/ui/BrandIcons";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { ContactForm } from "@/components/public/ContactForm";
@@ -22,7 +23,7 @@ export default async function ContactPage() {
   const socials = [
     settings.github ? { href: settings.github, label: "GitHub", icon: Github, color: "hover:text-[#333] hover:bg-[#333]/5" } : null,
     settings.linkedin ? { href: settings.linkedin, label: "LinkedIn", icon: Linkedin, color: "hover:text-[#0077b5] hover:bg-[#0077b5]/5" } : null,
-    settings.twitter ? { href: settings.twitter, label: "Twitter", icon: Twitter, color: "hover:text-[#1da1f2] hover:bg-[#1da1f2]/5" } : null
+    settings.twitter ? { href: settings.twitter, label: "Twitter", icon: X, color: "hover:text-[#1da1f2] hover:bg-[#1da1f2]/5" } : null
   ].filter((item): item is { href: string; label: string; icon: typeof Github; color: string } => Boolean(item));
 
   return (

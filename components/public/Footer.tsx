@@ -1,6 +1,7 @@
 "use client";
 
-import { Github, Linkedin, Mail, Twitter, ArrowUp } from "lucide-react";
+import { Mail, ArrowUp } from "lucide-react";
+import { Github, Linkedin, X } from "@/components/ui/BrandIcons";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import type { SiteSettingsDTO } from "@/lib/types";
@@ -9,7 +10,7 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
   const socialLinks = [
     settings.github ? { href: settings.github, label: "GitHub", icon: Github } : null,
     settings.linkedin ? { href: settings.linkedin, label: "LinkedIn", icon: Linkedin } : null,
-    settings.twitter ? { href: settings.twitter, label: "Twitter", icon: Twitter } : null,
+    settings.twitter ? { href: settings.twitter, label: "Twitter", icon: X } : null,
     { href: `mailto:${settings.email}`, label: "Email", icon: Mail }
   ].filter((item): item is { href: string; label: string; icon: typeof Github } => Boolean(item));
 

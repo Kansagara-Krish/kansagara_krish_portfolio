@@ -14,7 +14,7 @@ const components = {
   img: ({ alt = "", src }: ComponentPropsWithoutRef<"img">) => (
     <div className="relative my-10 aspect-video w-full overflow-hidden rounded-[8px] border border-border shadow-lg">
       <Image
-        src={src || ""}
+        src={typeof src === "string" ? src : ""}
         alt={alt}
         fill
         className="object-cover"

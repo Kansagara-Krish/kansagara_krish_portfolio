@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, ExternalLink, Github, LinkIcon, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ExternalLink, LinkIcon, Sparkles } from "lucide-react";
+import { Github } from "@/components/ui/BrandIcons";
 import Image from "next/image";
 import { ProjectCard } from "@/components/public/ProjectCard";
 import { Badge } from "@/components/ui/Badge";
