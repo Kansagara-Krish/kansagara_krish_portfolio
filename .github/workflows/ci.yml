@@ -31,6 +31,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/ci
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'ci-placeholder-secret-not-for-production' }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'http://localhost:3000' }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'admin@ci.local' }}
