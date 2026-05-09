@@ -6,12 +6,14 @@ import { SkillsCloud } from "@/components/public/SkillsCloud";
 import { Card } from "@/components/ui/Card";
 import { getExperiences, getSkills } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Experience",
-  description: "Professional experience and skills overview."
+  description: "Professional experience, education, and technical skills overview.",
+  alternates: {
+    canonical: "/experience"
+  }
 };
 
 export default async function ExperiencePage() {

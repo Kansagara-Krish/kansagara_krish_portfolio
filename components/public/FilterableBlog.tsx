@@ -11,11 +11,11 @@ export function FilterableBlog({ posts }: { posts: BlogPostDTO[] }) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState("All");
   
-  const tags = useMemo(() => ["All", ...Array.from(new Set(posts.flatMap((post) => post.tags.map((tag) => tag.name))))], [posts]);
-  
+  const tags = useMemo(() => ["All", ...Array.from(new Set(posts.flatMap((post) => post.tags)))], [posts]);
+
   const visible = posts.filter((post) => {
-    const matchesTag = active === "All" || post.tags.some((tag) => tag.name === active);
-    const haystack = `${post.title} ${post.tags.map((tag) => tag.name).join(" ")}`.toLowerCase();
+    const matchesTag = active === "All" || post.tags.some((tag) => tag === active);
+    const haystack = `${post.title} ${post.tags.join(" ")}`.toLowerCase();
     return matchesTag && haystack.includes(query.toLowerCase());
   });
 

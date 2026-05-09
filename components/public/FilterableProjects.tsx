@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ProjectCard } from "@/components/public/ProjectCard";
 import type { ProjectDTO } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export function FilterableProjects({ projects }: { projects: ProjectDTO[] }) {
   const [active, setActive] = useState("All");
-  const tags = useMemo(() => ["All", ...Array.from(new Set(projects.flatMap((project) => project.tags.map((tag) => tag.name))))], [projects]);
-  const visible = active === "All" ? projects : projects.filter((project) => project.tags.some((tag) => tag.name === active));
+  const tags = ["All", ...new Set(projects.flatMap((project) => project.tags))];
+  const visible = active === "All" ? projects : projects.filter((project) => project.tags.includes(active));
 
   return (
     <div className="space-y-12">

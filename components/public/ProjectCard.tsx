@@ -1,4 +1,4 @@
-import { ExternalLink, Eye, Github } from "lucide-react";
+import { ExternalLink, Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
@@ -49,7 +49,7 @@ export function ProjectCard({ project }: { project: ProjectDTO }) {
           
           <div className="flex items-center justify-between border-t border-border/50 pt-4">
             <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted">
-              <Eye size={14} className="text-primary/70" /> {project.views} views
+              {project.status}
             </span>
             <div className="flex items-center gap-1">
               {project.githubUrl ? (

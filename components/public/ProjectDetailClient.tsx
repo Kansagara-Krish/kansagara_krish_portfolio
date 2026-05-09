@@ -4,14 +4,13 @@ import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle2, ExternalLink, Github, LinkIcon, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { ProjectCard } from "@/components/public/ProjectCard";
-import { ViewTracker } from "@/components/public/ViewTracker";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import type { ProjectDTO } from "@/lib/types";
 import { sanitizeHtml } from "@/lib/utils";
 
-export function ProjectDetailClient({ project, related }: { project: ProjectDTO, related: ProjectDTO[] }) {
+export function ProjectDetailClient({ project, related }: { project: ProjectDTO; related: ProjectDTO[] }) {
   const projectLinks = Array.isArray(project.projectLinks) ? project.projectLinks : [];
   const overviewItems = [
     ["Role", project.role],
@@ -23,8 +22,6 @@ export function ProjectDetailClient({ project, related }: { project: ProjectDTO,
 
   return (
     <article className="relative min-h-screen">
-      <ViewTracker path={`/api/projects/${project.id}`} />
-      
       {/* Immersive Header */}
       <div className="relative h-[65vh] min-h-[500px] w-full overflow-hidden">
         <Image
@@ -169,10 +166,6 @@ export function ProjectDetailClient({ project, related }: { project: ProjectDTO,
                 Overview
               </h3>
               <div className="space-y-6">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted/50">Engagement</span>
-                  <span className="text-2xl font-black">{project.views} views</span>
-                </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted/50">Phase</span>
                   <span className="text-2xl font-black capitalize">{project.status}</span>

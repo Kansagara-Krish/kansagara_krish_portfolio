@@ -8,7 +8,8 @@ export async function GET() {
       orderBy: { createdAt: 'desc' }
     });
     return dataResponse(posts);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch blog posts");
   }
 }
@@ -40,7 +41,8 @@ export async function POST(request: Request) {
     });
 
     return dataResponse(post, 201);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to create blog post");
   }
 }

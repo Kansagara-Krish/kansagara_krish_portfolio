@@ -2,7 +2,7 @@ import { dataResponse, errorResponse, requireAdmin, validationErrorResponse } fr
 import { projectSchema } from "@/lib/validations";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const project = await prisma.project.findUnique({
@@ -10,7 +10,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     });
     if (!project) return errorResponse("Project not found", 404);
     return dataResponse(project);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch project");
   }
 }
@@ -42,12 +43,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     });
 
     return dataResponse(project);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to update project");
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin();
   if (!session) return errorResponse("Unauthorized", 401);
 
@@ -57,20 +59,20 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       where: { id }
     });
     return dataResponse({ message: "Project deleted" });
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to delete project");
   }
 }
 
-export async function PATCH(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const project = await prisma.project.update({
-      where: { id },
-      data: { featured: true }
-    });
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return errorResponse("Project not found", 404);
     return dataResponse(project);
-  } catch (_error) {
-    return errorResponse("Unable to update project");
+  } catch (error) {
+    console.error(error);
+    return errorResponse("Unable to track view", 500);
   }
 }

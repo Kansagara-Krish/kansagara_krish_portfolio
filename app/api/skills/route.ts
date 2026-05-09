@@ -8,7 +8,8 @@ export async function GET() {
       orderBy: [{ category: 'asc' }, { order: 'asc' }]
     });
     return dataResponse(skills);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch skills");
   }
 }
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
     });
 
     return dataResponse(skill, 201);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to create skill");
   }
 }

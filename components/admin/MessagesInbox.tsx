@@ -3,7 +3,7 @@
 import { Mail, Reply, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import type { ContactMessageDTO } from "@/lib/types";
@@ -14,10 +14,7 @@ type Filter = "all" | "unread" | "read";
 export function MessagesInbox({ messages }: { messages: ContactMessageDTO[] }) {
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
-  const filtered = useMemo(
-    () => messages.filter((message) => filter === "all" || (filter === "unread" ? !message.read : message.read)),
-    [filter, messages]
-  );
+  const filtered = messages.filter((message) => filter === "all" || message.read === (filter === "read"));
   const [selectedId, setSelectedId] = useState(filtered.at(0)?.id ?? "");
   const selected = messages.find((message) => message.id === selectedId) ?? filtered.at(0);
 

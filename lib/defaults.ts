@@ -13,7 +13,5 @@ export const defaultSettings: SiteSettingsDTO = {
   avatarUrl: null,
   heroTagline: "Computer Engineering student building full-stack AI applications and real-time systems.",
   openToWork: true,
-  location: "Ahmedabad, Gujarat",
-  resumeDownloads: 0,
   updatedAt: new Date().toISOString()
 };

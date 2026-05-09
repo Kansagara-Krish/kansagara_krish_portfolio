@@ -21,7 +21,7 @@ export function BlogTable({ posts }: { posts: BlogPostDTO[] }) {
       body: JSON.stringify({
         ...post,
         published: !post.published,
-        tags: post.tags.map((tag) => tag.name),
+        tags: post.tags,
         coverImage: post.coverImage ?? "",
         contentFormat: post.contentFormat ?? "mdx"
       })

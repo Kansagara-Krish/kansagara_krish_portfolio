@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Github, Linkedin, Mail, MapPin, Twitter, Sparkles } from "lucide-react";
+import { Github, Linkedin, Mail, Twitter, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { ContactForm } from "@/components/public/ContactForm";
@@ -7,12 +7,14 @@ import { getSiteSettings } from "@/lib/data";
 import { defaultSettings } from "@/lib/defaults";
 import { cn } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Get in touch with the portfolio owner."
+  description: "Get in touch to discuss projects, opportunities, or collaborations.",
+  alternates: {
+    canonical: "/contact"
+  }
 };
 
 export default async function ContactPage() {
@@ -47,16 +49,6 @@ export default async function ContactPage() {
                 <div>
                   <p className="text-xs font-black uppercase tracking-widest text-muted/50">Email me at</p>
                   <p className="text-xl font-bold">{settings.email}</p>
-                </div>
-              </div>
-
-              <div className="glass flex items-center gap-6 rounded-3xl p-6 transition-transform hover:translate-x-1">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-500">
-                  <MapPin size={24} />
-                </div>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-muted/50">Location</p>
-                  <p className="text-xl font-bold">{settings.location || "Remote / Global"}</p>
                 </div>
               </div>
 

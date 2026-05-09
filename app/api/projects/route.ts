@@ -8,7 +8,8 @@ export async function GET() {
       orderBy: { createdAt: 'desc' }
     });
     return dataResponse(projects);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch projects");
   }
 }
@@ -26,19 +27,12 @@ export async function POST(request: Request) {
     }
 
     const project = await prisma.project.create({
-      data: {
-        ...validated.data,
-        features: validated.data.features,
-        outcomes: validated.data.outcomes,
-        techStack: validated.data.techStack,
-        galleryImages: validated.data.galleryImages,
-        projectLinks: validated.data.projectLinks,
-        tags: validated.data.tags
-      }
+      data: validated.data
     });
 
     return dataResponse(project, 201);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to create project");
   }
 }

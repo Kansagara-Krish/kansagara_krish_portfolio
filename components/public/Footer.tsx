@@ -70,7 +70,6 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
           <div>
             <h3 className="font-display text-sm font-bold uppercase tracking-[0.2em] text-primary">Contact</h3>
             <ul className="mt-6 space-y-4">
-              <li className="text-muted">{settings.location || "Remote / Global"}</li>
               <li>
                 <Link href={`mailto:${settings.email}`} className="text-muted transition-colors hover:text-primary">
                   {settings.email}

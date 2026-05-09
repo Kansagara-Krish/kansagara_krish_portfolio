@@ -8,7 +8,8 @@ export async function GET() {
       orderBy: { date: 'desc' }
     });
     return dataResponse(certifications);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch certifications");
   }
 }
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
     });
 
     return dataResponse(certification, 201);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to create certification");
   }
 }

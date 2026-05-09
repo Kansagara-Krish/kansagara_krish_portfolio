@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
+import { getBaseUrl } from "@/lib/utils";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,35 +15,38 @@ const outfit = Outfit({
   display: "swap",
 });
 
+const baseUrl = getBaseUrl();
+
 export const metadata: Metadata = {
   title: {
     default: "Pratham Rajbhar | Portfolio",
     template: "%s | Pratham Rajbhar"
   },
-  description: "A production-grade portfolio with projects, writing, experience, and an admin panel.",
-  metadataBase: new URL(
-    (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL !== "") 
-      ? process.env.NEXTAUTH_URL 
-      : "http://localhost:3000"
-  ),
-  keywords: ["Computer Engineer", "Software Developer", "Portfolio", "Full-Stack"],
-  authors: [{ name: "Pratham Rajbhar" }],
+  description: "Full-stack engineer building scalable, user-centric digital solutions. Explore projects, writing, and professional experience.",
+  metadataBase: new URL(baseUrl),
+  keywords: ["Computer Engineer", "Software Developer", "Portfolio", "Full-Stack", "Next.js", "React"],
+  authors: [{ name: "Pratham Rajbhar", url: baseUrl }],
   creator: "Pratham Rajbhar",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://prathamrajbhar.me",
+    url: baseUrl,
     title: "Pratham Rajbhar | Portfolio",
-    description: "Explore my projects, writing, and professional experience.",
+    description: "Full-stack engineer building scalable, user-centric digital solutions.",
     siteName: "Pratham Rajbhar",
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent("Pratham Rajbhar")}&subtitle=${encodeURIComponent("Portfolio")}`],
   },
   twitter: {
     card: "summary_large_image",
     title: "Pratham Rajbhar | Portfolio",
-    description: "Explore my projects, writing, and professional experience.",
+    description: "Full-stack engineer building scalable, user-centric digital solutions.",
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent("Pratham Rajbhar")}&subtitle=${encodeURIComponent("Portfolio")}`],
   },
   icons: {
     icon: "/favicon.ico",
+  },
+  alternates: {
+    canonical: baseUrl,
   }
 };
 

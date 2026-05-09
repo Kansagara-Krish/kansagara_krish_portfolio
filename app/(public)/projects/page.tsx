@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { FilterableProjects } from "@/components/public/FilterableProjects";
 import { getProjects } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Projects",
-  description: "A showcase of software projects and applications."
+  description: "A curated showcase of software projects spanning full-stack development, AI integration, and real-time systems.",
+  alternates: {
+    canonical: "/projects"
+  }
 };
 
 export default async function ProjectsPage() {

@@ -40,8 +40,13 @@ export function sanitizeHtml(html: string) {
     .replace(/javascript:/gi, "");
 }
 
-export function getBaseUrl(headersList?: Headers) {
-  if (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL !== "") return process.env.NEXTAUTH_URL;
+export function getBaseUrl(headersList?: Headers | null) {
+  if (process.env.NEXTAUTH_URL) {
+    return process.env.NEXTAUTH_URL.replace(/\/$/, "");
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
+  }
   const host = headersList?.get("host") ?? "localhost:3000";
   const protocol = host.includes("localhost") ? "http" : "https";
   return `${protocol}://${host}`;

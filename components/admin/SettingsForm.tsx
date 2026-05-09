@@ -74,7 +74,6 @@ export function SettingsForm({ settings }: { settings: SiteSettingsDTO }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="text-sm text-muted">
           <p>Last updated: {formatDate(settings.updatedAt, "MMM d, yyyy h:mm a")}</p>
-          <p>Resume downloads: {settings.resumeDownloads}</p>
           {status ? <p>{status}</p> : null}
         </div>
         <Button type="submit" icon={<Save size={18} />}>Save Settings</Button>

@@ -27,10 +27,6 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
     return () => window.clearTimeout(timeout);
   }, [roleIndex, text]);
 
-  async function trackResume() {
-    await fetch("/api/settings", { method: "PATCH" });
-  }
-
   return (
     <section className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden px-4 py-20">
       {/* Background visual element */}
@@ -89,13 +85,12 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
                 View My Projects
               </Button>
               {settings.resumeUrl ? (
-                <Button 
-                  href={settings.resumeUrl} 
-                  size="lg" 
-                  variant="secondary" 
+                <Button
+                  href={settings.resumeUrl}
+                  size="lg"
+                  variant="secondary"
                   className="px-8"
-                  icon={<Download size={20} />} 
-                  onClick={trackResume}
+                  icon={<Download size={20} />}
                 >
                   My Resume
                 </Button>

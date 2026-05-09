@@ -6,12 +6,14 @@ import { Card } from "@/components/ui/Card";
 import { defaultSettings } from "@/lib/defaults";
 import { getSiteSettings, getSkills } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "About",
-  description: "About the engineer behind the portfolio."
+  description: "Learn about my background, technical expertise, and approach to building product-minded software solutions.",
+  alternates: {
+    canonical: "/about"
+  }
 };
 
 export default async function AboutPage() {

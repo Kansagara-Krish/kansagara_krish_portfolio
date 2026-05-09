@@ -1,8 +1,3 @@
-export type TagDTO = {
-  id: string;
-  name: string;
-};
-
 export type ProjectLinkDTO = {
   label: string;
   url: string;
@@ -33,10 +28,9 @@ export type ProjectDTO = {
   projectLinks: ProjectLinkDTO[];
   featured: boolean;
   status: string;
-  views: number;
   createdAt: string;
   updatedAt: string;
-  tags: TagDTO[];
+  tags: string[];
 };
 
 export type BlogPostDTO = {
@@ -49,10 +43,9 @@ export type BlogPostDTO = {
   coverImage: string | null;
   published: boolean;
   readingTime: number;
-  views: number;
   createdAt: string;
   updatedAt: string;
-  tags: TagDTO[];
+  tags: string[];
 };
 
 export type ExperienceDTO = {
@@ -102,8 +95,6 @@ export type SiteSettingsDTO = {
   avatarUrl: string | null;
   heroTagline: string | null;
   openToWork: boolean;
-  location: string | null;
-  resumeDownloads: number;
   updatedAt: string;
 };
 

@@ -8,7 +8,8 @@ export async function GET() {
       orderBy: { date: 'desc' }
     });
     return dataResponse(hackathons);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch hackathons");
   }
 }
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
     });
 
     return dataResponse(hackathon, 201);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to create hackathon");
   }
 }

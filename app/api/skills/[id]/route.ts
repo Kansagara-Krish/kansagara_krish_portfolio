@@ -21,12 +21,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     });
 
     return dataResponse(skill);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to update skill");
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin();
   if (!session) return errorResponse("Unauthorized", 401);
 
@@ -36,7 +37,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       where: { id }
     });
     return dataResponse({ message: "Skill deleted" });
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to delete skill");
   }
 }

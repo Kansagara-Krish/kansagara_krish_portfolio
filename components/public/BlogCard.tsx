@@ -1,4 +1,4 @@
-import { CalendarDays, Clock, Eye } from "lucide-react";
+import { CalendarDays, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
@@ -22,8 +22,8 @@ export function BlogCard({ post }: { post: BlogPostDTO }) {
       </Link>
       <div className="p-5">
         <div className="flex flex-wrap gap-2">
-          {post.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag.id} variant="muted">{tag.name}</Badge>
+          {post.tags.slice(0, 3).map((tag, index) => (
+            <Badge key={`${tag}-${index}`} variant="muted">{tag}</Badge>
           ))}
         </div>
         <Link href={`/blog/${post.slug}`} className="mt-4 block font-display text-xl font-semibold hover:text-primary">
@@ -32,8 +32,7 @@ export function BlogCard({ post }: { post: BlogPostDTO }) {
         <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted">{post.excerpt}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-muted">
           <span className="inline-flex items-center gap-1"><CalendarDays size={14} /> {formatDate(post.createdAt)}</span>
-          <span className="inline-flex items-center gap-1"><Clock size={14} /> {post.readingTime} min</span>
-          <span className="inline-flex items-center gap-1"><Eye size={14} /> {post.views}</span>
+          <span className="inline-flex items-center gap-1"><Clock size={14} /> {post.readingTime} min read</span>
         </div>
       </div>
     </Card>

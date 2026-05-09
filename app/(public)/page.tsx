@@ -10,12 +10,14 @@ import { Card } from "@/components/ui/Card";
 import { getSiteSettings, getProjects, getBlogPosts, getExperiences, getSkills } from "@/lib/data";
 import { defaultSettings } from "@/lib/defaults";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Home",
-  description: "Portfolio homepage for a computer engineer."
+  description: "Full-stack engineer building scalable, user-centric digital solutions. Explore projects, writing, and professional experience.",
+  alternates: {
+    canonical: "/"
+  }
 };
 
 export default async function HomePage() {

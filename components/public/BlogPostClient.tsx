@@ -6,7 +6,6 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { CopyCodeButtons } from "@/components/public/CopyCodeButtons";
 import { ReadingProgress } from "@/components/public/ReadingProgress";
-import { ViewTracker } from "@/components/public/ViewTracker";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
@@ -18,8 +17,7 @@ export function BlogPostClient({ post, children }: { post: BlogPostDTO; children
     <article className="relative min-h-screen pb-24">
       <ReadingProgress />
       <CopyCodeButtons />
-      <ViewTracker path={`/api/blog/${post.id}`} />
-      
+
       {/* Immersive Header */}
       <div className="relative h-[65vh] min-h-[500px] w-full overflow-hidden">
         <Image
@@ -37,9 +35,9 @@ export function BlogPostClient({ post, children }: { post: BlogPostDTO; children
           <div className="mx-auto w-full max-w-7xl px-6">
             <motion.div variants={staggerContainer} initial="hidden" animate="visible">
               <motion.div variants={fadeInUp} className="flex flex-wrap gap-2 mb-6">
-                {post.tags.map((tag) => (
-                  <Badge key={tag.id} variant="muted" className="glass border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
-                    {tag.name}
+                {post.tags.map((tag, index) => (
+                  <Badge key={`${tag}-${index}`} variant="muted" className="glass border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+                    {tag}
                   </Badge>
                 ))}
               </motion.div>

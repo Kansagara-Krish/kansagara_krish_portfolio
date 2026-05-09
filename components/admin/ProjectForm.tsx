@@ -66,7 +66,7 @@ export function ProjectForm({ project }: { project?: ProjectDTO }) {
     projectLinks: project?.projectLinks ?? [],
     featured: project?.featured ?? false,
     status: (project?.status as ProjectState["status"]) ?? "completed",
-    tags: project?.tags.map((tag) => tag.name) ?? []
+    tags: project?.tags ?? []
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

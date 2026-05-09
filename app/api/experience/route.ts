@@ -8,7 +8,8 @@ export async function GET() {
       orderBy: [{ order: 'asc' }, { startDate: 'desc' }]
     });
     return dataResponse(experiences);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch experience");
   }
 }
@@ -33,7 +34,8 @@ export async function POST(request: Request) {
     });
 
     return dataResponse(experience, 201);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to create experience");
   }
 }

@@ -2,7 +2,7 @@ import { dataResponse, errorResponse, requireAdmin, validationErrorResponse } fr
 import { blogPostSchema } from "@/lib/validations";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const post = await prisma.blogPost.findUnique({
@@ -10,7 +10,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     });
     if (!post) return errorResponse("Blog post not found", 404);
     return dataResponse(post);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch blog post");
   }
 }
@@ -44,12 +45,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     });
 
     return dataResponse(post);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to update blog post");
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin();
   if (!session) return errorResponse("Unauthorized", 401);
 
@@ -59,20 +61,20 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       where: { id }
     });
     return dataResponse({ message: "Blog post deleted" });
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to delete blog post");
   }
 }
 
-export async function PATCH(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const post = await prisma.blogPost.update({
-      where: { id },
-      data: { published: true }
-    });
+    const post = await prisma.blogPost.findUnique({ where: { id } });
+    if (!post) return errorResponse("Blog post not found", 404);
     return dataResponse(post);
-  } catch (_error) {
-    return errorResponse("Unable to update post");
+  } catch (error) {
+    console.error(error);
+    return errorResponse("Unable to track view", 500);
   }
 }

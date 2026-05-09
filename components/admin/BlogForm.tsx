@@ -36,7 +36,7 @@ export function BlogForm({ post }: { post?: BlogPostDTO }) {
     coverImage: post?.coverImage ?? "",
     published: post?.published ?? false,
     readingTime: post?.readingTime ?? 1,
-    tags: post?.tags.map((tag) => tag.name) ?? []
+    tags: post?.tags ?? []
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

@@ -16,7 +16,8 @@ export async function GET() {
       });
     }
     return dataResponse(settings);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to fetch settings");
   }
 }
@@ -48,22 +49,17 @@ export async function PUT(request: Request) {
     }
 
     return dataResponse(settings);
-  } catch (_error) {
+  } catch (error) {
+    console.error(error);
     return errorResponse("Unable to update settings");
   }
 }
 
 export async function PATCH() {
   try {
-    const settings = await prisma.settings.findFirst();
-    if (settings) {
-      await prisma.settings.update({
-        where: { id: settings.id },
-        data: { resumeUrl: settings.resumeUrl }
-      });
-    }
     return dataResponse({ message: "Resume download tracked" });
-  } catch (_error) {
-    return errorResponse("Unable to track resume download");
+  } catch (error) {
+    console.error("Failed to track resume download:", error);
+    return errorResponse("Unable to track resume download", 500);
   }
 }

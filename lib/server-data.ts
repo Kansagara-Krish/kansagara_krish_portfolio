@@ -14,10 +14,14 @@ export async function fetchApi<T>(path: string, fallback: T, init?: RequestInit)
       },
       ...init
     });
-    if (!response.ok) return fallback;
+    if (!response.ok) {
+      console.error(`fetchApi failed for ${path}: ${response.status} ${response.statusText}`);
+      return fallback;
+    }
     const json = (await response.json()) as ApiSuccess<T>;
     return json.data;
-  } catch {
+  } catch (error) {
+    console.error(`fetchApi error for ${path}:`, error);
     return fallback;
   }
 }
