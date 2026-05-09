@@ -36,7 +36,7 @@ export function ContactForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        const message = data.error || "Something went wrong. Please try again.";
+        const message = data.error || "Error. Please try again.";
         throw new Error(message);
       }
 
@@ -44,7 +44,7 @@ export function ContactForm() {
       setState("success");
       setTimeout(() => setState("idle"), 5000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : "Error. Please try again.");
       setState("error");
       setTimeout(() => setState("idle"), 5000);
     }
@@ -83,7 +83,7 @@ export function ContactForm() {
           name="subject"
           required
           minLength={3}
-          placeholder="What's this about?"
+          placeholder="What is this about?"
           className="bg-bg"
         />
       </div>
@@ -109,7 +109,7 @@ export function ContactForm() {
             className="flex items-center gap-2 rounded-lg bg-emerald-600/10 p-4 text-sm text-emerald-700 dark:text-emerald-400"
           >
             <CheckCircle2 size={16} />
-            Message sent! I&apos;ll get back to you soon.
+            Message sent! I will reply soon.
           </motion.div>
         )}
 

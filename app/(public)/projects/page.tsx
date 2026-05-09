@@ -6,7 +6,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Projects",
-  description: "A curated showcase of software projects spanning full-stack development, AI integration, and real-time systems.",
+  description: "A showcase of software projects including web apps, AI tools, and live systems.",
   alternates: {
     canonical: "/projects"
   }
@@ -24,7 +24,7 @@ export default async function ProjectsPage() {
             Selected <span className="text-gradient">builds.</span>
           </h1>
           <p className="mt-6 text-base leading-relaxed text-muted sm:text-lg">
-            A collection of {projects.length} shipped and in-progress builds. Focus on technical excellence, performance, and building products that solve problems.
+            A collection of {projects.length} finished and ongoing projects. Focus on good code, speed, and building things that solve problems.
           </p>
         </div>
 

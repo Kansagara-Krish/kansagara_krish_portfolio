@@ -75,7 +75,7 @@ export default function SettingsPage() {
 
     try {
       const res = await fetch("/api/admin/settings", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),
       });

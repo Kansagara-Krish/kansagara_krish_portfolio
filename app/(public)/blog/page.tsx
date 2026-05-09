@@ -6,7 +6,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Blog",
-  description: "Thoughts, tutorials, and insights on software engineering, system design, and product development.",
+  description: "Articles, guides, and tips on software engineering, system design, and building products.",
   alternates: {
     canonical: "/blog"
   }
@@ -23,7 +23,7 @@ export default async function BlogPage() {
             Writing from the <span className="text-gradient">build floor.</span>
           </h1>
           <p className="mt-6 text-base leading-relaxed text-muted sm:text-lg">
-            Notes on engineering systems, implementation details, and the lessons learned while building digital products.
+            Notes on building systems, how things work, and lessons learned while making digital products.
           </p>
         </div>
 

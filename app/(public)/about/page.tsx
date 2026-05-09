@@ -10,7 +10,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn about my background, technical expertise, and approach to building product-minded software solutions.",
+  description: "Learn about my background, skills, and how I build software.",
   alternates: {
     canonical: "/about"
   }
@@ -29,26 +29,26 @@ export default async function AboutPage() {
           <div>
             <p className="text-xs font-medium uppercase tracking-widest text-primary">Identity</p>
             <h1 className="mt-6 font-display text-4xl tracking-tight sm:text-5xl lg:text-6xl">
-              Engineering with <span className="text-gradient">intent.</span>
+              Building with <span className="text-gradient">purpose.</span>
             </h1>
             <p className="mt-8 text-xl leading-relaxed text-muted sm:text-2xl">
-              I am {settings.name}, a {settings.title} focused on building scalable, user-centric digital solutions.
+              I am {settings.name}, a {settings.title} focused on building good digital solutions.
             </p>
             <div className="mt-10 space-y-5 text-base leading-relaxed text-muted md:text-lg">
               <p>{settings.bio}</p>
               <p>
-                My approach combines technical rigor with a deep understanding of product goals, ensuring that every line of code contributes to a meaningful user experience.
+                My way of working mixes strong skills with clear goals, making sure every line of code helps create a good user experience.
               </p>
             </div>
 
             <div className="mt-12 flex flex-wrap gap-10">
               <div className="flex flex-col">
                 <span className="text-3xl font-medium text-text">2+</span>
-                <span className="mt-1 text-xs text-muted">Years of Focus</span>
+                <span className="mt-1 text-xs text-muted">Years Work</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-3xl font-medium text-text">15+</span>
-                <span className="mt-1 text-xs text-muted">Projects Shipped</span>
+                <span className="mt-1 text-xs text-muted">Projects Done</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-3xl font-medium text-text">100%</span>
@@ -76,15 +76,15 @@ export default async function AboutPage() {
         <div className="mt-32">
           <div className="mb-12">
             <p className="text-xs font-medium uppercase tracking-widest text-primary">Expertise</p>
-            <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Technical Arsenal</h2>
+            <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">My Skills</h2>
           </div>
           <SkillsCloud skills={skills} />
         </div>
 
         <div className="mt-32 rounded-2xl border border-border bg-surface p-10 text-center sm:p-16">
-          <h2 className="font-display text-2xl tracking-tight sm:text-3xl">Looking for a collaborator?</h2>
+          <h2 className="font-display text-2xl tracking-tight sm:text-3xl">Want to work together?</h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted">
-            I&apos;m currently open to new opportunities and interesting projects. If you have a problem to solve, let&apos;s talk.
+            I&apos;m open to new jobs and interesting projects. If you have a problem to solve, let&apos;s talk.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button href="/contact" size="lg">Get In Touch</Button>

@@ -14,7 +14,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Home",
-  description: "Full-stack engineer building scalable, user-centric digital solutions. Explore projects, writing, and professional experience.",
+  description: "Full-stack engineer building good digital solutions. Explore projects, writing, and work experience.",
   alternates: {
     canonical: "/"
   }
@@ -40,7 +40,7 @@ export default async function HomePage() {
         <div className="mb-16">
           <p className="text-xs font-medium uppercase tracking-widest text-primary">About</p>
           <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">
-            Engineering with product sense.
+            Building with care.
           </h2>
         </div>
 
@@ -69,16 +69,16 @@ export default async function HomePage() {
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Sparkles size={18} />
             </div>
-            <h3 className="font-medium">Product Focused</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">Building solutions that solve real-world problems, not just writing code.</p>
+            <h3 className="font-medium">Product First</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">Building things that solve real problems, not just writing code.</p>
           </Card>
 
           <Card className="group col-span-full flex flex-col items-start p-6 md:col-span-2">
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Globe size={18} />
             </div>
-            <h3 className="font-medium">Global Standards</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">Clean code, high performance, and accessible designs are priorities.</p>
+            <h3 className="font-medium">High Quality</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">Clean code, fast speed, and easy to use designs are key.</p>
           </Card>
         </div>
       </section>
@@ -88,7 +88,7 @@ export default async function HomePage() {
           <div className="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
             <div>
               <p className="text-xs font-medium uppercase tracking-widest text-primary">Portfolio</p>
-              <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Selected Builds</h2>
+              <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">My Projects</h2>
             </div>
             <Button href="/projects" variant="ghost" icon={<ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />}>
               View All
@@ -103,13 +103,13 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-6 py-24">
         <div className="grid gap-16 lg:grid-cols-[1fr_1.5fr]">
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-primary">Experience</p>
-            <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Work Journey</h2>
+            <p className="text-xs font-medium uppercase tracking-widest text-primary">Work</p>
+            <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">My Journey</h2>
             <p className="mt-6 text-base leading-relaxed text-muted">
-              A timeline of professional growth, key roles, and the impact made at various organizations.
+              A timeline of my growth, key jobs, and the work I did at different places.
             </p>
             <div className="mt-8">
-              <Button href="/experience" size="lg" variant="secondary" icon={<Zap size={16} />}>Full Resume</Button>
+              <Button href="/experience" size="lg" variant="secondary" icon={<Zap size={16} />}>See Resume</Button>
             </div>
           </div>
           <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
@@ -123,7 +123,7 @@ export default async function HomePage() {
           <div className="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
             <div>
               <p className="text-xs font-medium uppercase tracking-widest text-primary">Blog</p>
-              <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Latest Writing</h2>
+              <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Recent Posts</h2>
             </div>
             <Button href="/blog" variant="ghost" icon={<ArrowRight size={16} />}>
               Read All
@@ -140,7 +140,7 @@ export default async function HomePage() {
           Have a project in mind?
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-          I&apos;m currently available for freelance work and new opportunities. Let&apos;s build something amazing together.
+          I&apos;m currently open for freelance work and new jobs. Let&apos;s build something great together.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <Button href="/contact" size="lg">Get In Touch</Button>

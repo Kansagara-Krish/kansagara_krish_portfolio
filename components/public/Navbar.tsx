@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { ThemeColorPicker } from "@/components/public/ThemeColorPicker";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -85,6 +86,7 @@ export function Navbar({ name }: { name: string }) {
           </div>
 
           <div className="flex items-center gap-3">
+            <ThemeColorPicker />
             <button
               onClick={toggleTheme}
               className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-border/50 hover:text-text"

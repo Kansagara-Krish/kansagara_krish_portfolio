@@ -103,7 +103,7 @@ export default async function ExperiencePage() {
         </div>
 
         <div className="mt-24">
-          <h2 className="mb-10 font-display text-2xl tracking-tight sm:text-3xl">Technical Arsenal</h2>
+          <h2 className="mb-10 font-display text-2xl tracking-tight sm:text-3xl">My Skills</h2>
           <SkillsCloud skills={skills} />
         </div>
 

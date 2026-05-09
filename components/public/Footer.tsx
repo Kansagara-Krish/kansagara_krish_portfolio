@@ -33,7 +33,7 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
               {settings.name}
             </Link>
             <p className="mt-4 max-w-sm leading-relaxed text-muted">
-              Computer engineer specializing in building high-quality, product-minded digital experiences.
+              Computer engineer making good digital products.
             </p>
             {socialLinks.length > 0 && (
               <div className="mt-8 flex items-center gap-4">

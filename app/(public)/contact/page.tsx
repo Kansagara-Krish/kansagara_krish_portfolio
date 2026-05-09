@@ -11,7 +11,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Get in touch to discuss projects, opportunities, or collaborations.",
+  description: "Contact me to talk about projects, jobs, or working together.",
   alternates: {
     canonical: "/contact"
   }
@@ -35,7 +35,7 @@ export default async function ContactPage() {
               Let&apos;s build <span className="text-gradient">something.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-muted sm:text-lg">
-              I&apos;m always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
+              I&apos;m always open to talking about new projects, ideas, or working together on your vision.
             </p>
 
             <div className="mt-10 space-y-5">
