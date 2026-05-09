@@ -34,31 +34,30 @@ export default function EditSkillPage() {
 
   useEffect(() => {
     if (params.adminId) {
+      const fetchSkill = async () => {
+        try {
+          const res = await fetch(`/api/admin/skills/${params.adminId}`);
+          const json = await res.json() as { data?: Skill };
+          const data = json.data;
+
+          if (data) {
+            setSkill(data);
+            setFormData({
+              name: data.name,
+              category: data.category,
+              iconUrl: data.iconUrl || "",
+              order: data.order,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching skill:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
       fetchSkill();
     }
   }, [params.adminId]);
-
-  const fetchSkill = async () => {
-    try {
-      const res = await fetch(`/api/admin/skills/${params.adminId}`);
-      const json = await res.json() as { data?: Skill };
-      const data = json.data;
-
-      if (data) {
-        setSkill(data);
-        setFormData({
-          name: data.name,
-          category: data.category,
-          iconUrl: data.iconUrl || "",
-          order: data.order,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching skill:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

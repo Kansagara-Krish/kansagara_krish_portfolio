@@ -11,33 +11,32 @@ export function FilterableProjects({ projects }: { projects: ProjectDTO[] }) {
   const visible = active === "All" ? projects : projects.filter((project) => project.tags.includes(active));
 
   return (
-    <div className="space-y-12">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="mr-4 text-xs font-bold uppercase tracking-widest text-muted/60">Filter by</span>
+    <div className="space-y-10">
+      <div className="flex flex-wrap items-center gap-2">
         {tags.map((tag) => (
-          <button 
-            key={tag} 
-            onClick={() => setActive(tag)} 
+          <button
+            key={tag}
+            onClick={() => setActive(tag)}
             className={cn(
-              "rounded-full px-6 py-2.5 text-sm font-bold transition-all duration-300",
-              active === tag 
-                ? "bg-primary text-white shadow-lg shadow-primary/30" 
-                : "bg-surface/50 text-muted border border-border/50 hover:bg-surface hover:text-text dark:bg-surface/20"
+              "rounded-full px-4 py-2 text-sm transition-all",
+              active === tag
+                ? "bg-text text-bg"
+                : "bg-surface text-muted border border-border hover:border-text/30"
             )}
           >
             {tag}
           </button>
         ))}
       </div>
-      
+
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((project) => <ProjectCard key={project.id} project={project} />)}
       </div>
 
       {visible.length === 0 && (
-        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-surface/30 p-12 text-center">
-          <p className="text-xl font-bold text-muted">No projects found for this category.</p>
-          <button onClick={() => setActive("All")} className="mt-4 text-primary hover:underline">View all projects</button>
+        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
+          <p className="text-lg font-medium text-muted">No projects found for this category.</p>
+          <button onClick={() => setActive("All")} className="mt-4 text-sm text-primary hover:underline">View all projects</button>
         </div>
       )}
     </div>

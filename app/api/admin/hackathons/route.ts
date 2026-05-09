@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/utils";
 
 const hackathonSchema = z.object({
+  slug: z.string().optional(),
   title: z.string().min(1, "Title is required"),
   project: z.string().min(1, "Project is required"),
   role: z.string().optional(),
@@ -53,9 +55,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const hackathon = await prisma.hackathon.create({
-      data: result.data,
-    });
+    const data = {
+      ...result.data,
+      slug: result.data.slug || slugify(result.data.title),
+    };
+    const hackathon = await prisma.hackathon.create({ data });
 
     return NextResponse.json({ data: hackathon }, { status: 201 });
   } catch (error) {

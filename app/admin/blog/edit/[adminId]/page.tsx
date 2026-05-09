@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface BlogPost {
   id: string;
@@ -41,34 +42,33 @@ export default function EditBlogPostPage() {
 
   useEffect(() => {
     if (params.adminId) {
+      const fetchPost = async () => {
+        try {
+          const res = await fetch(`/api/admin/blog/${params.adminId}`);
+          const json = await res.json() as { data?: BlogPost };
+          const data = json.data;
+
+          if (data) {
+            setPost(data);
+            setFormData({
+              title: data.title,
+              slug: data.slug,
+              excerpt: data.excerpt,
+              content: data.content,
+              coverImage: data.coverImage || "",
+              published: data.published,
+              tags: data.tags.join("\n"),
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching blog post:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
       fetchPost();
     }
   }, [params.adminId]);
-
-  const fetchPost = async () => {
-    try {
-      const res = await fetch(`/api/admin/blog/${params.adminId}`);
-      const json = await res.json() as { data?: BlogPost };
-      const data = json.data;
-
-      if (data) {
-        setPost(data);
-        setFormData({
-          title: data.title,
-          slug: data.slug,
-          excerpt: data.excerpt,
-          content: data.content,
-          coverImage: data.coverImage || "",
-          published: data.published,
-          tags: data.tags?.join("\n") || "",
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching blog post:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,11 +194,11 @@ export default function EditBlogPostPage() {
             <h2 className="font-display text-xl font-semibold">Media</h2>
           </CardHeader>
           <CardContent>
-            <Label htmlFor="coverImage">Cover Image URL</Label>
-            <Input
-              id="coverImage"
+            <Label>Cover Image</Label>
+            <FileUpload
               value={formData.coverImage}
-              onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
+              onChange={(url) => setFormData({ ...formData, coverImage: url })}
+              label="Upload cover image"
             />
             {errors.coverImage && <p className="mt-1 text-sm text-red-600">{errors.coverImage}</p>}
           </CardContent>

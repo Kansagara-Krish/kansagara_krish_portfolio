@@ -24,20 +24,19 @@ export default function ProjectsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch("/api/admin/projects");
+        const json = await res.json();
+        setProjects(json.data || []);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchProjects();
   }, []);
-
-  const fetchProjects = async () => {
-    try {
-      const res = await fetch("/api/admin/projects");
-      const json = await res.json();
-      setProjects(json.data || []);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
@@ -60,8 +59,8 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -70,52 +69,52 @@ export default function ProjectsPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold">Projects</h1>
-          <p className="mt-2 text-muted">Manage your portfolio projects</p>
+          <h1 className="font-display text-2xl tracking-tight">Projects</h1>
+          <p className="mt-1 text-sm text-muted">Manage your portfolio projects</p>
         </div>
         <Link href="/admin/projects/new">
-          <Button>
+          <Button size="sm">
             <Plus className="mr-2 h-4 w-4" />
-            Add Project
+            Add
           </Button>
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-4">
+      <div className="mt-6 grid gap-3">
         {projects.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center text-muted">
+            <CardContent className="p-8 text-center text-sm text-muted">
               No projects yet. Create your first project!
             </CardContent>
           </Card>
         ) : (
           projects.map((project) => (
             <Card key={project.id}>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-display text-lg font-semibold">{project.title}</h3>
+                      <h3 className="font-medium">{project.title}</h3>
                       {project.featured && (
-                        <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+                        <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] text-white">
                           Featured
                         </span>
                       )}
-                      <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-xs">
+                      <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[10px] text-muted">
                         {project.status}
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-muted">{project.description}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1">
                     {project.liveUrl && (
                       <a
                         href={project.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 hover:bg-surface rounded-lg"
+                        className="rounded-lg p-2 text-muted hover:bg-border/30 transition-colors"
                       >
-                        <ExternalLink size={16} />
+                        <ExternalLink size={14} />
                       </a>
                     )}
                     {project.githubUrl && (
@@ -123,9 +122,9 @@ export default function ProjectsPage() {
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 hover:bg-surface rounded-lg"
+                        className="rounded-lg p-2 text-muted hover:bg-border/30 transition-colors"
                       >
-                        <ExternalLink size={16} />
+                        <ExternalLink size={14} />
                       </a>
                     )}
                   </div>
@@ -133,13 +132,13 @@ export default function ProjectsPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">
-                    Created: {new Date(project.createdAt).toLocaleDateString()}
+                  <span className="text-xs text-muted">
+                    {new Date(project.createdAt).toLocaleDateString()}
                   </span>
                   <div className="flex gap-2">
                     <Link href={`/admin/projects/edit/${project.id}`}>
                       <Button size="sm" variant="outline">
-                        <Pencil className="mr-2 h-4 w-4" />
+                        <Pencil className="mr-2 h-3.5 w-3.5" />
                         Edit
                       </Button>
                     </Link>
@@ -150,9 +149,9 @@ export default function ProjectsPage() {
                       disabled={deleting === project.id}
                     >
                       {deleting === project.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       )}
                     </Button>
                   </div>

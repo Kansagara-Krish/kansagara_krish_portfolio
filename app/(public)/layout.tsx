@@ -7,7 +7,7 @@ export default async function PublicLayout({ children }: { children: React.React
   const settings = await getSiteSettings().then(s => s || defaultSettings);
 
   return (
-    <div className="min-h-screen bg-bg text-text">
+    <div className="min-h-screen bg-bg text-text pt-20">
       <Navbar name={settings.name} />
       <main>{children}</main>
       <Footer settings={settings} />

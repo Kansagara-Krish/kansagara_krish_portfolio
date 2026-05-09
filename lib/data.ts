@@ -5,6 +5,7 @@ import type {
   BlogPostDTO,
   CertificationDTO,
   ContactMessageDTO,
+  EducationDTO,
   ExperienceDTO,
   HackathonDTO,
   ProjectDTO,
@@ -117,6 +118,7 @@ function toSiteSettingsDTO(s: NonNullable<Awaited<ReturnType<typeof prisma.siteS
 function toCertificationDTO(c: NonNullable<Awaited<ReturnType<typeof prisma.certification.findFirst>>>): CertificationDTO {
   return {
     id: c.id,
+    slug: c.slug,
     name: c.name,
     issuer: c.issuer,
     date: c.date.toISOString(),
@@ -130,6 +132,7 @@ function toCertificationDTO(c: NonNullable<Awaited<ReturnType<typeof prisma.cert
 function toHackathonDTO(h: NonNullable<Awaited<ReturnType<typeof prisma.hackathon.findFirst>>>): HackathonDTO {
   return {
     id: h.id,
+    slug: h.slug,
     title: h.title,
     project: h.project,
     role: h.role,
@@ -140,6 +143,24 @@ function toHackathonDTO(h: NonNullable<Awaited<ReturnType<typeof prisma.hackatho
     description: h.description,
     image: h.image,
     createdAt: h.createdAt.toISOString(),
+  };
+}
+
+function toEducationDTO(e: NonNullable<Awaited<ReturnType<typeof prisma.education.findFirst>>>): EducationDTO {
+  return {
+    id: e.id,
+    slug: e.slug,
+    institution: e.institution,
+    degree: e.degree,
+    field: e.field,
+    startYear: e.startYear,
+    endYear: e.endYear,
+    current: e.current,
+    description: e.description,
+    gpa: e.gpa,
+    location: e.location,
+    order: e.order,
+    createdAt: e.createdAt.toISOString(),
   };
 }
 
@@ -343,3 +364,63 @@ export async function getHackathonById(id: string): Promise<HackathonDTO | null>
     return null;
   }
 }
+
+export const getHackathonBySlug = cache(async (slug: string): Promise<HackathonDTO | null> => {
+  try {
+    const row = await prisma.hackathon.findUnique({ where: { slug } });
+    return row ? toHackathonDTO(row) : null;
+  } catch (error) {
+    console.error("Failed to fetch hackathon by slug:", error);
+    return null;
+  }
+});
+
+export const getAllHackathonSlugs = cache(async (): Promise<string[]> => {
+  try {
+    const rows = await prisma.hackathon.findMany({ select: { slug: true } });
+    return rows.map((r) => r.slug);
+  } catch (error) {
+    console.error("Failed to fetch hackathon slugs:", error);
+    return [];
+  }
+});
+
+export const getCertificationBySlug = cache(async (slug: string): Promise<CertificationDTO | null> => {
+  try {
+    const row = await prisma.certification.findUnique({ where: { slug } });
+    return row ? toCertificationDTO(row) : null;
+  } catch (error) {
+    console.error("Failed to fetch certification by slug:", error);
+    return null;
+  }
+});
+
+export const getAllCertificationSlugs = cache(async (): Promise<string[]> => {
+  try {
+    const rows = await prisma.certification.findMany({ select: { slug: true } });
+    return rows.map((r) => r.slug);
+  } catch (error) {
+    console.error("Failed to fetch certification slugs:", error);
+    return [];
+  }
+});
+
+export const getEducation = cache(async (): Promise<EducationDTO[]> => {
+  try {
+    const rows = await prisma.education.findMany({ orderBy: { order: "asc" } });
+    return rows.map(toEducationDTO);
+  } catch (error) {
+    console.error("Failed to fetch education:", error);
+    return [];
+  }
+});
+
+export const getEducationBySlug = cache(async (slug: string): Promise<EducationDTO | null> => {
+  try {
+    const row = await prisma.education.findUnique({ where: { slug } });
+    return row ? toEducationDTO(row) : null;
+  } catch (error) {
+    console.error("Failed to fetch education by slug:", error);
+    return null;
+  }
+});

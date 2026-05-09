@@ -126,6 +126,7 @@ model ContactMessage {
 
 model Hackathon {
   id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
   project     String
   role        String?
@@ -142,6 +143,7 @@ model Hackathon {
 
 model Certification {
   id           String   @id @default(cuid())
+  slug         String   @unique
   name         String
   issuer       String
   date         DateTime
@@ -149,6 +151,24 @@ model Certification {
   credentialId String?
   image        String?
   createdAt    DateTime @default(now())
+}
+
+// ─── Education ───────────────────────────────────────────────────────────────
+
+model Education {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  institution String
+  degree      String
+  field       String?
+  startYear   String
+  endYear     String?
+  current     Boolean  @default(false)
+  description String?
+  gpa         String?
+  location    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
 }
 
 // ─── Page Views (Analytics) ──────────────────────────────────────────────────

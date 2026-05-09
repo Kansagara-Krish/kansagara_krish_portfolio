@@ -24,20 +24,19 @@ export default function HackathonsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchHackathons = async () => {
+      try {
+        const res = await fetch("/api/admin/hackathons");
+        const json = await res.json() as { data?: Hackathon[] };
+        setHackathons(json.data || []);
+      } catch (error) {
+        console.error("Error fetching hackathons:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchHackathons();
   }, []);
-
-  const fetchHackathons = async () => {
-    try {
-      const res = await fetch("/api/admin/hackathons");
-      const json = await res.json() as { data?: Hackathon[] };
-      setHackathons(json.data || []);
-    } catch (error) {
-      console.error("Error fetching hackathons:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this hackathon?")) return;

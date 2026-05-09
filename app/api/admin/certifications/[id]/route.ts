@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/utils";
 
 const certificationSchema = z.object({
+  slug: z.string().optional(),
   name: z.string().min(1, "Name is required"),
   issuer: z.string().min(1, "Issuer is required"),
   date: z.string().or(z.date()),
@@ -66,9 +68,13 @@ export async function PUT(
       );
     }
 
+    const data = {
+      ...result.data,
+      slug: result.data.slug || slugify(result.data.name),
+    };
     const certification = await prisma.certification.update({
       where: { id },
-      data: result.data,
+      data,
     });
 
     return NextResponse.json({ data: certification });

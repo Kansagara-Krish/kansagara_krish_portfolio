@@ -9,9 +9,11 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface Hackathon {
   id: string;
+  slug: string;
   title: string;
   project: string;
   role?: string;
@@ -32,6 +34,7 @@ export default function EditHackathonPage() {
   const [hackathon, setHackathon] = useState<Hackathon | null>(null);
 
   const [formData, setFormData] = useState({
+    slug: "",
     title: "",
     project: "",
     role: "",
@@ -45,36 +48,36 @@ export default function EditHackathonPage() {
 
   useEffect(() => {
     if (params.adminId) {
+      const fetchHackathon = async () => {
+        try {
+          const res = await fetch(`/api/admin/hackathons/${params.adminId}`);
+          const json = await res.json() as { data?: Hackathon };
+          const data = json.data;
+
+          if (data) {
+            setHackathon(data);
+            setFormData({
+              slug: data.slug || "",
+              title: data.title,
+              project: data.project,
+              role: data.role || "",
+              date: data.date.split("T")[0],
+              location: data.location || "",
+              result: data.result || "",
+              link: data.link || "",
+              description: data.description,
+              image: data.image || "",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching hackathon:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
       fetchHackathon();
     }
   }, [params.adminId]);
-
-  const fetchHackathon = async () => {
-    try {
-      const res = await fetch(`/api/admin/hackathons/${params.adminId}`);
-      const json = await res.json() as { data?: Hackathon };
-      const data = json.data;
-
-      if (data) {
-        setHackathon(data);
-        setFormData({
-          title: data.title,
-          project: data.project,
-          role: data.role || "",
-          date: data.date ? new Date(data.date).toISOString().split('T')[0] : "",
-          location: data.location || "",
-          result: data.result || "",
-          link: data.link || "",
-          description: data.description,
-          image: data.image || "",
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching hackathon:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,6 +161,14 @@ export default function EditHackathonPage() {
                 {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
               </div>
               <div>
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                />
+              </div>
+              <div>
                 <Label htmlFor="project">Project *</Label>
                 <Input
                   id="project"
@@ -235,11 +246,11 @@ export default function EditHackathonPage() {
               {errors.link && <p className="mt-1 text-sm text-red-600">{errors.link}</p>}
             </div>
             <div>
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
+              <Label>Hackathon Image</Label>
+              <FileUpload
                 value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                onChange={(url) => setFormData({ ...formData, image: url })}
+                label="Upload hackathon image"
               />
               {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
             </div>

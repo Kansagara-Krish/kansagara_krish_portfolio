@@ -22,20 +22,19 @@ export default function BlogPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch("/api/admin/blog");
+        const json = await res.json() as { data?: BlogPost[] };
+        setPosts(json.data || []);
+      } catch (error) {
+        console.error("Error fetching blog posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchPosts();
   }, []);
-
-  const fetchPosts = async () => {
-    try {
-      const res = await fetch("/api/admin/blog");
-      const json = await res.json() as { data?: BlogPost[] };
-      setPosts(json.data || []);
-    } catch (error) {
-      console.error("Error fetching blog posts:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this blog post?")) return;
@@ -58,8 +57,8 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -68,49 +67,49 @@ export default function BlogPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold">Blog Posts</h1>
-          <p className="mt-2 text-muted">Write and manage blog articles</p>
+          <h1 className="font-display text-2xl tracking-tight">Blog Posts</h1>
+          <p className="mt-1 text-sm text-muted">Write and manage blog articles</p>
         </div>
         <Link href="/admin/blog/new">
-          <Button>
+          <Button size="sm">
             <Plus className="mr-2 h-4 w-4" />
-            Add Post
+            Add
           </Button>
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-4">
+      <div className="mt-6 grid gap-3">
         {posts.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center text-muted">
+            <CardContent className="p-8 text-center text-sm text-muted">
               No blog posts yet. Write your first post!
             </CardContent>
           </Card>
         ) : (
           posts.map((post) => (
             <Card key={post.id}>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-display text-lg font-semibold">{post.title}</h3>
+                      <h3 className="font-medium">{post.title}</h3>
                       {post.published ? (
-                        <span className="rounded-full bg-green-500 px-2 py-0.5 text-xs text-white">
+                        <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] text-white">
                           Published
                         </span>
                       ) : (
-                        <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-xs">
+                        <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[10px] text-muted">
                           Draft
                         </span>
                       )}
                     </div>
                     <p className="mt-1 text-sm text-muted">{post.excerpt}</p>
                     {post.tags.length > 0 && (
-                      <div className="mt-2 flex gap-2 flex-wrap">
+                      <div className="mt-2 flex gap-1.5 flex-wrap">
                         {post.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="rounded-full bg-surface border border-border px-2 py-0.5 text-xs"
+                            className="rounded-full bg-surface border border-border px-2 py-0.5 text-[10px] text-muted"
                           >
                             {tag}
                           </span>
@@ -122,13 +121,13 @@ export default function BlogPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">
-                    Created: {new Date(post.createdAt).toLocaleDateString()}
+                  <span className="text-xs text-muted">
+                    {new Date(post.createdAt).toLocaleDateString()}
                   </span>
                   <div className="flex gap-2">
                     <Link href={`/admin/blog/edit/${post.id}`}>
                       <Button size="sm" variant="outline">
-                        <Pencil className="mr-2 h-4 w-4" />
+                        <Pencil className="mr-2 h-3.5 w-3.5" />
                         Edit
                       </Button>
                     </Link>
@@ -139,9 +138,9 @@ export default function BlogPage() {
                       disabled={deleting === post.id}
                     >
                       {deleting === post.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       )}
                     </Button>
                   </div>

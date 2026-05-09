@@ -23,20 +23,19 @@ export default function CertificationsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchCertifications = async () => {
+      try {
+        const res = await fetch("/api/admin/certifications");
+        const json = await res.json() as { data?: Certification[] };
+        setCertifications(json.data || []);
+      } catch (error) {
+        console.error("Error fetching certifications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchCertifications();
   }, []);
-
-  const fetchCertifications = async () => {
-    try {
-      const res = await fetch("/api/admin/certifications");
-      const json = await res.json() as { data?: Certification[] };
-      setCertifications(json.data || []);
-    } catch (error) {
-      console.error("Error fetching certifications:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this certification?")) return;

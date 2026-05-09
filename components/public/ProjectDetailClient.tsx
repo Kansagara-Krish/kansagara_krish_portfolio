@@ -23,41 +23,35 @@ export function ProjectDetailClient({ project, related }: { project: ProjectDTO;
 
   return (
     <article className="relative min-h-screen">
-      {/* Immersive Header */}
-      <div className="relative h-[65vh] min-h-[500px] w-full overflow-hidden">
+      <div className="relative h-[55vh] min-h-[400px] w-full overflow-hidden">
         <Image
           src={project.imageUrl || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=800&fit=crop"}
           alt={project.title}
           fill
           priority
-          className="object-cover transition-transform duration-700"
+          className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,var(--color-bg)_100%)] opacity-40" />
-        
-        <div className="absolute inset-0 flex items-end pb-24">
-          <div className="mx-auto w-full max-w-7xl px-6">
-            <motion.div 
-              variants={staggerContainer}
-              initial="hidden"
-              animate="visible"
-            >
-              <motion.div variants={fadeInUp} className="flex flex-wrap gap-2 mb-6">
-                <Badge variant={project.status === "completed" ? "success" : "warning"} className="glass px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
+        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/40 to-transparent" />
+
+        <div className="absolute inset-0 flex items-end pb-16">
+          <div className="mx-auto w-full max-w-5xl px-6">
+            <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+              <motion.div variants={fadeInUp} className="flex flex-wrap gap-2 mb-5">
+                <Badge variant={project.status === "completed" ? "success" : "warning"} className="bg-white/10 text-white border-white/20">
                   {project.status}
                 </Badge>
                 {project.techStack.map((tech) => (
-                  <Badge key={tech} variant="muted" className="glass border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+                  <Badge key={tech} variant="muted" className="bg-white/10 text-white border-white/20">
                     {tech}
                   </Badge>
                 ))}
               </motion.div>
-              <motion.h1 variants={fadeInUp} className="font-display text-6xl font-black tracking-tight text-white sm:text-8xl lg:text-9xl">
+              <motion.h1 variants={fadeInUp} className="font-display text-4xl tracking-tight text-white sm:text-5xl lg:text-6xl">
                 {project.title}
               </motion.h1>
               {project.subtitle ? (
-                <motion.p variants={fadeInUp} className="mt-6 max-w-3xl text-xl font-semibold leading-relaxed text-white/85 sm:text-2xl">
+                <motion.p variants={fadeInUp} className="mt-4 max-w-2xl text-lg text-white/80 sm:text-xl">
                   {project.subtitle}
                 </motion.p>
               ) : null}
@@ -66,60 +60,60 @@ export function ProjectDetailClient({ project, related }: { project: ProjectDTO;
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-24">
-        <div className="grid gap-16 lg:grid-cols-[1fr_300px]">
+      <div className="mx-auto max-w-5xl px-6 py-16">
+        <div className="grid gap-16 lg:grid-cols-[1fr_280px]">
           <div>
-            <div className="mb-12 flex items-center justify-between border-b border-border pb-8">
-              <Button href="/projects" variant="ghost" className="group -ml-4" icon={<ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1" />}>
+            <div className="mb-10 flex items-center justify-between border-b border-border pb-6">
+              <Button href="/projects" variant="ghost" className="group -ml-3" icon={<ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />}>
                 Back to gallery
               </Button>
               <div className="flex gap-3">
                 {project.githubUrl ? (
-                  <Button href={project.githubUrl} variant="secondary" size="lg" className="rounded-full px-6" icon={<Github size={20} />}>Source</Button>
+                  <Button href={project.githubUrl} variant="secondary" size="md" icon={<Github size={16} />}>Source</Button>
                 ) : null}
                 {project.liveUrl ? (
-                  <Button href={project.liveUrl} size="lg" className="rounded-full px-6" icon={<ExternalLink size={20} />}>Live Site</Button>
+                  <Button href={project.liveUrl} size="md" icon={<ExternalLink size={16} />}>Live</Button>
                 ) : null}
               </div>
             </div>
 
-            <p className="text-2xl font-medium leading-relaxed text-muted/90 sm:text-3xl lg:text-4xl">
+            <p className="text-xl leading-relaxed text-muted sm:text-2xl">
               {project.description}
             </p>
 
             {project.problem || project.solution || project.impact ? (
-              <div className="mt-16 grid gap-5 md:grid-cols-3">
+              <div className="mt-14 grid gap-4 md:grid-cols-3">
                 {project.problem ? (
-                  <section className="rounded-[8px] border border-border bg-surface/60 p-6 dark:bg-surface/20">
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Problem</p>
-                    <p className="mt-4 text-sm leading-7 text-muted">{project.problem}</p>
+                  <section className="rounded-xl border border-border bg-surface p-6">
+                    <p className="text-xs font-medium uppercase tracking-wider text-primary">Problem</p>
+                    <p className="mt-3 text-sm leading-relaxed text-muted">{project.problem}</p>
                   </section>
                 ) : null}
                 {project.solution ? (
-                  <section className="rounded-[8px] border border-border bg-surface/60 p-6 dark:bg-surface/20">
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Solution</p>
-                    <p className="mt-4 text-sm leading-7 text-muted">{project.solution}</p>
+                  <section className="rounded-xl border border-border bg-surface p-6">
+                    <p className="text-xs font-medium uppercase tracking-wider text-primary">Solution</p>
+                    <p className="mt-3 text-sm leading-relaxed text-muted">{project.solution}</p>
                   </section>
                 ) : null}
                 {project.impact ? (
-                  <section className="rounded-[8px] border border-border bg-surface/60 p-6 dark:bg-surface/20">
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Impact</p>
-                    <p className="mt-4 text-sm leading-7 text-muted">{project.impact}</p>
+                  <section className="rounded-xl border border-border bg-surface p-6">
+                    <p className="text-xs font-medium uppercase tracking-wider text-primary">Impact</p>
+                    <p className="mt-3 text-sm leading-relaxed text-muted">{project.impact}</p>
                   </section>
                 ) : null}
               </div>
             ) : null}
 
             {project.features.length > 0 || project.outcomes.length > 0 ? (
-              <div className="mt-16 grid gap-10 md:grid-cols-2">
+              <div className="mt-14 grid gap-8 md:grid-cols-2">
                 {project.features.length > 0 ? (
                   <section>
-                    <h2 className="font-display text-3xl font-black tracking-tight">Key Features</h2>
-                    <div className="mt-6 grid gap-3">
+                    <h2 className="font-display text-xl tracking-tight">Key Features</h2>
+                    <div className="mt-5 grid gap-2">
                       {project.features.map((feature) => (
-                        <div key={feature} className="flex gap-3 rounded-[8px] border border-border bg-surface/40 p-4 dark:bg-surface/10">
-                          <CheckCircle2 size={18} className="mt-1 shrink-0 text-primary" />
-                          <span className="text-sm leading-6 text-muted">{feature}</span>
+                        <div key={feature} className="flex gap-3 rounded-xl border border-border bg-surface p-4">
+                          <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-primary" />
+                          <span className="text-sm text-muted">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -127,12 +121,12 @@ export function ProjectDetailClient({ project, related }: { project: ProjectDTO;
                 ) : null}
                 {project.outcomes.length > 0 ? (
                   <section>
-                    <h2 className="font-display text-3xl font-black tracking-tight">Outcomes</h2>
-                    <div className="mt-6 grid gap-3">
+                    <h2 className="font-display text-xl tracking-tight">Outcomes</h2>
+                    <div className="mt-5 grid gap-2">
                       {project.outcomes.map((outcome) => (
-                        <div key={outcome} className="flex gap-3 rounded-[8px] border border-border bg-surface/40 p-4 dark:bg-surface/10">
-                          <Sparkles size={18} className="mt-1 shrink-0 text-primary" />
-                          <span className="text-sm leading-6 text-muted">{outcome}</span>
+                        <div key={outcome} className="flex gap-3 rounded-xl border border-border bg-surface p-4">
+                          <Sparkles size={16} className="mt-0.5 shrink-0 text-primary" />
+                          <span className="text-sm text-muted">{outcome}</span>
                         </div>
                       ))}
                     </div>
@@ -141,18 +135,18 @@ export function ProjectDetailClient({ project, related }: { project: ProjectDTO;
               </div>
             ) : null}
 
-            <div 
-              className="prose-content mt-20 max-w-none text-lg leading-loose" 
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.content) }} 
+            <div
+              className="prose-content mt-16 max-w-none"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.content) }}
             />
 
             {project.galleryImages.length > 0 ? (
-              <section className="mt-20">
-                <h2 className="font-display text-4xl font-black tracking-tight">Project Gallery</h2>
-                <div className="mt-8 grid gap-5 sm:grid-cols-2">
+              <section className="mt-16">
+                <h2 className="font-display text-2xl tracking-tight">Project Gallery</h2>
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {project.galleryImages.map((imageUrl) => (
-                    <div key={imageUrl} className="relative aspect-[16/10] overflow-hidden rounded-[8px] border border-border bg-surface">
-                      <Image src={imageUrl} alt={`${project.title} screenshot`} fill className="object-cover" sizes="(min-width: 1024px) 360px, 100vw" />
+                    <div key={imageUrl} className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface">
+                      <Image src={imageUrl} alt={`${project.title} screenshot`} fill className="object-cover" sizes="(min-width: 1024px) 320px, 100vw" />
                     </div>
                   ))}
                 </div>
@@ -160,44 +154,44 @@ export function ProjectDetailClient({ project, related }: { project: ProjectDTO;
             ) : null}
           </div>
 
-          <aside className="space-y-12">
-            <div className="glass rounded-[8px] p-8">
-              <h3 className="mb-6 flex items-center gap-2 font-display text-sm font-black uppercase tracking-[0.2em] text-primary">
-                <Sparkles size={16} />
+          <aside className="space-y-8">
+            <div className="rounded-xl border border-border bg-surface p-6">
+              <h3 className="mb-5 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-primary">
+                <Sparkles size={14} />
                 Overview
               </h3>
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted/50">Phase</span>
-                  <span className="text-2xl font-black capitalize">{project.status}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted">Phase</span>
+                  <span className="mt-1 text-lg font-medium capitalize">{project.status}</span>
                 </div>
                 {overviewItems.map(([label, value]) => (
                   <div key={label} className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted/50">{label}</span>
-                    <span className="text-base font-bold">{value}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted">{label}</span>
+                    <span className="mt-1 text-sm font-medium">{value}</span>
                   </div>
                 ))}
               </div>
             </div>
-            
-            <div className="glass rounded-[8px] p-8">
-              <h3 className="mb-6 font-display text-sm font-black uppercase tracking-[0.2em] text-primary">Core Tech</h3>
-              <div className="flex flex-wrap gap-x-6 gap-y-3">
+
+            <div className="rounded-xl border border-border bg-surface p-6">
+              <h3 className="mb-5 text-xs font-medium uppercase tracking-widest text-primary">Core Tech</h3>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {project.techStack.map((tech) => (
-                  <span key={tech} className="text-sm font-bold tracking-tight text-muted transition-colors hover:text-text">{tech}</span>
+                  <span key={tech} className="text-sm text-muted">{tech}</span>
                 ))}
               </div>
             </div>
 
             {projectLinks.length > 0 ? (
-              <div className="glass rounded-[8px] p-8">
-                <h3 className="mb-6 flex items-center gap-2 font-display text-sm font-black uppercase tracking-[0.2em] text-primary">
-                  <LinkIcon size={16} />
+              <div className="rounded-xl border border-border bg-surface p-6">
+                <h3 className="mb-5 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-primary">
+                  <LinkIcon size={14} />
                   Links
                 </h3>
-                <div className="grid gap-3">
+                <div className="grid gap-2">
                   {projectLinks.map((link) => (
-                    <Button key={`${link.label}-${link.url}`} href={link.url} target="_blank" variant="secondary" className="justify-between" icon={<ExternalLink size={16} />}>
+                    <Button key={`${link.label}-${link.url}`} href={link.url} target="_blank" variant="secondary" className="justify-between text-sm" icon={<ExternalLink size={14} />}>
                       {link.label}
                     </Button>
                   ))}
@@ -209,18 +203,18 @@ export function ProjectDetailClient({ project, related }: { project: ProjectDTO;
       </div>
 
       {related.length > 0 ? (
-        <section className="border-t border-border bg-surface/30 py-32 dark:bg-surface/5">
+        <section className="border-t border-border bg-surface/50 py-20 dark:bg-surface/20">
           <div className="mx-auto max-w-6xl px-6">
-            <div className="mb-16 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+            <div className="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.2em] text-primary">Next Steps</p>
-                <h2 className="mt-4 font-display text-5xl font-black tracking-tight">Similar Builds</h2>
+                <p className="text-xs font-medium uppercase tracking-widest text-primary">More</p>
+                <h2 className="mt-3 font-display text-2xl tracking-tight sm:text-3xl">Similar Builds</h2>
               </div>
-              <Button href="/projects" variant="ghost" className="group" icon={<ArrowLeft size={18} className="rotate-180 transition-transform group-hover:translate-x-1" />}>
+              <Button href="/projects" variant="ghost" icon={<ArrowLeft size={16} className="rotate-180" />}>
                 All projects
               </Button>
             </div>
-            <div className="grid gap-10 md:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-3">
               {related.map((item) => <ProjectCard key={item.id} project={item} />)}
             </div>
           </div>

@@ -51,89 +51,89 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="glass group relative grid gap-6 overflow-hidden rounded-[3rem] p-8 md:p-12 shadow-2xl">
+    <form onSubmit={onSubmit} className="grid gap-6 rounded-2xl border border-border bg-surface p-8 md:p-10">
       <div className="grid gap-2">
-        <label className="text-xs font-black uppercase tracking-[0.2em] text-muted/60" htmlFor="name">Full Name</label>
-        <Input 
-          id="name" 
-          name="name" 
-          required 
-          minLength={2} 
-          placeholder="John Doe"
-          className="h-14 rounded-2xl border-border/50 bg-surface/50 px-6 font-bold placeholder:text-muted/30 focus:border-primary focus:bg-surface dark:bg-surface/10 dark:focus:bg-surface/20"
+        <label className="text-xs font-medium text-muted" htmlFor="name">Name</label>
+        <Input
+          id="name"
+          name="name"
+          required
+          minLength={2}
+          placeholder="Your name"
+          className="bg-bg"
         />
       </div>
-      
+
       <div className="grid gap-2">
-        <label className="text-xs font-black uppercase tracking-[0.2em] text-muted/60" htmlFor="email">Email Address</label>
-        <Input 
-          id="email" 
-          name="email" 
-          type="email" 
-          required 
-          placeholder="john@example.com"
-          className="h-14 rounded-2xl border-border/50 bg-surface/50 px-6 font-bold placeholder:text-muted/30 focus:border-primary focus:bg-surface dark:bg-surface/10 dark:focus:bg-surface/20"
+        <label className="text-xs font-medium text-muted" htmlFor="email">Email</label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          required
+          placeholder="you@example.com"
+          className="bg-bg"
         />
       </div>
-      
+
       <div className="grid gap-2">
-        <label className="text-xs font-black uppercase tracking-[0.2em] text-muted/60" htmlFor="subject">Subject</label>
-        <Input 
-          id="subject" 
-          name="subject" 
-          required 
-          minLength={3} 
-          placeholder="Project Collaboration"
-          className="h-14 rounded-2xl border-border/50 bg-surface/50 px-6 font-bold placeholder:text-muted/30 focus:border-primary focus:bg-surface dark:bg-surface/10 dark:focus:bg-surface/20"
+        <label className="text-xs font-medium text-muted" htmlFor="subject">Subject</label>
+        <Input
+          id="subject"
+          name="subject"
+          required
+          minLength={3}
+          placeholder="What's this about?"
+          className="bg-bg"
         />
       </div>
-      
+
       <div className="grid gap-2">
-        <label className="text-xs font-black uppercase tracking-[0.2em] text-muted/60" htmlFor="message">Message</label>
-        <Textarea 
-          id="message" 
-          name="message" 
-          required 
-          minLength={10} 
+        <label className="text-xs font-medium text-muted" htmlFor="message">Message</label>
+        <Textarea
+          id="message"
+          name="message"
+          required
+          minLength={10}
           placeholder="Tell me about your project..."
-          className="min-h-[150px] rounded-2xl border-border/50 bg-surface/50 p-6 font-bold placeholder:text-muted/30 focus:border-primary focus:bg-surface dark:bg-surface/10 dark:focus:bg-surface/20"
+          className="bg-bg min-h-[140px]"
         />
       </div>
 
       <AnimatePresence mode="wait">
         {state === "success" && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-3 rounded-2xl bg-emerald-500/10 p-4 text-sm font-bold text-emerald-500"
+            className="flex items-center gap-2 rounded-lg bg-emerald-600/10 p-4 text-sm text-emerald-700 dark:text-emerald-400"
           >
-            <CheckCircle2 size={18} />
+            <CheckCircle2 size={16} />
             Message sent! I&apos;ll get back to you soon.
           </motion.div>
         )}
-        
+
         {state === "error" && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-3 rounded-2xl bg-red-500/10 p-4 text-sm font-bold text-red-500"
+            className="flex items-center gap-2 rounded-lg bg-red-600/10 p-4 text-sm text-red-700 dark:text-red-400"
           >
-            <AlertCircle size={18} />
+            <AlertCircle size={16} />
             {error}
           </motion.div>
         )}
       </AnimatePresence>
 
-      <Button 
-        type="submit" 
-        disabled={state === "loading"} 
-        size="xl" 
-        className="mt-4 rounded-2xl py-8 text-lg font-black tracking-tight"
-        icon={<Send size={20} className={cn("transition-transform", state === "loading" && "animate-pulse")} />}
+      <Button
+        type="submit"
+        disabled={state === "loading"}
+        size="lg"
+        className="mt-2"
+        icon={<Send size={16} className={cn("transition-transform", state === "loading" && "animate-pulse")} />}
       >
-        {state === "loading" ? "Transmitting..." : "Send Message"}
+        {state === "loading" ? "Sending..." : "Send Message"}
       </Button>
     </form>
   );

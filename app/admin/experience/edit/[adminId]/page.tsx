@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface Experience {
   id: string;
@@ -49,38 +50,37 @@ export default function EditExperiencePage() {
 
   useEffect(() => {
     if (params.adminId) {
+      const fetchExperience = async () => {
+        try {
+          const res = await fetch(`/api/admin/experience/${params.adminId}`);
+          const json = await res.json() as { data?: Experience };
+          const data = json.data;
+
+          if (data) {
+            setExperience(data);
+            setFormData({
+              company: data.company,
+              role: data.role,
+              location: data.location || "",
+              type: data.type,
+              startDate: data.startDate.split("T")[0],
+              endDate: data.endDate ? data.endDate.split("T")[0] : "",
+              current: data.current,
+              description: data.description,
+              skills: data.skills.join("\n"),
+              logoUrl: data.logoUrl || "",
+              order: data.order,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching experience:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
       fetchExperience();
     }
   }, [params.adminId]);
-
-  const fetchExperience = async () => {
-    try {
-      const res = await fetch(`/api/admin/experience/${params.adminId}`);
-      const json = await res.json() as { data?: Experience };
-      const data = json.data;
-
-      if (data) {
-        setExperience(data);
-        setFormData({
-          company: data.company,
-          role: data.role,
-          location: data.location || "",
-          type: data.type,
-          startDate: data.startDate ? new Date(data.startDate).toISOString().split('T')[0] : "",
-          endDate: data.endDate ? new Date(data.endDate).toISOString().split('T')[0] : "",
-          current: data.current,
-          description: data.description,
-          skills: data.skills?.join("\n") || "",
-          logoUrl: data.logoUrl || "",
-          order: data.order,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching experience:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,11 +263,11 @@ export default function EditExperiencePage() {
             <h2 className="font-display text-xl font-semibold">Media</h2>
           </CardHeader>
           <CardContent>
-            <Label htmlFor="logoUrl">Company Logo URL</Label>
-            <Input
-              id="logoUrl"
+            <Label>Company Logo</Label>
+            <FileUpload
               value={formData.logoUrl}
-              onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+              onChange={(url) => setFormData({ ...formData, logoUrl: url })}
+              label="Upload company logo"
             />
             {errors.logoUrl && <p className="mt-1 text-sm text-red-600">{errors.logoUrl}</p>}
           </CardContent>

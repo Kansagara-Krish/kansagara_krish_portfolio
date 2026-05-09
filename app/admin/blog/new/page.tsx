@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface BlogPost {
   id: string;
@@ -142,11 +143,11 @@ export default function NewBlogPostPage() {
             <h2 className="font-display text-xl font-semibold">Media</h2>
           </CardHeader>
           <CardContent>
-            <Label htmlFor="coverImage">Cover Image URL</Label>
-            <Input
-              id="coverImage"
+            <Label>Cover Image</Label>
+            <FileUpload
               value={formData.coverImage}
-              onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
+              onChange={(url) => setFormData({ ...formData, coverImage: url })}
+              label="Upload cover image"
             />
             {errors.coverImage && <p className="mt-1 text-sm text-red-600">{errors.coverImage}</p>}
           </CardContent>

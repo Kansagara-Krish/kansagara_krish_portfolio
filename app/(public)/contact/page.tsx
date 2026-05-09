@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/Badge";
 import { ContactForm } from "@/components/public/ContactForm";
 import { getSiteSettings } from "@/lib/data";
 import { defaultSettings } from "@/lib/defaults";
-import { cn } from "@/lib/utils";
 
 export const revalidate = 3600;
 
@@ -21,78 +20,73 @@ export const metadata: Metadata = {
 export default async function ContactPage() {
   const settings = await getSiteSettings().then(s => s || defaultSettings);
   const socials = [
-    settings.github ? { href: settings.github, label: "GitHub", icon: Github, color: "hover:text-[#333] hover:bg-[#333]/5" } : null,
-    settings.linkedin ? { href: settings.linkedin, label: "LinkedIn", icon: Linkedin, color: "hover:text-[#0077b5] hover:bg-[#0077b5]/5" } : null,
-    settings.twitter ? { href: settings.twitter, label: "Twitter", icon: X, color: "hover:text-[#1da1f2] hover:bg-[#1da1f2]/5" } : null
-  ].filter((item): item is { href: string; label: string; icon: typeof Github; color: string } => Boolean(item));
+    settings.github ? { href: settings.github, label: "GitHub", icon: Github } : null,
+    settings.linkedin ? { href: settings.linkedin, label: "LinkedIn", icon: Linkedin } : null,
+    settings.twitter ? { href: settings.twitter, label: "Twitter", icon: X } : null
+  ].filter((item): item is { href: string; label: string; icon: typeof Github } => Boolean(item));
 
   return (
     <div className="relative overflow-hidden">
-      {/* Background Visuals */}
-      <div className="mesh-gradient absolute inset-0 opacity-10" />
-      
-      <section className="relative z-10 mx-auto max-w-6xl px-4 py-24">
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-24">
         <div className="grid gap-16 lg:grid-cols-[1fr_1.2fr]">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Get in touch</p>
-            <h1 className="mt-6 font-display text-5xl font-black tracking-tight sm:text-7xl">
-              Let&apos;s build <span className="text-gradient">Something.</span>
+            <p className="text-xs font-medium uppercase tracking-widest text-primary">Get in touch</p>
+            <h1 className="mt-6 font-display text-4xl tracking-tight sm:text-5xl lg:text-6xl">
+              Let&apos;s build <span className="text-gradient">something.</span>
             </h1>
-            <p className="mt-8 text-xl leading-relaxed text-muted/90">
+            <p className="mt-6 text-base leading-relaxed text-muted sm:text-lg">
               I&apos;m always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
             </p>
 
-            <div className="mt-12 space-y-8">
-              <div className="glass flex items-center gap-6 rounded-3xl p-6 transition-transform hover:translate-x-1">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Mail size={24} />
+            <div className="mt-10 space-y-5">
+              <div className="flex items-center gap-5 rounded-xl border border-border bg-surface p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Mail size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-muted/50">Email me at</p>
-                  <p className="text-xl font-bold">{settings.email}</p>
+                  <p className="text-xs text-muted">Email</p>
+                  <p className="mt-0.5 text-sm font-medium">{settings.email}</p>
                 </div>
               </div>
 
-              <div className="glass flex items-center gap-6 rounded-3xl p-6 transition-transform hover:translate-x-1">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500">
-                  <Sparkles size={24} />
+              <div className="flex items-center gap-5 rounded-xl border border-border bg-surface p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Sparkles size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-muted/50">Status</p>
+                  <p className="text-xs text-muted">Status</p>
                   <div className="mt-1">
                     {settings.openToWork ? (
-                      <Badge variant="success" className="px-4 py-1 font-black uppercase tracking-widest">Available</Badge>
+                      <Badge variant="success">Available</Badge>
                     ) : (
-                      <Badge variant="muted" className="px-4 py-1 font-black uppercase tracking-widest">Focused</Badge>
+                      <Badge variant="muted">Focused</Badge>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-12">
-              <p className="mb-6 text-xs font-black uppercase tracking-widest text-muted/50">Social Connect</p>
-              <div className="flex gap-4">
-                {socials.map(({ href, label, icon: Icon, color }) => (
-                  <Link 
-                    key={label} 
-                    href={href} 
-                    target="_blank"
-                    className={cn(
-                      "flex h-14 w-14 items-center justify-center rounded-2xl bg-surface border border-border/50 text-muted transition-all duration-300 hover:-translate-y-1 dark:bg-surface/10",
-                      color
-                    )} 
-                    aria-label={label}
-                  >
-                    <Icon size={24} />
-                  </Link>
-                ))}
+            {socials.length > 0 && (
+              <div className="mt-10">
+                <p className="text-xs text-muted">Social</p>
+                <div className="mt-4 flex gap-3">
+                  {socials.map(({ href, label, icon: Icon }) => (
+                    <Link
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      className="flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface text-muted transition-colors hover:border-text/30 hover:text-text"
+                      aria-label={label}
+                    >
+                      <Icon size={18} />
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-4 rounded-[3rem] bg-gradient-to-br from-primary/20 to-transparent blur-2xl opacity-50" />
+          <div>
             <ContactForm />
           </div>
         </div>

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-outfit), Outfit, Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-serif), "DM Serif Display", Georgia, serif;
 
   --color-bg: var(--color-bg-val);
   --color-surface: var(--color-surface-val);
@@ -20,57 +20,45 @@
 
 :root {
   --font-inter: Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-outfit: Outfit, Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "DM Serif Display", Georgia, serif;
 
-  --color-bg-val: #ffffff;
-  --color-surface-val: #f9fafb;
-  --color-border-val: rgba(0, 0, 0, 0.08);
-  --color-text-val: #111827;
-  --color-muted-val: #4b5563;
-  --color-primary-val: #6366f1;
-  --color-primary-hover-val: #4f46e5;
+  --color-bg-val: #fafaf9;
+  --color-surface-val: #ffffff;
+  --color-border-val: #e7e5e4;
+  --color-text-val: #1c1917;
+  --color-muted-val: #78716c;
+  --color-primary-val: #b45309;
+  --color-primary-hover-val: #92400e;
 
-  --shadow-sm-val: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md-val: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg-val: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl-val: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  
+  --shadow-sm-val: 0 1px 2px 0 rgb(28 25 23 / 0.04);
+  --shadow-md-val: 0 4px 6px -1px rgb(28 25 23 / 0.06), 0 2px 4px -2px rgb(28 25 23 / 0.04);
+  --shadow-lg-val: 0 10px 15px -3px rgb(28 25 23 / 0.08), 0 4px 6px -4px rgb(28 25 23 / 0.04);
+  --shadow-xl-val: 0 20px 25px -5px rgb(28 25 23 / 0.08), 0 8px 10px -6px rgb(28 25 23 / 0.04);
+
   color-scheme: light;
 }
 
 html[data-theme="dark"] {
-  --color-bg-val: #030712;
-  --color-surface-val: #111827;
-  --color-border-val: rgba(255, 255, 255, 0.1);
-  --color-text-val: #f9fafb;
-  --color-muted-val: #9ca3af;
-  --color-primary-val: #818cf8;
-  --color-primary-hover-val: #6366f1;
-  
+  --color-bg-val: #0c0a09;
+  --color-surface-val: #1c1917;
+  --color-border-val: #292524;
+  --color-text-val: #f5f5f4;
+  --color-muted-val: #a8a29e;
+  --color-primary-val: #fbbf24;
+  --color-primary-hover-val: #f59e0b;
+
   color-scheme: dark;
 }
 
-@utility mesh-gradient {
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-}
-
-@utility glass {
-  backdrop-blur: var(--blur-md);
-  border: 1px solid var(--color-border);
-  background-color: rgba(255, 255, 255, 0.7);
-}
-
-html[data-theme="dark"] .glass {
-  background-color: rgba(17, 24, 39, 0.7);
-}
-
 @utility text-gradient {
-  background-image: linear-gradient(to bottom right, var(--color-text), var(--color-muted));
+  background-image: linear-gradient(135deg, var(--color-primary), var(--color-muted));
   background-clip: text;
   color: transparent;
+}
+
+@utility divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-border), transparent);
 }
 
 * {
@@ -90,32 +78,41 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Base styles for borders using the new theme variables */
 *, ::before, ::after {
   border-color: var(--color-border);
 }
 
 a, button, input, textarea, select {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 ::selection {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(180, 83, 9, 0.2);
+}
+
+html[data-theme="dark"] ::selection {
+  background: rgba(251, 191, 36, 0.2);
 }
 
 .prose-content {
   color: var(--color-text);
-  line-height: 1.78;
+  line-height: 1.8;
+  font-size: 1.05rem;
 }
 
 .prose-content h1,
 .prose-content h2,
 .prose-content h3 {
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-display), serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
+
+.prose-content h1 { font-size: 2.25rem; }
+.prose-content h2 { font-size: 1.75rem; }
+.prose-content h3 { font-size: 1.375rem; }
 
 .prose-content p,
 .prose-content ul,
@@ -123,12 +120,12 @@ a, button, input, textarea, select {
 .prose-content blockquote,
 .prose-content pre,
 .prose-content table {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .prose-content ul,
 .prose-content ol {
-  padding-left: 1.4rem;
+  padding-left: 1.5rem;
 }
 
 .prose-content ul {
@@ -140,56 +137,70 @@ a, button, input, textarea, select {
 }
 
 .prose-content li {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
 }
 
 .prose-content a {
   color: var(--color-primary);
   text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+
+.prose-content a:hover {
+  color: var(--color-primary-hover);
 }
 
 .prose-content blockquote {
-  border-left: 4px solid var(--color-primary);
+  border-left: 2px solid var(--color-primary);
   color: var(--color-muted);
-  padding-left: 1rem;
+  padding-left: 1.25rem;
+  font-style: italic;
 }
 
 .prose-content img {
   max-width: 100%;
+  border-radius: 8px;
 }
 
 .prose-content table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .prose-content th,
 .prose-content td {
   border-bottom: 1px solid var(--color-border);
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 1rem;
   text-align: left;
 }
 
 .prose-content th {
   background: var(--color-surface);
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
 }
 
 .prose-content pre {
   position: relative;
   overflow-x: auto;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: #111827;
-  color: #f8fafc;
-  padding: 1rem;
+  border-radius: 10px;
+  background: #0c0a09;
+  color: #f5f5f4;
+  padding: 1.25rem;
+  font-size: 0.9rem;
 }
 
 .prose-content code {
   border-radius: 4px;
-  background: rgba(99, 102, 241, 0.12);
-  padding: 0.1rem 0.3rem;
+  background: rgba(180, 83, 9, 0.1);
+  padding: 0.15rem 0.35rem;
+  font-size: 0.9em;
 }
 
 .prose-content pre code {

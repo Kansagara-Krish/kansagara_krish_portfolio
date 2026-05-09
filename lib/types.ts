@@ -100,6 +100,7 @@ export type SiteSettingsDTO = {
 
 export type HackathonDTO = {
   id: string;
+  slug: string;
   title: string;
   project: string;
   role: string | null;
@@ -114,12 +115,29 @@ export type HackathonDTO = {
 
 export type CertificationDTO = {
   id: string;
+  slug: string;
   name: string;
   issuer: string;
   date: string;
   url: string | null;
   credentialId: string | null;
   image: string | null;
+  createdAt: string;
+};
+
+export type EducationDTO = {
+  id: string;
+  slug: string;
+  institution: string;
+  degree: string;
+  field: string | null;
+  startYear: string;
+  endYear: string | null;
+  current: boolean;
+  description: string | null;
+  gpa: string | null;
+  location: string | null;
+  order: number;
   createdAt: string;
 };
 

@@ -6,18 +6,18 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 type ButtonSize = "sm" | "md" | "lg" | "xl" | "icon";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-white hover:bg-primary-hover border-transparent",
-  secondary: "bg-surface text-text border-border hover:border-primary/50",
-  ghost: "bg-transparent text-text border-transparent hover:bg-surface",
-  danger: "bg-red-600 text-white border-transparent hover:bg-red-700",
-  outline: "bg-transparent text-text border-border hover:border-primary/50"
+  primary: "bg-text text-bg hover:bg-muted border-transparent",
+  secondary: "bg-surface text-text border-border hover:border-text/30",
+  ghost: "bg-transparent text-text border-transparent hover:bg-border/30",
+  danger: "bg-red-700 text-white border-transparent hover:bg-red-800",
+  outline: "bg-transparent text-text border-border hover:border-text"
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-9 px-3 text-sm",
-  md: "h-10 px-4 text-sm",
-  lg: "h-12 px-5 text-base",
-  xl: "h-14 px-8 text-lg font-bold",
+  sm: "h-9 px-4 text-xs",
+  md: "h-10 px-5 text-sm",
+  lg: "h-12 px-6 text-sm",
+  xl: "h-14 px-8 text-base",
   icon: "h-10 w-10 p-0"
 };
 
@@ -40,7 +40,7 @@ type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
 export function Button(props: ButtonProps | LinkProps) {
   const { variant = "primary", size = "md", icon, className, children } = props;
   const classes = cn(
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-[6px] border font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-60",
+    "inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:pointer-events-none disabled:opacity-60 transition-colors",
     variants[variant],
     sizes[size],
     className

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Sparkles, GraduationCap } from "lucide-react";
+import { Sparkles, GraduationCap, Award } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { ExperienceTimeline } from "@/components/public/ExperienceTimeline";
 import { SkillsCloud } from "@/components/public/SkillsCloud";
 import { Card } from "@/components/ui/Card";
-import { getExperiences, getSkills } from "@/lib/data";
+import { Badge } from "@/components/ui/Badge";
+import { getExperiences, getSkills, getHackathons, getCertifications } from "@/lib/data";
 
 export const revalidate = 3600;
 
@@ -17,80 +19,81 @@ export const metadata: Metadata = {
 };
 
 export default async function ExperiencePage() {
-  const [experiences, skills] = await Promise.all([
+  const [experiences, skills, hackathons, certifications] = await Promise.all([
     getExperiences(),
-    getSkills()
+    getSkills(),
+    getHackathons(),
+    getCertifications()
   ]);
 
   return (
     <div className="relative overflow-hidden">
-      {/* Background Visuals */}
-      <div className="mesh-gradient absolute inset-0 opacity-10" />
-
-      <section className="relative z-10 mx-auto max-w-6xl px-4 py-24">
-        <div className="max-w-3xl">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Resume</p>
-          <h1 className="mt-6 font-display text-5xl font-black tracking-tight sm:text-7xl">
-            Professional <span className="text-gradient">Trajectory.</span>
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-24">
+        <div className="max-w-2xl">
+          <p className="text-xs font-medium uppercase tracking-widest text-primary">Resume</p>
+          <h1 className="mt-6 font-display text-4xl tracking-tight sm:text-5xl lg:text-6xl">
+            Professional <span className="text-gradient">trajectory.</span>
           </h1>
-          <p className="mt-8 text-xl leading-relaxed text-muted/90">
-            A chronicle of my engineering roles, academic background, and the technical arsenal I&apos;ve built over the years.
+          <p className="mt-6 text-base leading-relaxed text-muted sm:text-lg">
+            A chronicle of engineering roles, academic background, and the technical arsenal built over the years.
           </p>
         </div>
 
-        <div className="mt-24 grid gap-16 lg:grid-cols-[1.5fr_1fr]">
+        <div className="mt-20 grid gap-16 lg:grid-cols-[1.5fr_1fr]">
           <div>
-            <h2 className="mb-10 flex items-center gap-3 font-display text-3xl font-black tracking-tight">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Sparkles size={20} />
+            <h2 className="mb-8 flex items-center gap-3 font-display text-2xl tracking-tight">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Sparkles size={16} />
               </span>
               Work Experience
             </h2>
             <ExperienceTimeline experiences={experiences} />
           </div>
 
-          <div className="space-y-16">
+          <div className="space-y-14">
             <div>
-              <h2 className="mb-10 flex items-center gap-3 font-display text-3xl font-black tracking-tight">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
-                  <GraduationCap size={20} />
+              <h2 className="mb-8 flex items-center gap-3 font-display text-2xl tracking-tight">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <GraduationCap size={16} />
                 </span>
                 Education
               </h2>
-              <Card className="glass relative overflow-hidden p-8 transition-transform hover:-translate-y-1">
-                <div className="absolute right-0 top-0 h-24 w-24 translate-x-12 -translate-y-12 rounded-full bg-amber-500/10" />
-                <h3 className="font-display text-2xl font-black tracking-tight">B.Tech in Computer Engineering</h3>
-                <p className="mt-4 text-lg leading-relaxed text-muted/90">
-                  Specialized in distributed systems, high-performance computing, and human-centered design.
-                </p>
-                <div className="mt-6 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted/50">
-                  <span className="text-primary">2020 — 2024</span>
-                </div>
-              </Card>
+              <Link href="/education" className="block">
+                <Card className="group relative overflow-hidden p-6 transition-all hover:shadow-md hover:border-text/20">
+                  <h3 className="font-display text-lg tracking-tight">B.Tech in Computer Engineering</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">
+                    Specialized in distributed systems, high-performance computing, and human-centered design.
+                  </p>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-xs text-primary">2020 — 2024</span>
+                    <span className="text-xs text-muted group-hover:text-text transition-colors">View Details →</span>
+                  </div>
+                </Card>
+              </Link>
             </div>
 
             <div>
-              <h2 className="mb-10 flex items-center gap-3 font-display text-3xl font-black tracking-tight">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
-                  <Sparkles size={20} />
+              <h2 className="mb-8 flex items-center gap-3 font-display text-2xl tracking-tight">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Sparkles size={16} />
                 </span>
                 Top Skills
               </h2>
-              <div className="grid gap-4">
+              <div className="grid gap-3">
                 {skills.slice(0, 6).map((skill) => (
-                  <div key={skill.id} className="glass flex items-center gap-4 p-4 px-6 rounded-2xl transition-all hover:translate-x-1">
+                  <div key={skill.id} className="flex items-center gap-4 rounded-xl border border-border bg-surface p-4 transition-colors hover:border-text/20">
                     {skill.iconUrl ? (
-                      <div className="relative h-6 w-6 flex-shrink-0">
+                      <div className="relative h-5 w-5 flex-shrink-0">
                         <Image src={skill.iconUrl} alt={skill.name} fill className="object-contain" />
                       </div>
                     ) : (
-                      <div className="flex h-6 w-6 items-center justify-center rounded bg-primary/10 text-[10px] font-bold text-primary">
+                      <div className="flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-[9px] font-bold text-primary">
                         {skill.name.charAt(0)}
                       </div>
                     )}
                     <div className="flex flex-1 items-center justify-between">
-                      <span className="font-bold tracking-tight">{skill.name}</span>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">{skill.category}</span>
+                      <span className="text-sm font-medium">{skill.name}</span>
+                      <span className="text-[10px] text-muted">{skill.category}</span>
                     </div>
                   </div>
                 ))}
@@ -99,10 +102,105 @@ export default async function ExperiencePage() {
           </div>
         </div>
 
-        <div className="mt-32">
-          <h2 className="mb-12 text-center font-display text-4xl font-black tracking-tight">Technical Arsenal</h2>
+        <div className="mt-24">
+          <h2 className="mb-10 font-display text-2xl tracking-tight sm:text-3xl">Technical Arsenal</h2>
           <SkillsCloud skills={skills} />
         </div>
+
+        {hackathons.length > 0 && (
+          <div className="mt-24">
+            <div className="mb-10">
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">Competitions</p>
+              <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Hackathons</h2>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {hackathons.map((hackathon) => (
+                <Link key={hackathon.id} href={`/hackathons/${hackathon.slug}`} className="block">
+                  <Card className="group h-full overflow-hidden transition-all hover:shadow-md hover:border-text/20">
+                    {hackathon.image && (
+                      <div className="relative h-44 w-full overflow-hidden">
+                        <Image
+                          src={hackathon.image}
+                          alt={hackathon.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        />
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <div className="mb-3 flex items-start justify-between gap-2">
+                        <h3 className="font-display text-lg tracking-tight">{hackathon.title}</h3>
+                        {hackathon.result && (
+                          <Badge variant="default" className="shrink-0">{hackathon.result}</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm font-medium text-primary">{hackathon.project}</p>
+                      {hackathon.role && (
+                        <p className="mt-1 text-xs text-muted">Role: {hackathon.role}</p>
+                      )}
+                      <p className="mt-3 text-sm leading-relaxed text-muted line-clamp-3">{hackathon.description}</p>
+                      <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
+                        <span className="text-xs text-muted">
+                          {new Date(hackathon.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                        </span>
+                        <span className="text-xs text-muted group-hover:text-text transition-colors">View Details →</span>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {certifications.length > 0 && (
+          <div className="mt-24">
+            <div className="mb-10">
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">Credentials</p>
+              <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Certifications</h2>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {certifications.map((cert) => (
+                <Link key={cert.id} href={`/certifications/${cert.slug}`} className="block">
+                  <Card className="group h-full overflow-hidden transition-all hover:shadow-md hover:border-text/20">
+                    {cert.image && (
+                      <div className="relative h-44 w-full overflow-hidden">
+                        <Image
+                          src={cert.image}
+                          alt={cert.name}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        />
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <div className="mb-3 flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          <Award size={18} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-display text-lg tracking-tight">{cert.name}</h3>
+                          <p className="text-sm font-medium text-primary">{cert.issuer}</p>
+                        </div>
+                      </div>
+                      {cert.credentialId && (
+                        <p className="text-xs text-muted">ID: {cert.credentialId}</p>
+                      )}
+                      <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
+                        <span className="text-xs text-muted">
+                          {new Date(cert.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                        </span>
+                        <span className="text-xs text-muted group-hover:text-text transition-colors">View Details →</span>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

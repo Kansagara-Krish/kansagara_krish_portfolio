@@ -24,20 +24,19 @@ export default function ExperiencePage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchExperiences = async () => {
+      try {
+        const res = await fetch("/api/admin/experience");
+        const json = await res.json() as { data?: Experience[] };
+        setExperiences(json.data || []);
+      } catch (error) {
+        console.error("Error fetching experiences:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchExperiences();
   }, []);
-
-  const fetchExperiences = async () => {
-    try {
-      const res = await fetch("/api/admin/experience");
-      const json = await res.json() as { data?: Experience[] };
-      setExperiences(json.data || []);
-    } catch (error) {
-      console.error("Error fetching experiences:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this experience?")) return;

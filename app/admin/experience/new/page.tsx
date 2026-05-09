@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface Experience {
   id: string;
@@ -203,11 +204,11 @@ export default function NewExperiencePage() {
             <h2 className="font-display text-xl font-semibold">Media</h2>
           </CardHeader>
           <CardContent>
-            <Label htmlFor="logoUrl">Company Logo URL</Label>
-            <Input
-              id="logoUrl"
+            <Label>Company Logo</Label>
+            <FileUpload
               value={formData.logoUrl}
-              onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+              onChange={(url) => setFormData({ ...formData, logoUrl: url })}
+              label="Upload company logo"
             />
             {errors.logoUrl && <p className="mt-1 text-sm text-red-600">{errors.logoUrl}</p>}
           </CardContent>

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface Certification {
   id: string;
@@ -20,6 +21,7 @@ export default function NewCertificationPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
+    slug: "",
     name: "",
     issuer: "",
     date: "",
@@ -98,6 +100,15 @@ export default function NewCertificationPage() {
                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
               </div>
               <div>
+                <Label htmlFor="slug">Slug (optional)</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  placeholder="auto-generated-from-name"
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                />
+              </div>
+              <div>
                 <Label htmlFor="issuer">Issuer *</Label>
                 <Input
                   id="issuer"
@@ -143,11 +154,11 @@ export default function NewCertificationPage() {
               {errors.url && <p className="mt-1 text-sm text-red-600">{errors.url}</p>}
             </div>
             <div>
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
+              <Label>Certificate Image</Label>
+              <FileUpload
                 value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                onChange={(url) => setFormData({ ...formData, image: url })}
+                label="Upload certificate image"
               />
               {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
             </div>

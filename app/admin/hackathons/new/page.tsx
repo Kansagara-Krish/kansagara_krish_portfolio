@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface Hackathon {
   id: string;
@@ -21,6 +22,7 @@ export default function NewHackathonPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
+    slug: "",
     title: "",
     project: "",
     role: "",
@@ -102,6 +104,15 @@ export default function NewHackathonPage() {
                 {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
               </div>
               <div>
+                <Label htmlFor="slug">Slug (optional)</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  placeholder="auto-generated-from-title"
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                />
+              </div>
+              <div>
                 <Label htmlFor="project">Project *</Label>
                 <Input
                   id="project"
@@ -179,11 +190,11 @@ export default function NewHackathonPage() {
               {errors.link && <p className="mt-1 text-sm text-red-600">{errors.link}</p>}
             </div>
             <div>
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
+              <Label>Hackathon Image</Label>
+              <FileUpload
                 value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                onChange={(url) => setFormData({ ...formData, image: url })}
+                label="Upload hackathon image"
               />
               {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
             </div>

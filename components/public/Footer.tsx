@@ -1,9 +1,8 @@
 "use client";
 
-import { Mail, ArrowUp } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { Github, Linkedin, X } from "@/components/ui/BrandIcons";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 import type { SiteSettingsDTO } from "@/lib/types";
 
 export function Footer({ settings }: { settings: SiteSettingsDTO }) {
@@ -11,7 +10,6 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
     settings.github ? { href: settings.github, label: "GitHub", icon: Github } : null,
     settings.linkedin ? { href: settings.linkedin, label: "LinkedIn", icon: Linkedin } : null,
     settings.twitter ? { href: settings.twitter, label: "Twitter", icon: X } : null,
-    { href: `mailto:${settings.email}`, label: "Email", icon: Mail }
   ].filter((item): item is { href: string; label: string; icon: typeof Github } => Boolean(item));
 
   const navLinks = [
@@ -27,40 +25,39 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
   };
 
   return (
-    <footer className="border-t border-border bg-surface/30 dark:bg-surface/5">
-      <div className="mx-auto max-w-7xl px-4 py-16">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
-                <span className="font-display text-xl font-black">P</span>
-              </div>
-              <span className="font-display text-2xl font-black tracking-tight">{settings.name}</span>
+    <footer className="border-t border-border">
+      <div className="mx-auto max-w-7xl px-6 py-20">
+        <div className="grid gap-16 md:grid-cols-2 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <Link href="/" className="font-display text-2xl tracking-tight text-text">
+              {settings.name}
             </Link>
-            <p className="mt-6 max-w-sm text-lg leading-relaxed text-muted/90">
+            <p className="mt-4 max-w-sm leading-relaxed text-muted">
               Computer engineer specializing in building high-quality, product-minded digital experiences.
             </p>
-            <div className="mt-8 flex items-center gap-3">
-              {socialLinks.map(({ href, label, icon: Icon }) => (
-                <Link 
-                  key={label} 
-                  href={href} 
-                  target="_blank"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-surface border border-border text-muted transition-all hover:-translate-y-1 hover:border-primary hover:bg-primary/5 hover:text-primary dark:bg-surface/20" 
-                  aria-label={label}
-                >
-                  <Icon size={18} />
-                </Link>
-              ))}
-            </div>
+            {socialLinks.length > 0 && (
+              <div className="mt-8 flex items-center gap-4">
+                {socialLinks.map(({ href, label, icon: Icon }) => (
+                  <Link
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    className="text-muted transition-colors hover:text-text"
+                    aria-label={label}
+                  >
+                    <Icon size={20} />
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div>
-            <h3 className="font-display text-sm font-bold uppercase tracking-[0.2em] text-primary">Navigation</h3>
-            <ul className="mt-6 space-y-4">
+          <div className="lg:col-span-3 lg:col-start-7">
+            <h3 className="text-xs font-medium uppercase tracking-widest text-muted">Navigation</h3>
+            <ul className="mt-6 space-y-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-muted transition-colors hover:text-primary">
+                  <Link href={link.href} className="text-sm text-muted transition-colors hover:text-text">
                     {link.label}
                   </Link>
                 </li>
@@ -68,35 +65,34 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
             </ul>
           </div>
 
-          <div>
-            <h3 className="font-display text-sm font-bold uppercase tracking-[0.2em] text-primary">Contact</h3>
-            <ul className="mt-6 space-y-4">
+          <div className="lg:col-span-3">
+            <h3 className="text-xs font-medium uppercase tracking-widest text-muted">Contact</h3>
+            <ul className="mt-6 space-y-3">
               <li>
-                <Link href={`mailto:${settings.email}`} className="text-muted transition-colors hover:text-primary">
+                <Link href={`mailto:${settings.email}`} className="text-sm text-muted transition-colors hover:text-text">
                   {settings.email}
                 </Link>
               </li>
               <li>
-                <Button href="/contact" variant="outline" size="sm" className="mt-2">Get In Touch</Button>
+                <Link href="/contact" className="text-sm text-primary transition-colors hover:text-primary-hover">
+                  Get in touch
+                </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col items-center justify-between gap-6 border-t border-border pt-8 sm:flex-row">
-          <p className="text-sm font-medium text-muted">
-            © {new Date().getFullYear()} <span className="text-text">{settings.name}</span>. 
-            Built with <span className="text-primary transition-colors hover:text-primary-hover">Next.js</span> & <span className="text-primary transition-colors hover:text-primary-hover">Tailwind</span>
+        <div className="mt-20 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
+          <p className="text-sm text-muted">
+            &copy; {new Date().getFullYear()} {settings.name}. All rights reserved.
           </p>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={scrollToTop} 
-            className="group gap-2 text-muted hover:text-primary"
+          <button
+            onClick={scrollToTop}
+            className="flex items-center gap-2 text-sm text-muted transition-colors hover:text-text"
           >
             Back to top
-            <ArrowUp size={16} className="transition-transform group-hover:-translate-y-1" />
-          </Button>
+            <ArrowUp size={14} />
+          </button>
         </div>
       </div>
     </footer>

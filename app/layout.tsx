@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import { getBaseUrl } from "@/lib/utils";
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-jakarta",
   display: "swap",
 });
 
-const outfit = Outfit({
+const dmSerif = DM_Serif_Display({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-serif",
   display: "swap",
+  weight: "400",
 });
 
 const baseUrl = getBaseUrl();
@@ -61,7 +62,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`} data-theme="dark" suppressHydrationWarning>
+    <html lang="en" className={`${jakarta.variable} ${dmSerif.variable}`} data-theme="dark" suppressHydrationWarning>
       <body className="min-h-screen font-sans antialiased selection:bg-primary/30 selection:text-primary">
         {children}
       </body>

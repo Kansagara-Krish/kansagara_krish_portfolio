@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2, Plus, X } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface ProjectLink {
   label: string;
@@ -363,11 +364,11 @@ export default function NewProjectPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
+              <Label>Project Image</Label>
+              <FileUpload
                 value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                label="Upload project image"
               />
               {errors.imageUrl && <p className="mt-1 text-sm text-red-600">{errors.imageUrl}</p>}
             </div>

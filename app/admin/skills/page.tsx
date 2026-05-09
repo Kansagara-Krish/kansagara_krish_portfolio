@@ -20,20 +20,19 @@ export default function SkillsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const res = await fetch("/api/admin/skills");
+        const json = await res.json() as { data?: Skill[] };
+        setSkills(json.data || []);
+      } catch (error) {
+        console.error("Error fetching skills:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchSkills();
   }, []);
-
-  const fetchSkills = async () => {
-    try {
-      const res = await fetch("/api/admin/skills");
-      const json = await res.json() as { data?: Skill[] };
-      setSkills(json.data || []);
-    } catch (error) {
-      console.error("Error fetching skills:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this skill?")) return;

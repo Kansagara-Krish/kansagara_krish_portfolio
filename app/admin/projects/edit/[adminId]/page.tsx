@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2, Plus, X } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface ProjectLink {
   label: string;
@@ -81,51 +82,50 @@ export default function EditProjectPage() {
 
   useEffect(() => {
     if (params.adminId) {
+      const fetchProject = async () => {
+        try {
+          const res = await fetch(`/api/admin/projects/${params.adminId}`);
+          const json = await res.json();
+          const data = json.data;
+
+          if (data) {
+            setProject(data);
+            setFormData({
+              title: data.title,
+              slug: data.slug,
+              description: data.description,
+              content: data.content || "",
+              subtitle: data.subtitle || "",
+              role: data.role || "",
+              client: data.client || "",
+              category: data.category || "",
+              timeline: data.timeline || "",
+              year: data.year || "",
+              problem: data.problem || "",
+              solution: data.solution || "",
+              impact: data.impact || "",
+              features: data.features?.join("\n") || "",
+              outcomes: data.outcomes?.join("\n") || "",
+              techStack: data.techStack?.join("\n") || "",
+              liveUrl: data.liveUrl || "",
+              githubUrl: data.githubUrl || "",
+              imageUrl: data.imageUrl || "",
+              galleryImages: data.galleryImages?.join("\n") || "",
+              tags: data.tags?.join("\n") || "",
+              featured: data.featured,
+              status: data.status,
+            });
+            setProjectLinks(data.projectLinks || []);
+          }
+        } catch (error) {
+          console.error("Error fetching project:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
       fetchProject();
     }
   }, [params.adminId]);
-
-  const fetchProject = async () => {
-    try {
-      const res = await fetch(`/api/admin/projects/${params.adminId}`);
-      const json = await res.json();
-      const data = json.data;
-
-      if (data) {
-        setProject(data);
-        setFormData({
-          title: data.title,
-          slug: data.slug,
-          description: data.description,
-          content: data.content || "",
-          subtitle: data.subtitle || "",
-          role: data.role || "",
-          client: data.client || "",
-          category: data.category || "",
-          timeline: data.timeline || "",
-          year: data.year || "",
-          problem: data.problem || "",
-          solution: data.solution || "",
-          impact: data.impact || "",
-          features: data.features?.join("\n") || "",
-          outcomes: data.outcomes?.join("\n") || "",
-          techStack: data.techStack?.join("\n") || "",
-          liveUrl: data.liveUrl || "",
-          githubUrl: data.githubUrl || "",
-          imageUrl: data.imageUrl || "",
-          galleryImages: data.galleryImages?.join("\n") || "",
-          tags: data.tags?.join("\n") || "",
-          featured: data.featured,
-          status: data.status,
-        });
-        setProjectLinks(data.projectLinks || []);
-      }
-    } catch (error) {
-      console.error("Error fetching project:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -449,11 +449,11 @@ export default function EditProjectPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
+              <Label>Project Image</Label>
+              <FileUpload
                 value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                label="Upload project image"
               />
               {errors.imageUrl && <p className="mt-1 text-sm text-red-600">{errors.imageUrl}</p>}
             </div>

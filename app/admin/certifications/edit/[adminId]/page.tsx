@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 interface Certification {
   id: string;
+  slug: string;
   name: string;
   issuer: string;
   date: string;
@@ -28,6 +30,7 @@ export default function EditCertificationPage() {
   const [certification, setCertification] = useState<Certification | null>(null);
 
   const [formData, setFormData] = useState({
+    slug: "",
     name: "",
     issuer: "",
     date: "",
@@ -38,33 +41,33 @@ export default function EditCertificationPage() {
 
   useEffect(() => {
     if (params.adminId) {
+      const fetchCertification = async () => {
+        try {
+          const res = await fetch(`/api/admin/certifications/${params.adminId}`);
+          const json = await res.json() as { data?: Certification };
+          const data = json.data;
+
+          if (data) {
+            setCertification(data);
+            setFormData({
+              slug: data.slug || "",
+              name: data.name,
+              issuer: data.issuer,
+              date: data.date.split("T")[0],
+              url: data.url || "",
+              credentialId: data.credentialId || "",
+              image: data.image || "",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching certification:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
       fetchCertification();
     }
   }, [params.adminId]);
-
-  const fetchCertification = async () => {
-    try {
-      const res = await fetch(`/api/admin/certifications/${params.adminId}`);
-      const json = await res.json() as { data?: Certification };
-      const data = json.data;
-
-      if (data) {
-        setCertification(data);
-        setFormData({
-          name: data.name,
-          issuer: data.issuer,
-          date: data.date ? new Date(data.date).toISOString().split('T')[0] : "",
-          url: data.url || "",
-          credentialId: data.credentialId || "",
-          image: data.image || "",
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching certification:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +151,14 @@ export default function EditCertificationPage() {
                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
               </div>
               <div>
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                />
+              </div>
+              <div>
                 <Label htmlFor="issuer">Issuer *</Label>
                 <Input
                   id="issuer"
@@ -193,11 +204,11 @@ export default function EditCertificationPage() {
               {errors.url && <p className="mt-1 text-sm text-red-600">{errors.url}</p>}
             </div>
             <div>
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
+              <Label>Certificate Image</Label>
+              <FileUpload
                 value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                onChange={(url) => setFormData({ ...formData, image: url })}
+                label="Upload certificate image"
               />
               {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
             </div>
