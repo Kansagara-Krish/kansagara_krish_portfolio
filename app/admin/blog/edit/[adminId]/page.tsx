@@ -7,22 +7,14 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { Save, ArrowLeft, Loader2, FileText, Layout, Image as ImageIcon, Tags, RefreshCw } from "lucide-react";
+import { Save, ArrowLeft, Loader2, FileText, Layout, Image as ImageIcon, Tags, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { BlogPostDTO } from "@/lib/types";
 
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  coverImage?: string;
-  published: boolean;
-  tags: string[];
-}
 
 export default function EditBlogPostPage() {
   const router = useRouter();
@@ -30,7 +22,7 @@ export default function EditBlogPostPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [post, setPost] = useState<BlogPostDTO | null>(null);
   const [isEditingSlug, setIsEditingSlug] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -48,7 +40,7 @@ export default function EditBlogPostPage() {
       const fetchPost = async () => {
         try {
           const res = await fetch(`/api/admin/blog/${params.adminId}`);
-          const json = await res.json() as { data?: BlogPost };
+          const json = await res.json() as { data?: BlogPostDTO };
           const data = json.data;
 
           if (data) {
@@ -90,7 +82,7 @@ export default function EditBlogPostPage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: BlogPost; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: BlogPostDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -155,6 +147,17 @@ export default function EditBlogPostPage() {
             <p className="text-lg text-muted">Updating <span className="text-primary font-bold">{formData.title}</span>.</p>
           </div>
         </div>
+
+        <AIAssistant<BlogPostDTO> 
+          module="blog" 
+          onFill={(data) => {
+            setFormData(prev => ({
+              ...prev,
+              ...(data as any),
+              tags: Array.isArray(data.tags) ? data.tags.join('\n') : prev.tags,
+            }));
+          }} 
+        />
 
         <form onSubmit={handleSubmit} className="grid gap-10">
           <div className="grid gap-8 lg:grid-cols-3">

@@ -7,17 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Plus, Pencil, Trash2, Loader2, Trophy, MapPin, Calendar, Award, Search, ArrowUpRight, SlidersHorizontal, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface Hackathon {
-  id: string;
-  title: string;
-  project: string;
-  role?: string;
-  date: string;
-  location?: string;
-  result?: string;
-  description: string;
-  createdAt: string;
-}
+import type { HackathonDTO } from "@/lib/types";
 
 const container = {
   hidden: { opacity: 0 },
@@ -35,7 +25,7 @@ const item = {
 };
 
 export default function HackathonsPage() {
-  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const [hackathons, setHackathons] = useState<HackathonDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
@@ -44,7 +34,7 @@ export default function HackathonsPage() {
     const fetchHackathons = async () => {
       try {
         const res = await fetch("/api/admin/hackathons");
-        const json = await res.json() as { data?: Hackathon[] };
+        const json = await res.json() as { data?: HackathonDTO[] };
         setHackathons(json.data || []);
       } catch (error) {
         console.error("Error fetching hackathons:", error);

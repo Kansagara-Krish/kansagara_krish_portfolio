@@ -7,17 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Plus, Pencil, Trash2, Loader2, Briefcase, MapPin, Calendar, Building2, Search, ArrowUpRight, SlidersHorizontal, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface Experience {
-  id: string;
-  company: string;
-  role: string;
-  location?: string;
-  type: string;
-  startDate: string;
-  endDate?: string;
-  current: boolean;
-  createdAt: string;
-}
+import type { ExperienceDTO } from "@/lib/types";
 
 const container = {
   hidden: { opacity: 0 },
@@ -35,7 +25,7 @@ const item = {
 };
 
 export default function ExperiencePage() {
-  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [experiences, setExperiences] = useState<ExperienceDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
@@ -44,7 +34,7 @@ export default function ExperiencePage() {
     const fetchExperiences = async () => {
       try {
         const res = await fetch("/api/admin/experience");
-        const json = await res.json() as { data?: Experience[] };
+        const json = await res.json() as { data?: ExperienceDTO[] };
         setExperiences(json.data || []);
       } catch (error) {
         console.error("Error fetching experiences:", error);

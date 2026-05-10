@@ -9,7 +9,7 @@ import { SkillsCloud } from "@/components/public/SkillsCloud";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import type { ExperienceDTO, SkillDTO, HackathonDTO, CertificationDTO, SiteSettingsDTO } from "@/lib/types";
+import type { ExperienceDTO, SkillDTO, HackathonDTO, CertificationDTO, SiteSettingsDTO, EducationDTO } from "@/lib/types";
 
 const container = {
   hidden: { opacity: 0 },
@@ -32,9 +32,10 @@ interface ExperienceClientProps {
   hackathons: HackathonDTO[];
   certifications: CertificationDTO[];
   settings: SiteSettingsDTO;
+  education: EducationDTO[];
 }
 
-export function ExperienceClient({ experiences, skills, hackathons, certifications, settings }: ExperienceClientProps) {
+export function ExperienceClient({ experiences, skills, hackathons, certifications, settings, education }: ExperienceClientProps) {
   return (
     <motion.div 
       initial="hidden"
@@ -104,26 +105,30 @@ export function ExperienceClient({ experiences, skills, hackathons, certificatio
           <motion.aside variants={item} className="lg:col-span-4 space-y-8">
             <div className="lg:sticky lg:top-24 space-y-8">
               {/* Education - Glassmorphism Card */}
-              <Card className="relative overflow-hidden border-primary/10 bg-surface/40 p-8 backdrop-blur-xl transition-all hover:border-primary/30 group">
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <GraduationCap size={80} />
-                </div>
-                <h2 className="flex items-center gap-3 font-display text-xl tracking-tight mb-8">
-                  <GraduationCap className="text-primary" size={22} />
-                  Education
-                </h2>
-                <div className="space-y-8">
-                  <div className="relative pl-6 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-px before:bg-gradient-to-b before:from-primary before:to-transparent">
-                    <div className="absolute left-[-4px] top-1 h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_var(--color-primary)]" />
-                    <h3 className="font-bold text-lg leading-tight">B.Tech in Computer Engineering</h3>
-                    <p className="mt-1 text-sm text-primary font-bold">GTU University</p>
-                    <div className="mt-3 flex items-center gap-4 text-xs text-muted">
-                      <span className="flex items-center gap-1"><Calendar size={12} /> 2020 — 2024</span>
-                      <span className="flex items-center gap-1"><MapPin size={12} /> Gujarat, IN</span>
-                    </div>
+              {education.length > 0 && (
+                <Card className="relative overflow-hidden border-primary/10 bg-surface/40 p-8 backdrop-blur-xl transition-all hover:border-primary/30 group">
+                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <GraduationCap size={80} />
                   </div>
-                </div>
-              </Card>
+                  <h2 className="flex items-center gap-3 font-display text-xl tracking-tight mb-8">
+                    <GraduationCap className="text-primary" size={22} />
+                    Education
+                  </h2>
+                  <div className="space-y-8">
+                    {education.map((edu) => (
+                      <div key={edu.id} className="relative pl-6 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-px before:bg-gradient-to-b before:from-primary before:to-transparent">
+                        <div className="absolute left-[-4px] top-1 h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_var(--color-primary)]" />
+                        <h3 className="font-bold text-lg leading-tight">{edu.degree} {edu.field && `in ${edu.field}`}</h3>
+                        <p className="mt-1 text-sm text-primary font-bold">{edu.institution}</p>
+                        <div className="mt-3 flex items-center gap-4 text-xs text-muted">
+                          <span className="flex items-center gap-1"><Calendar size={12} /> {edu.startYear} — {edu.current ? "Present" : edu.endYear}</span>
+                          {edu.location && <span className="flex items-center gap-1"><MapPin size={12} /> {edu.location}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
 
               {/* Core Arsenal - Compact Detail */}
               <Card className="border-border/50 bg-surface/30 p-8 backdrop-blur-md">

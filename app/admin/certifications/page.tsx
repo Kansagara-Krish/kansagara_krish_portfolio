@@ -7,16 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Plus, Pencil, Trash2, Loader2, Award, Calendar, ShieldCheck, ExternalLink, Search, ArrowUpRight, SlidersHorizontal, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface Certification {
-  id: string;
-  name: string;
-  issuer: string;
-  date: string;
-  url?: string;
-  credentialId?: string;
-  image?: string;
-  createdAt: string;
-}
+import type { CertificationDTO } from "@/lib/types";
 
 const container = {
   hidden: { opacity: 0 },
@@ -34,7 +25,7 @@ const item = {
 };
 
 export default function CertificationsPage() {
-  const [certifications, setCertifications] = useState<Certification[]>([]);
+  const [certifications, setCertifications] = useState<CertificationDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
@@ -43,7 +34,7 @@ export default function CertificationsPage() {
     const fetchCertifications = async () => {
       try {
         const res = await fetch("/api/admin/certifications");
-        const json = await res.json() as { data?: Certification[] };
+        const json = await res.json() as { data?: CertificationDTO[] };
         setCertifications(json.data || []);
       } catch (error) {
         console.error("Error fetching certifications:", error);

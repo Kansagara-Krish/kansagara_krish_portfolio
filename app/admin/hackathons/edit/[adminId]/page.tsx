@@ -7,25 +7,14 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { Save, ArrowLeft, Loader2, Trophy, MapPin, Calendar, Link as LinkIcon, Image as ImageIcon, Layout, Target, Award, RefreshCw } from "lucide-react";
+import { Save, ArrowLeft, Loader2, Trophy, Calendar, MapPin, Link as LinkIcon, Image as ImageIcon, Target, Award, Layout } from "lucide-react";
 import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { HackathonDTO } from "@/lib/types";
 
-interface Hackathon {
-  id: string;
-  slug: string;
-  title: string;
-  project: string;
-  role?: string;
-  date: string;
-  location?: string;
-  result?: string;
-  link?: string;
-  description: string;
-  image?: string;
-}
 
 export default function EditHackathonPage() {
   const router = useRouter();
@@ -33,7 +22,7 @@ export default function EditHackathonPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [hackathon, setHackathon] = useState<Hackathon | null>(null);
+  const [hackathon, setHackathon] = useState<HackathonDTO | null>(null);
   const [isEditingSlug, setIsEditingSlug] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -54,7 +43,7 @@ export default function EditHackathonPage() {
       const fetchHackathon = async () => {
         try {
           const res = await fetch(`/api/admin/hackathons/${params.adminId}`);
-          const json = await res.json() as { data?: Hackathon };
+          const json = await res.json() as { data?: HackathonDTO };
           const data = json.data;
 
           if (data) {
@@ -99,7 +88,7 @@ export default function EditHackathonPage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: Hackathon; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: HackathonDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -187,6 +176,13 @@ export default function EditHackathonPage() {
           </div>
         </div>
       </div>
+
+      <AIAssistant<HackathonDTO> 
+        module="hackathons" 
+        onFill={(data) => {
+          setFormData(prev => ({ ...prev, ...(data as any) }));
+        }} 
+      />
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">
         {/* Left Column: Core Details */}

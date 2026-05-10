@@ -12,17 +12,14 @@ import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { ProjectDTO } from "@/lib/types";
 
 interface ProjectLink {
   label: string;
   url: string;
 }
 
-interface Project {
-  id: string;
-  title: string;
-  slug: string;
-}
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -79,7 +76,7 @@ export default function NewProjectPage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: Project; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: ProjectDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -133,6 +130,20 @@ export default function NewProjectPage() {
             <p className="text-lg text-muted">Showcase your latest creation to the world.</p>
           </div>
         </div>
+
+        <AIAssistant<ProjectDTO> 
+          module="projects" 
+          onFill={(data) => {
+            setFormData(prev => ({
+              ...prev,
+              ...(data as any),
+              techStack: Array.isArray(data.techStack) ? data.techStack.join('\n') : prev.techStack,
+              features: Array.isArray(data.features) ? data.features.join('\n') : prev.features,
+              outcomes: Array.isArray(data.outcomes) ? data.outcomes.join('\n') : prev.outcomes,
+              tags: Array.isArray(data.tags) ? data.tags.join('\n') : prev.tags,
+            }));
+          }} 
+        />
 
         <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-12">
           {/* Main Content Column */}

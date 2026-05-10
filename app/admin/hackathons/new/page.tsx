@@ -12,11 +12,9 @@ import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { HackathonDTO } from "@/lib/types";
 
-interface Hackathon {
-  id: string;
-  title: string;
-}
 
 export default function NewHackathonPage() {
   const router = useRouter();
@@ -54,7 +52,7 @@ export default function NewHackathonPage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: Hackathon; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: HackathonDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -115,6 +113,13 @@ export default function NewHackathonPage() {
           </div>
         </div>
       </div>
+
+      <AIAssistant<HackathonDTO> 
+        module="hackathons" 
+        onFill={(data) => {
+          setFormData(prev => ({ ...prev, ...(data as any) }));
+        }} 
+      />
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">
         {/* Left Column: Core Details */}

@@ -7,16 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Plus, Pencil, Trash2, Loader2, GraduationCap, Calendar, MapPin, Building2, Search, ArrowUpRight, SlidersHorizontal, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface Education {
-  id: string;
-  institution: string;
-  degree: string;
-  field?: string;
-  startYear: string;
-  endYear?: string;
-  current: boolean;
-  location?: string;
-}
+import type { EducationDTO } from "@/lib/types";
 
 const container = {
   hidden: { opacity: 0 },
@@ -34,7 +25,7 @@ const item = {
 };
 
 export default function EducationPage() {
-  const [educationList, setEducationList] = useState<Education[]>([]);
+  const [educationList, setEducationList] = useState<EducationDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
@@ -43,7 +34,7 @@ export default function EducationPage() {
     const fetchEducation = async () => {
       try {
         const res = await fetch("/api/admin/education");
-        const json = await res.json() as { data?: Education[] };
+        const json = await res.json() as { data?: EducationDTO[] };
         setEducationList(json.data || []);
       } catch (error) {
         console.error("Error fetching education:", error);

@@ -12,11 +12,9 @@ import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { ExperienceDTO } from "@/lib/types";
 
-interface Experience {
-  id: string;
-  company: string;
-}
 
 export default function NewExperiencePage() {
   const router = useRouter();
@@ -56,7 +54,7 @@ export default function NewExperiencePage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: Experience; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: ExperienceDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -98,6 +96,17 @@ export default function NewExperiencePage() {
             <p className="text-lg text-muted">Add a new milestone to your professional journey.</p>
           </div>
         </div>
+
+        <AIAssistant<ExperienceDTO> 
+          module="experience" 
+          onFill={(data) => {
+            setFormData(prev => ({
+              ...prev,
+              ...(data as any),
+              skills: Array.isArray(data.skills) ? data.skills.join('\n') : prev.skills,
+            }));
+          }} 
+        />
 
         <form onSubmit={handleSubmit} className="grid gap-10">
           <div className="grid gap-8 lg:grid-cols-3">

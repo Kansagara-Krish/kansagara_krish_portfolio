@@ -7,16 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { Plus, Pencil, Trash2, Loader2, FileText, Calendar, Tag, Search, ArrowUpRight, SlidersHorizontal, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import type { BlogPostDTO } from "@/lib/types";
 
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  published: boolean;
-  createdAt: string;
-  tags: string[];
-}
 
 const container = {
   hidden: { opacity: 0 },
@@ -34,7 +26,7 @@ const item = {
 };
 
 export default function BlogPage() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [posts, setPosts] = useState<BlogPostDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
@@ -43,7 +35,7 @@ export default function BlogPage() {
     const fetchPosts = async () => {
       try {
         const res = await fetch("/api/admin/blog");
-        const json = await res.json() as { data?: BlogPost[] };
+        const json = await res.json() as { data?: BlogPostDTO[] };
         setPosts(json.data || []);
       } catch (error) {
         console.error("Error fetching blog posts:", error);

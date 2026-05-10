@@ -125,6 +125,10 @@ export default function AdminLayout({
                     Site
                   </Link>
                   <button
+                    onClick={async () => {
+                      await fetch("/api/auth/logout", { method: "POST" });
+                      window.location.href = "/";
+                    }}
                     className="flex items-center justify-center gap-2 rounded-xl bg-red-500/10 py-2.5 text-[10px] font-black uppercase tracking-widest text-red-500 transition-all hover:bg-red-500 hover:text-white active:scale-95"
                   >
                     <LogOut size={12} />

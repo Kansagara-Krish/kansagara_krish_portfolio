@@ -10,14 +10,9 @@ import { Save, ArrowLeft, Loader2, Zap } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { SkillDTO } from "@/lib/types";
 
-interface Skill {
-  id: string;
-  name: string;
-  category: string;
-  iconUrl?: string;
-  order: number;
-}
 
 export default function EditSkillPage() {
   const router = useRouter();
@@ -25,7 +20,7 @@ export default function EditSkillPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [skill, setSkill] = useState<Skill | null>(null);
+  const [skill, setSkill] = useState<SkillDTO | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -39,7 +34,7 @@ export default function EditSkillPage() {
       const fetchSkill = async () => {
         try {
           const res = await fetch(`/api/admin/skills/${params.adminId}`);
-          const json = await res.json() as { data?: Skill };
+          const json = await res.json() as { data?: SkillDTO };
           const data = json.data;
 
           if (data) {
@@ -73,7 +68,7 @@ export default function EditSkillPage() {
         body: JSON.stringify(formData),
       });
 
-      const json = await res.json() as { data?: Skill; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: SkillDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -142,6 +137,13 @@ export default function EditSkillPage() {
             <p className="text-lg text-muted">Update your technical expertise details.</p>
           </div>
         </div>
+
+        <AIAssistant<SkillDTO> 
+          module="skills" 
+        onFill={(data) => {
+          setFormData(prev => ({ ...prev, ...(data as any) }));
+        }} 
+        />
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">

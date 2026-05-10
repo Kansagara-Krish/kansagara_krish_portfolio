@@ -7,7 +7,7 @@ import { ProjectCard } from "@/components/public/ProjectCard";
 import { TechMarquee } from "@/components/public/TechMarquee";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { getSiteSettings, getProjects, getBlogPosts, getExperiences, getSkills } from "@/lib/data";
+import { getSiteSettings, getProjects, getBlogPosts, getExperiences, getSkills, getEducation, getHackathons } from "@/lib/data";
 import { defaultSettings } from "@/lib/defaults";
 
 export const revalidate = 3600;
@@ -21,12 +21,14 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [settings, projects, posts, experiences, skills] = await Promise.all([
+  const [settings, projects, posts, experiences, skills, education, hackathons] = await Promise.all([
     getSiteSettings().then(s => s || defaultSettings),
     getProjects(),
     getBlogPosts(),
     getExperiences(),
-    getSkills()
+    getSkills(),
+    getEducation(),
+    getHackathons()
   ]);
   const featured = projects.filter((project) => project.featured).slice(0, 3);
 
@@ -70,7 +72,7 @@ export default async function HomePage() {
               </div>
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-muted/60 mb-2">Hackathons</p>
-                <p className="text-3xl font-display font-black text-text">6+ Hackathons</p>
+                <p className="text-3xl font-display font-black text-text">{hackathons.length}+ Hackathons</p>
               </div>
             </div>
           </Card>
@@ -110,16 +112,18 @@ export default async function HomePage() {
           </Card>
 
           {/* 3. Education */}
-          <Card className="group col-span-full border-border/50 bg-surface/30 p-6 backdrop-blur-md md:col-span-4 transition-all hover:bg-surface/50 flex items-center gap-6">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bg/50 border border-border/50 group-hover:border-primary/20 transition-all">
-              <Sparkles className="text-primary" size={24} />
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted/60 mb-1">Education</p>
-              <h4 className="font-bold text-lg">9.4 CGPA (Diploma)</h4>
-              <p className="text-xs text-muted">Ganpat University</p>
-            </div>
-          </Card>
+          {education.length > 0 && (
+            <Card className="group col-span-full border-border/50 bg-surface/30 p-6 backdrop-blur-md md:col-span-4 transition-all hover:bg-surface/50 flex items-center gap-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bg/50 border border-border/50 group-hover:border-primary/20 transition-all">
+                <Sparkles className="text-primary" size={24} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted/60 mb-1">Education</p>
+                <h4 className="font-bold text-lg">{education[0].degree}</h4>
+                <p className="text-xs text-muted">{education[0].institution}</p>
+              </div>
+            </Card>
+          )}
 
           {/* 4. Location/Availability */}
           <Card className="group col-span-full border-border/50 bg-surface/30 p-6 backdrop-blur-md md:col-span-4 transition-all hover:bg-surface/50 flex items-center gap-6">

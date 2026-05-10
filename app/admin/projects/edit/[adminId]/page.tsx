@@ -7,44 +7,19 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { Save, ArrowLeft, Loader2, Plus, X, Layout, Info, Code, Link as LinkIcon, Image as ImageIcon, Target, RefreshCw } from "lucide-react";
+import { Save, ArrowLeft, Loader2, Plus, X, Layout, Info, Code, Link as LinkIcon, Image as ImageIcon, Target } from "lucide-react";
 import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { ProjectDTO } from "@/lib/types";
 
 interface ProjectLink {
   label: string;
   url: string;
 }
 
-interface Project {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  content: string;
-  subtitle?: string;
-  role?: string;
-  client?: string;
-  category?: string;
-  timeline?: string;
-  year?: string;
-  problem?: string;
-  solution?: string;
-  impact?: string;
-  features: string[];
-  outcomes: string[];
-  techStack: string[];
-  liveUrl?: string;
-  githubUrl?: string;
-  imageUrl?: string;
-  galleryImages: string[];
-  tags: string[];
-  featured: boolean;
-  status: string;
-  projectLinks: ProjectLink[];
-}
 
 export default function EditProjectPage() {
   const router = useRouter();
@@ -52,7 +27,7 @@ export default function EditProjectPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<ProjectDTO | null>(null);
   const [isEditingSlug, setIsEditingSlug] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -152,7 +127,7 @@ export default function EditProjectPage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: Project; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: ProjectDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -229,6 +204,20 @@ export default function EditProjectPage() {
             <p className="text-lg text-muted">Refining <span className="text-primary font-bold">{formData.title}</span>.</p>
           </div>
         </div>
+
+        <AIAssistant<ProjectDTO> 
+          module="projects" 
+          onFill={(data) => {
+            setFormData(prev => ({
+              ...prev,
+              ...(data as any),
+              techStack: Array.isArray(data.techStack) ? data.techStack.join('\n') : prev.techStack,
+              features: Array.isArray(data.features) ? data.features.join('\n') : prev.features,
+              outcomes: Array.isArray(data.outcomes) ? data.outcomes.join('\n') : prev.outcomes,
+              tags: Array.isArray(data.tags) ? data.tags.join('\n') : prev.tags,
+            }));
+          }} 
+        />
 
         <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-12">
           {/* Main Content Column */}

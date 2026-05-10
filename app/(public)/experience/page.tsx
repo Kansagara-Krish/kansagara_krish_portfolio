@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getExperiences, getSkills, getHackathons, getCertifications, getSiteSettings } from "@/lib/data";
+import { getExperiences, getSkills, getHackathons, getCertifications, getSiteSettings, getEducation } from "@/lib/data";
 import { ExperienceClient } from "@/components/public/ExperienceClient";
 
 import { defaultSettings } from "@/lib/defaults";
@@ -10,12 +10,13 @@ export const metadata: Metadata = {
 };
 
 export default async function ExperiencePage() {
-  const [experiences, skills, hackathons, certifications, settingsData] = await Promise.all([
+  const [experiences, skills, hackathons, certifications, settingsData, education] = await Promise.all([
     getExperiences(),
     getSkills(),
     getHackathons(),
     getCertifications(),
     getSiteSettings(),
+    getEducation(),
   ]);
 
   const settings = settingsData || defaultSettings;
@@ -27,6 +28,7 @@ export default async function ExperiencePage() {
       hackathons={hackathons} 
       certifications={certifications} 
       settings={settings} 
+      education={education}
     />
   );
 }

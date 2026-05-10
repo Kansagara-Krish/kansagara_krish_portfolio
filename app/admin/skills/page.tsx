@@ -8,14 +8,8 @@ import { Plus, Pencil, Trash2, Loader2, Zap, Code, Search, Sparkles, SlidersHori
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import type { SkillDTO } from "@/lib/types";
 
-interface Skill {
-  id: string;
-  name: string;
-  category: string;
-  iconUrl?: string;
-  order: number;
-}
 
 const container = {
   hidden: { opacity: 0 },
@@ -33,7 +27,7 @@ const item = {
 };
 
 export default function SkillsPage() {
-  const [skills, setSkills] = useState<Skill[]>([]);
+  const [skills, setSkills] = useState<SkillDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
@@ -42,7 +36,7 @@ export default function SkillsPage() {
     const fetchSkills = async () => {
       try {
         const res = await fetch("/api/admin/skills");
-        const json = await res.json() as { data?: Skill[] };
+        const json = await res.json() as { data?: SkillDTO[] };
         setSkills(json.data || []);
       } catch (error) {
         console.error("Error fetching skills:", error);

@@ -7,24 +7,13 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { Save, ArrowLeft, Loader2, GraduationCap, Building2, BookOpen, Calendar, MapPin, Hash, Star, RefreshCw, Link as LinkIcon } from "lucide-react";
+import { Save, ArrowLeft, Loader2, GraduationCap, Building2, BookOpen, Calendar, MapPin, Hash, Star, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { EducationDTO } from "@/lib/types";
 
-interface Education {
-  id: string;
-  slug: string;
-  institution: string;
-  degree: string;
-  field?: string;
-  startYear: string;
-  endYear?: string;
-  current: boolean;
-  description?: string;
-  gpa?: string;
-  location?: string;
-}
 
 export default function EditEducationPage() {
   const router = useRouter();
@@ -32,7 +21,7 @@ export default function EditEducationPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [education, setEducation] = useState<Education | null>(null);
+  const [education, setEducation] = useState<EducationDTO | null>(null);
   const [isEditingSlug, setIsEditingSlug] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -54,7 +43,7 @@ export default function EditEducationPage() {
       const fetchEducation = async () => {
         try {
           const res = await fetch(`/api/admin/education/${params.adminId}`);
-          const json = await res.json() as { data?: Education };
+          const json = await res.json() as { data?: EducationDTO };
           const data = json.data;
           if (data) {
             setEducation(data);
@@ -94,7 +83,7 @@ export default function EditEducationPage() {
         body: JSON.stringify(formData),
       });
 
-      const json = await res.json() as { data?: Education; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: EducationDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -182,6 +171,13 @@ export default function EditEducationPage() {
           </div>
         </div>
       </div>
+
+      <AIAssistant<EducationDTO> 
+        module="education" 
+        onFill={(data) => {
+          setFormData(prev => ({ ...prev, ...(data as any) }));
+        }} 
+      />
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">
         {/* Left Column: Core Details */}
@@ -282,9 +278,8 @@ export default function EditEducationPage() {
                     onChange={(e) => setFormData({ ...formData, field: e.target.value })}
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
+                <div className="space-y-2">
                 <Label htmlFor="description">Academic Description</Label>
                 <Textarea
                   id="description"

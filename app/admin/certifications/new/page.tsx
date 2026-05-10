@@ -11,11 +11,9 @@ import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { CertificationDTO } from "@/lib/types";
 
-interface Certification {
-  id: string;
-  name: string;
-}
 
 export default function NewCertificationPage() {
   const router = useRouter();
@@ -50,7 +48,7 @@ export default function NewCertificationPage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: Certification; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: CertificationDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -111,6 +109,13 @@ export default function NewCertificationPage() {
           </div>
         </div>
       </div>
+
+      <AIAssistant<CertificationDTO> 
+        module="certifications" 
+        onFill={(data) => {
+          setFormData(prev => ({ ...prev, ...(data as any) }));
+        }} 
+      />
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">
         {/* Left Column: Core Details */}
@@ -176,6 +181,8 @@ export default function NewCertificationPage() {
                     {errors.name && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.name}</p>}
                   </div>
                 </div>
+              </div>
+
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="issuer">Issuer *</Label>

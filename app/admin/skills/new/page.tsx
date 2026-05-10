@@ -10,11 +10,9 @@ import { Save, ArrowLeft, Loader2, Zap } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { SkillDTO } from "@/lib/types";
 
-interface Skill {
-  id: string;
-  name: string;
-}
 
 export default function NewSkillPage() {
   const router = useRouter();
@@ -40,7 +38,7 @@ export default function NewSkillPage() {
         body: JSON.stringify(formData),
       });
 
-      const json = await res.json() as { data?: Skill; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: SkillDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -82,6 +80,13 @@ export default function NewSkillPage() {
             <p className="text-lg text-muted">Add a new expertise to your technical arsenal.</p>
           </div>
         </div>
+
+        <AIAssistant<SkillDTO> 
+          module="skills" 
+        onFill={(data) => {
+          setFormData(prev => ({ ...prev, ...(data as any) }));
+        }} 
+        />
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">

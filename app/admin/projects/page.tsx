@@ -8,18 +8,8 @@ import { Plus, Pencil, Trash2, Loader2, Globe, Star, FolderOpen, Calendar, Arrow
 import { Github as GithubIcon } from "@/components/ui/BrandIcons";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import type { ProjectDTO } from "@/lib/types";
 
-interface Project {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  featured: boolean;
-  status: string;
-  createdAt: string;
-  liveUrl?: string;
-  githubUrl?: string;
-}
 
 const container = {
   hidden: { opacity: 0 },
@@ -37,7 +27,7 @@ const item = {
 };
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
@@ -46,7 +36,7 @@ export default function ProjectsPage() {
     const fetchProjects = async () => {
       try {
         const res = await fetch("/api/admin/projects");
-        const json = await res.json();
+        const json = await res.json() as { data?: ProjectDTO[] };
         setProjects(json.data || []);
       } catch (error) {
         console.error("Error fetching projects:", error);

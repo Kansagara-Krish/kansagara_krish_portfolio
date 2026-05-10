@@ -6,22 +6,14 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
-import { Save, ArrowLeft, Loader2, Award, Building2, Calendar, Link as LinkIcon, Image as ImageIcon, ShieldCheck, Fingerprint, RefreshCw } from "lucide-react";
+import { Save, ArrowLeft, Loader2, Award, Building2, Calendar, Link as LinkIcon, Image as ImageIcon, ShieldCheck, Fingerprint } from "lucide-react";
 import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { CertificationDTO } from "@/lib/types";
 
-interface Certification {
-  id: string;
-  slug: string;
-  name: string;
-  issuer: string;
-  date: string;
-  url?: string;
-  credentialId?: string;
-  image?: string;
-}
 
 export default function EditCertificationPage() {
   const router = useRouter();
@@ -29,7 +21,7 @@ export default function EditCertificationPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [certification, setCertification] = useState<Certification | null>(null);
+  const [certification, setCertification] = useState<CertificationDTO | null>(null);
   const [isEditingSlug, setIsEditingSlug] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -47,7 +39,7 @@ export default function EditCertificationPage() {
       const fetchCertification = async () => {
         try {
           const res = await fetch(`/api/admin/certifications/${params.adminId}`);
-          const json = await res.json() as { data?: Certification };
+          const json = await res.json() as { data?: CertificationDTO };
           const data = json.data;
 
           if (data) {
@@ -89,7 +81,7 @@ export default function EditCertificationPage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: Certification; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: CertificationDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -177,6 +169,13 @@ export default function EditCertificationPage() {
           </div>
         </div>
       </div>
+
+      <AIAssistant<CertificationDTO> 
+        module="certifications" 
+        onFill={(data) => {
+          setFormData(prev => ({ ...prev, ...(data as any) }));
+        }} 
+      />
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">
         {/* Left Column: Core Details */}

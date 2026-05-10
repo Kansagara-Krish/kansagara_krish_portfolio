@@ -12,11 +12,9 @@ import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { BlogPostDTO } from "@/lib/types";
 
-interface BlogPost {
-  id: string;
-  title: string;
-}
 
 export default function NewBlogPostPage() {
   const router = useRouter();
@@ -51,7 +49,7 @@ export default function NewBlogPostPage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: BlogPost; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: BlogPostDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -93,6 +91,17 @@ export default function NewBlogPostPage() {
             <p className="text-lg text-muted">Share your thoughts and technical insights with the world.</p>
           </div>
         </div>
+
+        <AIAssistant<BlogPostDTO> 
+          module="blog" 
+          onFill={(data) => {
+            setFormData(prev => ({
+              ...prev,
+              ...(data as any),
+              tags: Array.isArray(data.tags) ? data.tags.join('\n') : prev.tags,
+            }));
+          }} 
+        />
 
         <form onSubmit={handleSubmit} className="grid gap-10">
           <div className="grid gap-8 lg:grid-cols-3">

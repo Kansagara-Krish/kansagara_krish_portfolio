@@ -12,21 +12,9 @@ import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { AIAssistant } from "@/components/admin/AIAssistant";
+import type { ExperienceDTO } from "@/lib/types";
 
-interface Experience {
-  id: string;
-  company: string;
-  role: string;
-  location?: string;
-  type: string;
-  startDate: string;
-  endDate?: string;
-  current: boolean;
-  description: string;
-  skills: string[];
-  logoUrl?: string;
-  order: number;
-}
 
 export default function EditExperiencePage() {
   const router = useRouter();
@@ -34,7 +22,7 @@ export default function EditExperiencePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [experience, setExperience] = useState<Experience | null>(null);
+  const [experience, setExperience] = useState<ExperienceDTO | null>(null);
 
   const [formData, setFormData] = useState({
     company: "",
@@ -55,7 +43,7 @@ export default function EditExperiencePage() {
       const fetchExperience = async () => {
         try {
           const res = await fetch(`/api/admin/experience/${params.adminId}`);
-          const json = await res.json() as { data?: Experience };
+          const json = await res.json() as { data?: ExperienceDTO };
           const data = json.data;
 
           if (data) {
@@ -103,7 +91,7 @@ export default function EditExperiencePage() {
         body: JSON.stringify(data),
       });
 
-      const json = await res.json() as { data?: Experience; error?: string; fields?: Record<string, string[]> };
+      const json = await res.json() as { data?: ExperienceDTO; error?: string; fields?: Record<string, string[]> };
 
       if (!res.ok) {
         if (json.fields) {
@@ -168,6 +156,17 @@ export default function EditExperiencePage() {
             <p className="text-lg text-muted">Refine your professional milestone at <span className="text-primary font-bold">{formData.company}</span>.</p>
           </div>
         </div>
+
+        <AIAssistant<ExperienceDTO> 
+          module="experience" 
+          onFill={(data) => {
+            setFormData(prev => ({
+              ...prev,
+              ...(data as any),
+              skills: Array.isArray(data.skills) ? data.skills.join('\n') : prev.skills,
+            }));
+          }} 
+        />
 
         <form onSubmit={handleSubmit} className="grid gap-10">
           <div className="grid gap-8 lg:grid-cols-3">
