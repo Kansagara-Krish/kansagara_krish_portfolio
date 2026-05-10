@@ -27,9 +27,9 @@ export default async function AboutPage() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-24">
         <div className="grid gap-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-primary">Identity</p>
+            <p className="text-xs font-medium uppercase tracking-widest text-primary">Who I am</p>
             <h1 className="mt-6 font-display text-4xl tracking-tight sm:text-5xl lg:text-6xl">
-              Building with <span className="text-gradient">purpose.</span>
+              Building things <span className="text-gradient">that help.</span>
             </h1>
             <p className="mt-8 text-xl leading-relaxed text-muted sm:text-2xl">
               I am {settings.name}, a {settings.title} focused on building good digital solutions.
@@ -37,7 +37,7 @@ export default async function AboutPage() {
             <div className="mt-10 space-y-5 text-base leading-relaxed text-muted md:text-lg">
               <p>{settings.bio}</p>
               <p>
-                My way of working mixes strong skills with clear goals, making sure every line of code helps create a good user experience.
+                I use my technical skills to build things that are easy for people to use.
               </p>
             </div>
 
@@ -75,7 +75,7 @@ export default async function AboutPage() {
 
         <div className="mt-32">
           <div className="mb-12">
-            <p className="text-xs font-medium uppercase tracking-widest text-primary">Expertise</p>
+            <p className="text-xs font-medium uppercase tracking-widest text-primary">Skills</p>
             <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">My Skills</h2>
           </div>
           <SkillsCloud skills={skills} />

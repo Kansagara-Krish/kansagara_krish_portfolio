@@ -1,19 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
 
 export function ReadingProgress() {
-  const [progress, setProgress] = useState(0);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
-  useEffect(() => {
-    function update() {
-      const height = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(height <= 0 ? 0 : (window.scrollY / height) * 100);
-    }
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
-  }, []);
-
-  return <div className="fixed left-0 top-0 z-50 h-1 bg-primary" style={{ width: `${progress}%` }} />;
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-primary z-[100] origin-left"
+      style={{ scaleX }}
+    />
+  );
 }

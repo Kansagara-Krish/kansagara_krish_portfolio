@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -51,90 +51,106 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-6 rounded-2xl border border-border bg-surface p-8 md:p-10">
-      <div className="grid gap-2">
-        <label className="text-xs font-medium text-muted" htmlFor="name">Name</label>
-        <Input
-          id="name"
-          name="name"
-          required
-          minLength={2}
-          placeholder="Your name"
-          className="bg-bg"
-        />
+    <form onSubmit={onSubmit} className="space-y-8">
+      <div className="grid gap-8 md:grid-cols-2">
+        <div className="relative group">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-muted group-focus-within:text-primary transition-colors" htmlFor="name">Full Name</label>
+          <Input
+            id="name"
+            name="name"
+            required
+            minLength={2}
+            placeholder="John Doe"
+            className="mt-2 h-12 bg-transparent border-0 border-b border-border rounded-none px-0 focus:ring-0 focus:border-primary transition-all text-lg placeholder:text-muted/30"
+          />
+        </div>
+
+        <div className="relative group">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-muted group-focus-within:text-primary transition-colors" htmlFor="email">Email Address</label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            required
+            placeholder="john@example.com"
+            className="mt-2 h-12 bg-transparent border-0 border-b border-border rounded-none px-0 focus:ring-0 focus:border-primary transition-all text-lg placeholder:text-muted/30"
+          />
+        </div>
       </div>
 
-      <div className="grid gap-2">
-        <label className="text-xs font-medium text-muted" htmlFor="email">Email</label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          required
-          placeholder="you@example.com"
-          className="bg-bg"
-        />
-      </div>
-
-      <div className="grid gap-2">
-        <label className="text-xs font-medium text-muted" htmlFor="subject">Subject</label>
+      <div className="relative group">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-muted group-focus-within:text-primary transition-colors" htmlFor="subject">Subject</label>
         <Input
           id="subject"
           name="subject"
           required
           minLength={3}
-          placeholder="What is this about?"
-          className="bg-bg"
+          placeholder="How can I help you?"
+          className="mt-2 h-12 bg-transparent border-0 border-b border-border rounded-none px-0 focus:ring-0 focus:border-primary transition-all text-lg placeholder:text-muted/30"
         />
       </div>
 
-      <div className="grid gap-2">
-        <label className="text-xs font-medium text-muted" htmlFor="message">Message</label>
+      <div className="relative group">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-muted group-focus-within:text-primary transition-colors" htmlFor="message">Message</label>
         <Textarea
           id="message"
           name="message"
           required
           minLength={10}
-          placeholder="Tell me about your project..."
-          className="bg-bg min-h-[140px]"
+          placeholder="Describe your project, timeline, or just say hi..."
+          className="mt-2 bg-transparent border-0 border-b border-border rounded-none px-0 focus:ring-0 focus:border-primary transition-all text-lg min-h-[120px] resize-none placeholder:text-muted/30"
         />
       </div>
 
-      <AnimatePresence mode="wait">
-        {state === "success" && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-2 rounded-lg bg-emerald-600/10 p-4 text-sm text-emerald-700 dark:text-emerald-400"
-          >
-            <CheckCircle2 size={16} />
-            Message sent! I will reply soon.
-          </motion.div>
-        )}
+      <div className="pt-4">
+        <AnimatePresence mode="wait">
+          {state === "success" && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-6 flex items-center gap-3 rounded-xl bg-emerald-500/10 p-4 text-emerald-500 border border-emerald-500/20"
+            >
+              <CheckCircle2 size={20} />
+              <span className="font-medium text-sm">Message received! I&apos;ll get back to you shortly.</span>
+            </motion.div>
+          )}
 
-        {state === "error" && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-2 rounded-lg bg-red-600/10 p-4 text-sm text-red-700 dark:text-red-400"
-          >
-            <AlertCircle size={16} />
-            {error}
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {state === "error" && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-6 flex items-center gap-3 rounded-xl bg-red-500/10 p-4 text-red-500 border border-red-500/20"
+            >
+              <AlertCircle size={20} />
+              <span className="font-medium text-sm">{error}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <Button
-        type="submit"
-        disabled={state === "loading"}
-        size="lg"
-        className="mt-2"
-        icon={<Send size={16} className={cn("transition-transform", state === "loading" && "animate-pulse")} />}
-      >
-        {state === "loading" ? "Sending..." : "Send Message"}
-      </Button>
+        <Button
+          type="submit"
+          disabled={state === "loading"}
+          size="lg"
+          className={cn(
+            "w-full md:w-auto min-w-[200px] h-14 rounded-2xl text-lg font-semibold transition-all duration-300",
+            state === "loading" ? "opacity-70" : "hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1"
+          )}
+        >
+          {state === "loading" ? (
+            <>
+              <Loader2 className="mr-2 animate-spin" size={20} />
+              Sending...
+            </>
+          ) : (
+            <>
+              Send Message
+              <Send className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+            </>
+          )}
+        </Button>
+      </div>
     </form>
   );
 }

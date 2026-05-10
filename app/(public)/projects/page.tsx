@@ -16,15 +16,19 @@ export default async function ProjectsPage() {
   const projects = await getProjects();
 
   return (
-    <div className="relative overflow-hidden">
-      <section className="relative z-10 mx-auto max-w-6xl px-6 py-24">
-        <div className="max-w-2xl">
-          <p className="text-xs font-medium uppercase tracking-widest text-primary">Portfolio</p>
-          <h1 className="mt-6 font-display text-4xl tracking-tight sm:text-5xl lg:text-6xl">
-            Selected <span className="text-gradient">builds.</span>
+    <div className="relative min-h-screen overflow-hidden bg-bg/50">
+      {/* Background Decorative Elements */}
+      <div className="absolute right-[-10%] top-[-10%] h-[40%] w-[40%] rounded-full bg-primary/5 blur-[120px]" />
+      <div className="absolute left-[-10%] bottom-[-10%] h-[40%] w-[40%] rounded-full bg-primary/5 blur-[120px]" />
+
+      <section className="relative z-10 mx-auto max-w-7xl px-6 py-12 lg:py-20">
+        <div className="mb-12 max-w-3xl">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">My Work</p>
+          <h1 className="mt-6 font-display text-5xl tracking-tight sm:text-6xl lg:text-7xl">
+            My <span className="text-gradient">Projects.</span>
           </h1>
-          <p className="mt-6 text-base leading-relaxed text-muted sm:text-lg">
-            A collection of {projects.length} finished and ongoing projects. Focus on good code, speed, and building things that solve problems.
+          <p className="mt-8 text-lg leading-relaxed text-muted lg:text-xl">
+            I have built {projects.length} projects that are fast and easy to use.
           </p>
         </div>
 

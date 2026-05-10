@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface FileUploadProps {
   value?: string;
@@ -104,25 +105,27 @@ export function FileUpload({
   }, [onChange]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {value ? (
-        <div className="relative group">
+        <div className="relative group overflow-hidden rounded-2xl border border-border/50 shadow-lg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
             alt="Uploaded"
-            className="w-full h-48 object-cover rounded-lg border border-border"
+            className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <X size={16} />
-          </button>
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="p-3 bg-red-500 text-white rounded-2xl shadow-xl transform scale-90 group-hover:scale-100 transition-all duration-300 hover:bg-red-600"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors">
+        <div className="group relative border-2 border-dashed border-border/50 rounded-2xl bg-surface/30 p-12 text-center hover:border-primary/50 hover:bg-surface/50 transition-all duration-300 backdrop-blur-sm">
           <input
             ref={fileInputRef}
             type="file"
@@ -134,24 +137,32 @@ export function FileUpload({
           />
           <label
             htmlFor="file-upload"
-            className="cursor-pointer flex flex-col items-center gap-2"
+            className="cursor-pointer flex flex-col items-center gap-4"
           >
-            {uploading ? (
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            ) : (
-              <>
-                <ImageIcon className="h-8 w-8 text-muted" />
-                <span className="text-sm text-muted">{label}</span>
-                <span className="text-xs text-muted-foreground">
-                  Max size: {maxSizeMB}MB
-                </span>
-              </>
-            )}
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-bg border border-border/50 text-muted transition-all group-hover:scale-110 group-hover:text-primary group-hover:border-primary/30 group-hover:shadow-xl group-hover:shadow-primary/10">
+              {uploading ? (
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              ) : (
+                <ImageIcon className="h-8 w-8" />
+              )}
+            </div>
+            <div className="space-y-1">
+              <span className="block text-sm font-bold text-text group-hover:text-primary transition-colors">{label}</span>
+              <span className="block text-xs text-muted/60 font-medium">
+                Max size: {maxSizeMB}MB
+              </span>
+            </div>
           </label>
         </div>
       )}
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <motion.p 
+          initial={{ opacity: 0, y: -10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="text-xs font-bold uppercase tracking-wider text-red-500 bg-red-500/10 p-4 rounded-xl border border-red-500/20"
+        >
+          {error}
+        </motion.p>
       )}
     </div>
   );

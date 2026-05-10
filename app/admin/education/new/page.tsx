@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { Save, ArrowLeft, Loader2 } from "lucide-react";
+import { Save, ArrowLeft, Loader2, GraduationCap, Building2, BookOpen, Calendar, MapPin, Hash, Star, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { cn, slugify } from "@/lib/utils";
 
 interface Education {
   id: string;
@@ -19,6 +21,7 @@ export default function NewEducationPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isEditingSlug, setIsEditingSlug] = useState(false);
 
   const [formData, setFormData] = useState({
     slug: "",
@@ -71,85 +74,253 @@ export default function NewEducationPage() {
   };
 
   return (
-    <div>
-      <div className="mb-6">
-        <Link href="/admin/education" className="inline-flex items-center text-sm text-muted hover:text-text">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-10"
+    >
+      {/* Header */}
+      <div className="flex flex-col gap-4">
+        <Link href="/admin/education" className="group inline-flex items-center text-xs font-black uppercase tracking-[0.3em] text-muted hover:text-primary transition-colors">
+          <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
           Back to Education
         </Link>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <h1 className="font-display text-4xl font-bold tracking-tight text-text sm:text-5xl">New Education</h1>
+            <p className="text-lg text-muted">Add your academic background to your professional story.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/admin/education">
+              <Button variant="outline" size="lg" className="rounded-2xl px-8">Cancel</Button>
+            </Link>
+            <Button onClick={handleSubmit} disabled={loading} size="lg" className="rounded-2xl px-8 shadow-xl shadow-primary/20 min-w-[160px]">
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-5 w-5" />
+                  Add Education
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <h1 className="font-display text-2xl tracking-tight">New Education</h1>
-      <p className="mt-1 text-sm text-muted">Add a new education entry</p>
+      <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">
+        {/* Left Column: Core Details */}
+        <div className="lg:col-span-8 space-y-8">
+          {errors.general && (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-sm font-bold text-red-500">
+              {errors.general}
+            </motion.div>
+          )}
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <Card>
-          <CardHeader className="pb-4">
-            <h3 className="font-medium">Basic Information</h3>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="grid gap-1.5">
-                <Label htmlFor="degree">Degree *</Label>
-                <Input id="degree" value={formData.degree} onChange={(e) => setFormData({ ...formData, degree: e.target.value })} />
-                {errors.degree && <p className="text-xs text-red-600">{errors.degree}</p>}
+          <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+            <div className="flex items-center gap-3 border-b border-border/50 bg-bg/30 px-8 py-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <GraduationCap size={18} />
               </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="institution">Institution *</Label>
-                <Input id="institution" value={formData.institution} onChange={(e) => setFormData({ ...formData, institution: e.target.value })} />
-                {errors.institution && <p className="text-xs text-red-600">{errors.institution}</p>}
+              <h2 className="text-sm font-black uppercase tracking-widest text-text/80">Academic Details</h2>
+            </div>
+            
+            <div className="p-8 space-y-6">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="institution">Institution *</Label>
+                  <div className="relative">
+                    <Input
+                      id="institution"
+                      placeholder="e.g. Stanford University"
+                      value={formData.institution}
+                      onChange={(e) => {
+                        const institution = e.target.value;
+                        setFormData({ 
+                          ...formData, 
+                          institution, 
+                          slug: slugify(`${institution} ${formData.degree}`) 
+                        });
+                      }}
+                      className={cn("pl-10", errors.institution && "border-red-500/50 focus:ring-red-500/10")}
+                    />
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                  </div>
+                  {errors.institution && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.institution}</p>}
+                </div>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="degree">Degree *</Label>
+                      <div className="relative">
+                        <Input
+                          id="degree"
+                          placeholder="e.g. Bachelor of Science"
+                          value={formData.degree}
+                          onChange={(e) => {
+                            const degree = e.target.value;
+                            setFormData({ 
+                              ...formData, 
+                              degree, 
+                              slug: isEditingSlug ? formData.slug : slugify(`${formData.institution} ${degree}`) 
+                            });
+                          }}
+                          className={cn("pl-10", errors.degree && "border-red-500/50 focus:ring-red-500/10")}
+                        />
+                        <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                      </div>
+                      <div className="flex items-center gap-2 px-1">
+                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted/60">
+                          <LinkIcon size={10} className="text-primary/50" />
+                          <span>Permalink:</span>
+                          <span className="text-text/40">pratham.dev/education/</span>
+                          {isEditingSlug ? (
+                            <input
+                              type="text"
+                              value={formData.slug}
+                              onChange={(e) => setFormData({ ...formData, slug: slugify(e.target.value) })}
+                              onBlur={() => setIsEditingSlug(false)}
+                              autoFocus
+                              className="bg-transparent border-none p-0 focus:ring-0 text-primary font-bold lowercase w-fit min-w-[50px] outline-none"
+                            />
+                          ) : (
+                            <span 
+                              className="text-primary font-bold cursor-pointer hover:underline decoration-dotted underline-offset-4"
+                              onClick={() => setIsEditingSlug(true)}
+                            >
+                              {formData.slug || "auto-generated"}
+                            </span>
+                          )}
+                        </div>
+                        {errors.slug && <span className="text-[10px] font-bold uppercase text-red-500">— {errors.slug}</span>}
+                      </div>
+                      {errors.degree && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.degree}</p>}
+                    </div>
+                  </div>
               </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="field">Field of Study</Label>
-                <Input id="field" value={formData.field} onChange={(e) => setFormData({ ...formData, field: e.target.value })} />
+
+                <div className="space-y-2">
+                  <Label htmlFor="field">Field of Study</Label>
+                  <Input
+                    id="field"
+                    placeholder="e.g. Computer Science"
+                    value={formData.field}
+                    onChange={(e) => setFormData({ ...formData, field: e.target.value })}
+                  />
+                </div>
               </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="slug">Slug (optional)</Label>
-                <Input id="slug" value={formData.slug} placeholder="auto-generated" onChange={(e) => setFormData({ ...formData, slug: e.target.value })} />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="startYear">Start Year *</Label>
-                <Input id="startYear" value={formData.startYear} onChange={(e) => setFormData({ ...formData, startYear: e.target.value })} />
-                {errors.startYear && <p className="text-xs text-red-600">{errors.startYear}</p>}
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="endYear">End Year</Label>
-                <Input id="endYear" value={formData.endYear} onChange={(e) => setFormData({ ...formData, endYear: e.target.value })} />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="gpa">GPA</Label>
-                <Input id="gpa" value={formData.gpa} onChange={(e) => setFormData({ ...formData, gpa: e.target.value })} />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="location">Location</Label>
-                <Input id="location" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Academic Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Key courses, extracurricular activities, honors..."
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={6}
+                />
               </div>
             </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={formData.current} onChange={(e) => setFormData({ ...formData, current: e.target.checked })} className="h-4 w-4 rounded border-border" />
-              Currently studying
-            </label>
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-4">
-            <h3 className="font-medium">Description</h3>
-          </CardHeader>
-          <CardContent>
-            <Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={4} />
-          </CardContent>
-        </Card>
+        {/* Right Column: Logistics */}
+        <div className="lg:col-span-4 space-y-8">
+          <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+            <div className="flex items-center gap-3 border-b border-border/50 bg-bg/30 px-8 py-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Calendar size={18} />
+              </div>
+              <h2 className="text-sm font-black uppercase tracking-widest text-text/80">Logistics</h2>
+            </div>
+            
+            <div className="p-8 space-y-6">
+              <div className="grid gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="startYear">Start Year *</Label>
+                  <Input
+                    id="startYear"
+                    placeholder="2018"
+                    value={formData.startYear}
+                    onChange={(e) => setFormData({ ...formData, startYear: e.target.value })}
+                    className={cn(errors.startYear && "border-red-500/50 focus:ring-red-500/10")}
+                  />
+                  {errors.startYear && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.startYear}</p>}
+                </div>
+                {!formData.current && (
+                  <div className="space-y-2">
+                    <Label htmlFor="endYear">End Year</Label>
+                    <Input
+                      id="endYear"
+                      placeholder="2022"
+                      value={formData.endYear}
+                      onChange={(e) => setFormData({ ...formData, endYear: e.target.value })}
+                    />
+                  </div>
+                )}
+              </div>
 
-        {errors.general && <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">{errors.general}</div>}
+              <label className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-border/50 bg-bg/50 p-4 transition-all hover:border-primary/30 hover:bg-primary/5">
+                <div className="relative flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full bg-muted/30 transition-colors group-hover:bg-muted/40 has-[:checked]:bg-primary">
+                  <input
+                    type="checkbox"
+                    className="peer sr-only"
+                    checked={formData.current}
+                    onChange={(e) => setFormData({ ...formData, current: e.target.checked })}
+                  />
+                  <div className="absolute left-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all peer-checked:left-6" />
+                </div>
+                <span className="text-sm font-semibold text-text">Currently Studying</span>
+              </label>
 
-        <div className="flex justify-end gap-3">
-          <Link href="/admin/education"><Button variant="outline">Cancel</Button></Link>
-          <Button type="submit" disabled={loading}>
-            {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...</> : <><Save className="mr-2 h-4 w-4" /> Add Education</>}
-          </Button>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <div className="relative">
+                  <Input
+                    id="location"
+                    placeholder="e.g. Palo Alto, CA"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="pl-10"
+                  />
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                </div>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="gpa">GPA</Label>
+                  <div className="relative">
+                    <Input
+                      id="gpa"
+                      placeholder="3.9"
+                      value={formData.gpa}
+                      onChange={(e) => setFormData({ ...formData, gpa: e.target.value })}
+                      className="pl-10"
+                    />
+                    <Star className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="order">Order</Label>
+                  <div className="relative">
+                    <Input
+                      id="order"
+                      type="number"
+                      value={formData.order}
+                      onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                      className="pl-10"
+                    />
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }

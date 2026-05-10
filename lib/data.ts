@@ -182,7 +182,24 @@ function toContactMessageDTO(m: NonNullable<Awaited<ReturnType<typeof prisma.con
 
 export const getExperiences = cache(async (): Promise<ExperienceDTO[]> => {
   try {
-    const rows = await prisma.experience.findMany({ orderBy: { order: "asc" } });
+    const rows = await prisma.experience.findMany({
+      select: {
+        id: true,
+        company: true,
+        role: true,
+        location: true,
+        type: true,
+        startDate: true,
+        endDate: true,
+        current: true,
+        description: true,
+        skills: true,
+        logoUrl: true,
+        order: true,
+        createdAt: true,
+      },
+      orderBy: { order: "asc" },
+    });
     return rows.map(toExperienceDTO);
   } catch (error) {
     console.error("Failed to fetch experiences:", error);
@@ -192,7 +209,16 @@ export const getExperiences = cache(async (): Promise<ExperienceDTO[]> => {
 
 export const getSkills = cache(async (): Promise<SkillDTO[]> => {
   try {
-    const rows = await prisma.skill.findMany({ orderBy: { order: "asc" } });
+    const rows = await prisma.skill.findMany({
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        iconUrl: true,
+        order: true,
+      },
+      orderBy: { order: "asc" },
+    });
     return rows.map(toSkillDTO);
   } catch (error) {
     console.error("Failed to fetch skills:", error);
@@ -203,10 +229,37 @@ export const getSkills = cache(async (): Promise<SkillDTO[]> => {
 export const getProjects = cache(async (): Promise<ProjectDTO[]> => {
   try {
     const rows = await prisma.project.findMany({
-      include: { projectLinks: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        subtitle: true,
+        role: true,
+        client: true,
+        category: true,
+        timeline: true,
+        year: true,
+        problem: true,
+        solution: true,
+        impact: true,
+        features: true,
+        outcomes: true,
+        techStack: true,
+        liveUrl: true,
+        githubUrl: true,
+        imageUrl: true,
+        galleryImages: true,
+        projectLinks: { select: { label: true, url: true } },
+        featured: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        tags: true,
+      },
       orderBy: { createdAt: "desc" },
     });
-    return rows.map(toProjectDTO);
+    return rows.map((row) => toProjectDTO(row as PrismaProject));
   } catch (error) {
     console.error("Failed to fetch projects:", error);
     return [];
@@ -227,6 +280,20 @@ export const getBlogPosts = cache(async (): Promise<BlogPostDTO[]> => {
   try {
     const rows = await prisma.blogPost.findMany({
       where: { published: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        content: true,
+        contentFormat: true,
+        coverImage: true,
+        published: true,
+        readingTime: true,
+        createdAt: true,
+        updatedAt: true,
+        tags: true,
+      },
       orderBy: { createdAt: "desc" },
     });
     return rows.map(toBlogPostDTO);
@@ -302,7 +369,7 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPostDTO
   }
 });
 
-export async function getContactMessages(): Promise<ContactMessageDTO[]> {
+export const getContactMessages = cache(async (): Promise<ContactMessageDTO[]> => {
   try {
     const rows = await prisma.contactMessage.findMany({ orderBy: { createdAt: "desc" } });
     return rows.map(toContactMessageDTO);
@@ -310,9 +377,9 @@ export async function getContactMessages(): Promise<ContactMessageDTO[]> {
     console.error("Failed to fetch contact messages:", error);
     return [];
   }
-}
+});
 
-export async function getProjectById(id: string): Promise<ProjectDTO | null> {
+export const getProjectById = cache(async (id: string): Promise<ProjectDTO | null> => {
   try {
     const row = await prisma.project.findUnique({
       where: { id },
@@ -323,9 +390,9 @@ export async function getProjectById(id: string): Promise<ProjectDTO | null> {
     console.error("Failed to fetch project by id:", error);
     return null;
   }
-}
+});
 
-export async function getBlogPostById(id: string): Promise<BlogPostDTO | null> {
+export const getBlogPostById = cache(async (id: string): Promise<BlogPostDTO | null> => {
   try {
     const row = await prisma.blogPost.findUnique({ where: { id } });
     return row ? toBlogPostDTO(row) : null;
@@ -333,9 +400,9 @@ export async function getBlogPostById(id: string): Promise<BlogPostDTO | null> {
     console.error("Failed to fetch blog post by id:", error);
     return null;
   }
-}
+});
 
-export async function getExperienceById(id: string): Promise<ExperienceDTO | null> {
+export const getExperienceById = cache(async (id: string): Promise<ExperienceDTO | null> => {
   try {
     const row = await prisma.experience.findUnique({ where: { id } });
     return row ? toExperienceDTO(row) : null;
@@ -343,9 +410,9 @@ export async function getExperienceById(id: string): Promise<ExperienceDTO | nul
     console.error("Failed to fetch experience by id:", error);
     return null;
   }
-}
+});
 
-export async function getCertificationById(id: string): Promise<CertificationDTO | null> {
+export const getCertificationById = cache(async (id: string): Promise<CertificationDTO | null> => {
   try {
     const row = await prisma.certification.findUnique({ where: { id } });
     return row ? toCertificationDTO(row) : null;
@@ -353,9 +420,9 @@ export async function getCertificationById(id: string): Promise<CertificationDTO
     console.error("Failed to fetch certification by id:", error);
     return null;
   }
-}
+});
 
-export async function getHackathonById(id: string): Promise<HackathonDTO | null> {
+export const getHackathonById = cache(async (id: string): Promise<HackathonDTO | null> => {
   try {
     const row = await prisma.hackathon.findUnique({ where: { id } });
     return row ? toHackathonDTO(row) : null;
@@ -363,7 +430,7 @@ export async function getHackathonById(id: string): Promise<HackathonDTO | null>
     console.error("Failed to fetch hackathon by id:", error);
     return null;
   }
-}
+});
 
 export const getHackathonBySlug = cache(async (slug: string): Promise<HackathonDTO | null> => {
   try {

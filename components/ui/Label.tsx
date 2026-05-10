@@ -9,7 +9,7 @@ export const Label = forwardRef<HTMLLabelElement, LabelHTMLAttributes<HTMLLabelE
     <label
       ref={ref}
       className={cn(
-        "text-sm font-medium leading-none text-text peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        "mb-2 block text-xs font-black uppercase tracking-[0.2em] text-muted/80 peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
         className
       )}
       {...props}

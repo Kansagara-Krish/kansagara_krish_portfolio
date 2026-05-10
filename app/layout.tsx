@@ -1,19 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google";
+import Script from "next/script";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { getBaseUrl } from "@/lib/utils";
+import { SmoothScroll } from "@/components/providers/SmoothScroll";
 
-const jakarta = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-inter",
   display: "swap",
 });
 
-const dmSerif = DM_Serif_Display({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-serif",
+  variable: "--font-outfit",
   display: "swap",
-  weight: "400",
 });
 
 const baseUrl = getBaseUrl();
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
     default: "Pratham Rajbhar | Portfolio",
     template: "%s | Pratham Rajbhar"
   },
-  description: "Full-stack engineer building scalable, user-centric digital solutions. Explore projects, writing, and professional experience.",
+  description: "I build fast, easy-to-use websites and apps. See my work, blog, and history.",
   metadataBase: new URL(baseUrl),
   keywords: ["Computer Engineer", "Software Developer", "Portfolio", "Full-Stack", "Next.js", "React"],
   authors: [{ name: "Pratham Rajbhar", url: baseUrl }],
@@ -33,14 +34,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: baseUrl,
     title: "Pratham Rajbhar | Portfolio",
-    description: "Full-stack engineer building scalable, user-centric digital solutions.",
+    description: "I build fast, easy-to-use websites and apps.",
     siteName: "Pratham Rajbhar",
     images: [`${baseUrl}/api/og?title=${encodeURIComponent("Pratham Rajbhar")}&subtitle=${encodeURIComponent("Portfolio")}`],
   },
   twitter: {
     card: "summary_large_image",
     title: "Pratham Rajbhar | Portfolio",
-    description: "Full-stack engineer building scalable, user-centric digital solutions.",
+    description: "I build fast, easy-to-use websites and apps.",
     images: [`${baseUrl}/api/og?title=${encodeURIComponent("Pratham Rajbhar")}&subtitle=${encodeURIComponent("Portfolio")}`],
   },
   icons: {
@@ -54,17 +55,36 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#030712" },
+    { media: "(prefers-color-scheme: dark)", color: "#171717" },
   ],
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const baseUrl = getBaseUrl();
+  const websiteSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Pratham Rajbhar",
+    url: baseUrl,
+    description: "I build fast, easy-to-use websites and apps."
+  });
+
   return (
-    <html lang="en" className={`${jakarta.variable} ${dmSerif.variable}`} data-theme="dark" suppressHydrationWarning>
-      <body className="min-h-screen font-sans antialiased selection:bg-primary/30 selection:text-primary">
-        {children}
+    <html lang="en" className={`${inter.variable} ${outfit.variable}`} data-theme="dark" suppressHydrationWarning>
+      <head>
+        <Script
+          id="structured-data-website"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: websiteSchema }}
+        />
+      </head>
+      <body className="min-h-screen font-sans antialiased">
+        <SmoothScroll>
+
+          {children}
+        </SmoothScroll>
       </body>
     </html>
   );

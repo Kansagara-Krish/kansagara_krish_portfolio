@@ -25,7 +25,7 @@ export function SkillsCloud({ skills }: { skills: SkillDTO[] }) {
             {category}
           </h3>
 
-          <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="mt-6 grid grid-cols-1 gap-3">
             {items.map((skill) => {
               const iconUrl = getSkillIcon(skill);
               return (
@@ -39,7 +39,7 @@ export function SkillsCloud({ skills }: { skills: SkillDTO[] }) {
                         src={iconUrl}
                         alt={skill.name}
                         fill
-                        className="object-contain p-1.5 transition-transform group-hover:scale-110"
+                        className="object-contain p-1 transition-transform group-hover:scale-110"
                       />
                     </div>
                   ) : (

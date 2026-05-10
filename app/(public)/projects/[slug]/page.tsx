@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { ProjectDetailClient } from "@/components/public/ProjectDetailClient";
 import { getAllProjectSlugs, getProjectBySlug, getProjects } from "@/lib/data";
 import { getBaseUrl } from "@/lib/utils";
+import { generateProjectSchema, generateBreadcrumbSchema } from "@/lib/structured-data";
 
 export const revalidate = 3600;
 
@@ -39,5 +41,27 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const tagNames = new Set(project.tags);
   const related = allProjects.filter((item) => item.id !== project.id && item.tags.some((tag) => tagNames.has(tag))).slice(0, 3);
 
-  return <ProjectDetailClient project={project} related={related} />;
+  const baseUrl = getBaseUrl();
+  const projectSchema = JSON.stringify(generateProjectSchema(project));
+  const breadcrumbSchema = JSON.stringify(generateBreadcrumbSchema([
+    { name: "Home", item: baseUrl },
+    { name: "Projects", item: `${baseUrl}/projects` },
+    { name: project.title, item: `${baseUrl}/projects/${slug}` }
+  ]));
+
+  return (
+    <>
+      <Script
+        id="structured-data-project"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: projectSchema }}
+      />
+      <Script
+        id="structured-data-breadcrumb"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: breadcrumbSchema }}
+      />
+      <ProjectDetailClient project={project} related={related} />
+    </>
+  );
 }

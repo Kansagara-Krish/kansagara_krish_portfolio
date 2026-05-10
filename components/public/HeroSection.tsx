@@ -1,16 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown, FileText } from "lucide-react";
+import { FileText, Code2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { fadeInUp, staggerContainer } from "@/lib/animations";
+import { fadeInUp, staggerContainer, scaleIn } from "@/lib/animations";
 import type { SiteSettingsDTO } from "@/lib/types";
 
 const roles = ["Full-Stack Engineer", "Computer Engineer", "Product Builder"];
-
 const fallbackImage = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=900&h=900&fit=crop";
 
 export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
@@ -31,123 +29,100 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
   }, [roleIndex, text]);
 
   return (
-    <section className="relative flex min-h-[85vh] items-center px-6 pt-16">
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -right-40 -top-40 h-[600px] w-[600px] rounded-full bg-primary/[0.03] blur-3xl"
-        />
-        <motion.div
-          animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/[0.02] blur-3xl"
-        />
-        <motion.div
-          animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute left-1/3 top-1/3 h-[300px] w-[300px] rounded-full bg-primary/[0.015] blur-3xl"
-        />
+    <section className="relative flex min-h-[90vh] items-center overflow-hidden px-6 pt-12 lg:pt-16">
+      {/* Background Layer: Clean & Minimal */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(var(--primary-rgb),0.05),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </div>
 
       <motion.div
-        className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.2fr_0.8fr]"
+        className="relative z-10 mx-auto w-full max-w-7xl"
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
       >
-        <div className="max-w-3xl">
-          {settings.openToWork ? (
-            <motion.div variants={fadeInUp} className="mb-8">
-              <Badge variant="success" className="px-4 py-1.5 text-xs font-medium tracking-wide">
-                Available for work
-              </Badge>
+        <div className="grid items-center gap-16 lg:grid-cols-12">
+          {/* Left Side: Content Architecture */}
+          <div className="lg:col-span-7">
+            <motion.div variants={fadeInUp} className="mb-6 flex items-center gap-3">
+              <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                  {settings.openToWork ? "Looking for work" : "Taking new projects"}
+                </span>
+              </div>
             </motion.div>
-          ) : null}
 
-          <motion.p
-            variants={fadeInUp}
-            className="mb-6 text-sm font-medium uppercase tracking-widest text-muted"
-          >
-            {settings.title}
-          </motion.p>
+            <motion.div variants={fadeInUp}>
+              <h1 className="font-display text-5xl font-bold leading-[1.05] tracking-tighter text-text sm:text-7xl lg:text-8xl">
+                Engineering <br />
+                <span className="text-gradient">Great Websites.</span>
+              </h1>
+            </motion.div>
 
-          <motion.h1
-            variants={fadeInUp}
-            className="font-display text-5xl leading-[1.1] tracking-tight sm:text-6xl lg:text-7xl"
-          >
-            Hi, I&apos;m <span className="text-primary">{settings.name}</span>
-          </motion.h1>
-
-          <motion.p
-            variants={fadeInUp}
-            className="mt-8 min-h-[1.5em] font-display text-xl text-muted sm:text-2xl lg:text-3xl"
-          >
-            I build <span className="text-gradient">{text}</span>
-            <span className="ml-1 inline-block h-6 w-px animate-pulse bg-primary align-middle lg:h-8" />
-          </motion.p>
-
-          <motion.p
-            variants={fadeInUp}
-            className="mt-8 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
-          >
-            {settings.heroTagline || settings.bio}
-          </motion.p>
-
-          <motion.div variants={fadeInUp} className="mt-10 flex flex-wrap gap-4">
-            <Button
-              href="#featured-projects"
-              size="lg"
-              className="px-8"
+            <motion.p
+              variants={fadeInUp}
+              className="mt-6 max-w-xl text-lg leading-relaxed text-muted sm:text-xl"
             >
-              View Projects
-            </Button>
-            {settings.resumeUrl ? (
-              <Button
-                href={settings.resumeUrl}
-                size="lg"
-                variant="secondary"
-                className="px-8"
-                icon={<FileText size={18} />}
-              >
-                Resume
+              Hi, I&apos;m <span className="font-bold text-text">{settings.name}</span>. 
+              A <span className="text-primary font-medium">{settings.title}</span> building 
+              fast, beautiful websites that work perfectly.
+            </motion.p>
+
+            <motion.div variants={fadeInUp} className="mt-8">
+              <div className="inline-flex h-10 items-center gap-3 rounded-xl border border-border/30 bg-surface/20 px-4 backdrop-blur-md">
+                <Code2 size={16} className="text-primary/60" />
+                <span className="font-display text-xs font-bold uppercase tracking-[0.2em] text-text/80">{text}</span>
+                <span className="h-4 w-[1px] animate-pulse bg-primary/50" />
+              </div>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="mt-10 flex flex-wrap gap-5">
+              <Button href="#featured-projects" size="lg" className="h-14 rounded-full px-10 text-base font-bold shadow-lg shadow-primary/20">
+                See my work
               </Button>
-            ) : null}
-          </motion.div>
-        </div>
-
-        <motion.div
-          variants={fadeInUp}
-          className="relative hidden lg:flex lg:justify-center"
-        >
-          <div className="absolute -inset-6 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-2xl opacity-40" />
-          <div className="relative aspect-square w-72 overflow-hidden rounded-full border-4 border-border bg-surface xl:w-80">
-            <Image
-              src={settings.avatarUrl || fallbackImage}
-              alt={settings.name}
-              fill
-              className="object-cover transition-transform duration-700 hover:scale-105"
-              sizes="(min-width: 1024px) 320px, 100vw"
-              priority
-            />
+              {settings.resumeUrl && (
+                <Button href={settings.resumeUrl} variant="secondary" size="lg" className="h-14 rounded-full border-border/50 bg-surface/30 px-10 text-base font-bold backdrop-blur-md" icon={<FileText size={18} />}>
+                  Get my resume
+                </Button>
+              )}
+            </motion.div>
           </div>
-        </motion.div>
+
+          {/* Right Side: Large Clean Circular Visual */}
+          <div className="relative lg:col-span-5">
+            <motion.div
+              variants={scaleIn}
+              className="relative mx-auto flex h-[400px] w-[400px] items-center justify-center sm:h-[500px] sm:w-[500px] lg:h-[550px] lg:w-[550px]"
+            >
+              {/* Perfect Circular Portrait */}
+              <div className="relative h-full w-full overflow-hidden rounded-full border-2 border-border bg-surface shadow-2xl">
+                <Image
+                  src={settings.avatarUrl || fallbackImage}
+                  alt={settings.name}
+                  fill
+                  className="object-cover transition-transform duration-1000 hover:scale-105"
+                  sizes="(min-width: 1024px) 600px, 100vw"
+                  priority
+                />
+                
+                {/* Subtle Visual Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-bg/20 via-transparent to-transparent" />
+              </div>
+              
+              {/* Subtle Depth Shadow */}
+              <div className="absolute -inset-4 -z-10 rounded-full bg-primary/5 blur-3xl opacity-50" />
+            </motion.div>
+          </div>
+        </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-2 text-muted"
-        >
-          <ArrowDown size={16} />
-        </motion.div>
-      </motion.div>
+      {/* Background Gradient Bottom */}
+      <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-bg to-transparent" />
     </section>
   );
 }

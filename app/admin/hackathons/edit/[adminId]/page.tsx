@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { Save, ArrowLeft, Loader2 } from "lucide-react";
+import { Save, ArrowLeft, Loader2, Trophy, MapPin, Calendar, Link as LinkIcon, Image as ImageIcon, Layout, Target, Award, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
+import { motion } from "framer-motion";
+import { cn, slugify } from "@/lib/utils";
 
 interface Hackathon {
   id: string;
@@ -32,6 +34,7 @@ export default function EditHackathonPage() {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hackathon, setHackathon] = useState<Hackathon | null>(null);
+  const [isEditingSlug, setIsEditingSlug] = useState(false);
 
   const [formData, setFormData] = useState({
     slug: "",
@@ -122,166 +125,277 @@ export default function EditHackathonPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center py-32">
+        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-50" />
+        <p className="mt-4 text-sm font-medium text-muted">Loading hackathon details...</p>
       </div>
     );
   }
 
   if (!hackathon) {
-    return <div>Hackathon not found</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-red-500/10 text-red-500 mb-6">
+          <Trophy size={32} className="opacity-50" />
+        </div>
+        <h2 className="text-2xl font-bold">Hackathon not found</h2>
+        <p className="mt-2 text-muted">The hackathon you are trying to edit does not exist.</p>
+        <Link href="/admin/hackathons" className="mt-8">
+          <Button variant="outline" className="rounded-2xl">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Hackathons
+          </Button>
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <Link href="/admin/hackathons" className="inline-flex items-center text-muted hover:text-text">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-10"
+    >
+      {/* Header */}
+      <div className="flex flex-col gap-4">
+        <Link href="/admin/hackathons" className="group inline-flex items-center text-xs font-black uppercase tracking-[0.3em] text-muted hover:text-primary transition-colors">
+          <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
           Back to Hackathons
         </Link>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <h1 className="font-display text-4xl font-bold tracking-tight text-text sm:text-5xl">Edit Hackathon</h1>
+            <p className="text-lg text-muted">Update the details of your competitive achievement.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/admin/hackathons">
+              <Button variant="outline" size="lg" className="rounded-2xl px-8">Cancel</Button>
+            </Link>
+            <Button onClick={handleSubmit} disabled={saving} size="lg" className="rounded-2xl px-8 shadow-xl shadow-primary/20 min-w-[160px]">
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-5 w-5" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <h1 className="font-display text-3xl font-bold">Edit Hackathon</h1>
-      <p className="mt-2 text-muted">Update hackathon details</p>
+      <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">
+        {/* Left Column: Core Details */}
+        <div className="lg:col-span-8 space-y-8">
+          {errors.general && (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-sm font-bold text-red-500">
+              {errors.general}
+            </motion.div>
+          )}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-        <Card>
-          <CardHeader>
-            <h2 className="font-display text-xl font-semibold">Basic Information</h2>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label htmlFor="title">Hackathon Name *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                />
-                {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
+          <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+            <div className="flex items-center gap-3 border-b border-border/50 bg-bg/30 px-8 py-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Trophy size={18} />
               </div>
-              <div>
-                <Label htmlFor="slug">Slug</Label>
-                <Input
-                  id="slug"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              <h2 className="text-sm font-black uppercase tracking-widest text-text/80">Core Details</h2>
+            </div>
+            
+            <div className="p-8 space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Hackathon Name *</Label>
+                    <Input
+                      id="title"
+                      placeholder="e.g. ETHGlobal San Francisco"
+                      value={formData.title}
+                      onChange={(e) => {
+                        const title = e.target.value;
+                        setFormData({ 
+                          ...formData, 
+                          title, 
+                          slug: isEditingSlug ? formData.slug : slugify(title) 
+                        });
+                      }}
+                      className={cn(errors.title && "border-red-500/50 focus:ring-red-500/10")}
+                    />
+                    <div className="flex items-center gap-2 px-1">
+                      <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted/60">
+                        <LinkIcon size={10} className="text-primary/50" />
+                        <span>Permalink:</span>
+                        <span className="text-text/40">pratham.dev/hackathons/</span>
+                        {isEditingSlug ? (
+                          <input
+                            type="text"
+                            value={formData.slug}
+                            onChange={(e) => setFormData({ ...formData, slug: slugify(e.target.value) })}
+                            onBlur={() => setIsEditingSlug(false)}
+                            autoFocus
+                            className="bg-transparent border-none p-0 focus:ring-0 text-primary font-bold lowercase w-fit min-w-[50px] outline-none"
+                          />
+                        ) : (
+                          <span 
+                            className="text-primary font-bold cursor-pointer hover:underline decoration-dotted underline-offset-4"
+                            onClick={() => setIsEditingSlug(true)}
+                          >
+                            {formData.slug}
+                          </span>
+                        )}
+                      </div>
+                      {errors.slug && <span className="text-[10px] font-bold uppercase text-red-500">— {errors.slug}</span>}
+                    </div>
+                    {errors.title && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.title}</p>}
+                  </div>
+                </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Hackathon Description *</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Tell the story of the event, the challenge, and your experience..."
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={8}
+                  className={cn(errors.description && "border-red-500/50 focus:ring-red-500/10")}
                 />
+                {errors.description && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.description}</p>}
               </div>
-              <div>
-                <Label htmlFor="project">Project *</Label>
-                <Input
-                  id="project"
-                  value={formData.project}
-                  onChange={(e) => setFormData({ ...formData, project: e.target.value })}
-                />
-                {errors.project && <p className="mt-1 text-sm text-red-600">{errors.project}</p>}
+            </div>
+          </Card>
+
+          <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+            <div className="flex items-center gap-3 border-b border-border/50 bg-bg/30 px-8 py-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Target size={18} />
               </div>
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Input
-                  id="role"
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                />
+              <h2 className="text-sm font-black uppercase tracking-widest text-text/80">Project & Result</h2>
+            </div>
+            
+            <div className="p-8 space-y-6">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="project">Project Name *</Label>
+                  <Input
+                    id="project"
+                    placeholder="What did you build?"
+                    value={formData.project}
+                    onChange={(e) => setFormData({ ...formData, project: e.target.value })}
+                    className={cn(errors.project && "border-red-500/50 focus:ring-red-500/10")}
+                  />
+                  {errors.project && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.project}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Your Role</Label>
+                  <Input
+                    id="role"
+                    placeholder="e.g. Lead Developer"
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="date">Date *</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                />
-                {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date}</p>}
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="result">Result / Achievement</Label>
+                  <div className="relative">
+                    <Input
+                      id="result"
+                      placeholder="e.g. Winner, Top 10, Finalist"
+                      value={formData.result}
+                      onChange={(e) => setFormData({ ...formData, result: e.target.value })}
+                      className="pl-10"
+                    />
+                    <Award className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="link">Project URL</Label>
+                  <div className="relative">
+                    <Input
+                      id="link"
+                      placeholder="https://devpost.com/..."
+                      value={formData.link}
+                      onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                      className={cn("pl-10", errors.link && "border-red-500/50 focus:ring-red-500/10")}
+                    />
+                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                  </div>
+                  {errors.link && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.link}</p>}
+                </div>
               </div>
-              <div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Column: Metadata & Media */}
+        <div className="lg:col-span-4 space-y-8">
+          <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+            <div className="flex items-center gap-3 border-b border-border/50 bg-bg/30 px-8 py-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Layout size={18} />
+              </div>
+              <h2 className="text-sm font-black uppercase tracking-widest text-text/80">Logistics</h2>
+            </div>
+            
+            <div className="p-8 space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="date">Event Date *</Label>
+                <div className="relative">
+                  <Input
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    className={cn("pl-10", errors.date && "border-red-500/50 focus:ring-red-500/10")}
+                  />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                </div>
+                {errors.date && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.date}</p>}
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="result">Result</Label>
-                <Input
-                  id="result"
-                  value={formData.result}
-                  onChange={(e) => setFormData({ ...formData, result: e.target.value })}
-                />
+                <div className="relative">
+                  <Input
+                    id="location"
+                    placeholder="e.g. San Francisco, Online"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="pl-10"
+                  />
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <h2 className="font-display text-xl font-semibold">Description</h2>
-          </CardHeader>
-          <CardContent>
-            <Label htmlFor="description">Description *</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={6}
-            />
-            {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <h2 className="font-display text-xl font-semibold">Links & Media</h2>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="link">Project Link</Label>
-              <Input
-                id="link"
-                value={formData.link}
-                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-              />
-              {errors.link && <p className="mt-1 text-sm text-red-600">{errors.link}</p>}
+          <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+            <div className="flex items-center gap-3 border-b border-border/50 bg-bg/30 px-8 py-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <ImageIcon size={18} />
+              </div>
+              <h2 className="text-sm font-black uppercase tracking-widest text-text/80">Media</h2>
             </div>
-            <div>
-              <Label>Hackathon Image</Label>
-              <FileUpload
-                value={formData.image}
-                onChange={(url) => setFormData({ ...formData, image: url })}
-                label="Upload hackathon image"
-              />
-              {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
+            
+            <div className="p-8 space-y-6">
+              <div className="space-y-2">
+                <Label>Hackathon Image</Label>
+                <FileUpload
+                  value={formData.image}
+                  onChange={(url) => setFormData({ ...formData, image: url })}
+                  label="Upload an event or project photo"
+                />
+                {errors.image && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.image}</p>}
+              </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {errors.general && (
-          <div className="rounded-lg bg-red-50 p-4 text-red-600">
-            {errors.general}
-          </div>
-        )}
-
-        <div className="flex justify-end gap-4">
-          <Link href="/admin/hackathons">
-            <Button variant="outline">Cancel</Button>
-          </Link>
-          <Button type="submit" disabled={saving}>
-            {saving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </>
-            )}
-          </Button>
+          </Card>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }

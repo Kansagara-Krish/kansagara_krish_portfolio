@@ -55,6 +55,10 @@ model Project {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   projectLinks  ProjectLink[]
+
+  @@index([featured])
+  @@index([createdAt(sort: Desc)])
+  @@index([slug])
 }
 
 model ProjectLink {
@@ -80,6 +84,10 @@ model BlogPost {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   tags          String[]
+
+  @@index([published])
+  @@index([createdAt(sort: Desc)])
+  @@index([slug])
 }
 
 // ─── Experience ──────────────────────────────────────────────────────────────
@@ -98,6 +106,8 @@ model Experience {
   logoUrl     String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
+
+  @@index([order])
 }
 
 // ─── Skills ──────────────────────────────────────────────────────────────────
@@ -108,6 +118,9 @@ model Skill {
   category String
   iconUrl  String?
   order    Int     @default(0)
+
+  @@index([order])
+  @@index([category])
 }
 
 // ─── Contact Messages ────────────────────────────────────────────────────────
@@ -137,6 +150,9 @@ model Hackathon {
   description String
   image       String?
   createdAt   DateTime @default(now())
+
+  @@index([date(sort: Desc)])
+  @@index([slug])
 }
 
 // ─── Certifications ──────────────────────────────────────────────────────────
@@ -151,6 +167,9 @@ model Certification {
   credentialId String?
   image        String?
   createdAt    DateTime @default(now())
+
+  @@index([date(sort: Desc)])
+  @@index([slug])
 }
 
 // ─── Education ───────────────────────────────────────────────────────────────
@@ -169,6 +188,9 @@ model Education {
   location    String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
+
+  @@index([order])
+  @@index([slug])
 }
 
 // ─── Page Views (Analytics) ──────────────────────────────────────────────────

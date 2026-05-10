@@ -10,16 +10,22 @@ function createPrismaClient(): PrismaClient {
     throw new Error("DATABASE_URL environment variable is not set");
   }
 
-  // Strip sslmode from URL — we configure SSL via Pool options to avoid TLS cert errors with AWS RDS
   const needsSsl = rawUrl.includes("sslmode=");
   const connectionString = rawUrl.replace(/[?&]sslmode=[^&]*/g, "").replace(/\?$/, "");
 
   const pool = new Pool({
     connectionString,
     ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
+    max: 10,
+    min: 2,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
   });
   const adapter = new PrismaPg(pool);
-  return new PrismaClient({ adapter });
+  return new PrismaClient({ 
+    adapter,
+    log: ["error"]
+  });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();

@@ -22,12 +22,12 @@ export default async function EducationPage() {
     <div className="relative overflow-hidden">
       <section className="relative z-10 mx-auto max-w-4xl px-6 py-24">
         <div className="max-w-2xl">
-          <p className="text-xs font-medium uppercase tracking-widest text-primary">Academic Background</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-primary">Education</p>
           <h1 className="mt-6 font-display text-4xl tracking-tight sm:text-5xl">
             Education
           </h1>
           <p className="mt-6 text-base leading-relaxed text-muted sm:text-lg">
-            A record of my academic journey, from diploma to undergraduate studies, focused on computer engineering and software development.
+            A list of where I studied and what I learned about computer engineering.
           </p>
         </div>
 
@@ -38,7 +38,7 @@ export default async function EducationPage() {
                 <div className="flex flex-wrap items-center gap-3 mb-4">
                   <span className="flex items-center gap-1.5 text-xs text-muted">
                     <Calendar size={14} />
-                    {edu.startYear} — {edu.current ? "Present" : edu.endYear}
+                    {edu.startYear} — {edu.current ? "Now" : edu.endYear}
                   </span>
                   {edu.location && (
                     <span className="flex items-center gap-1.5 text-xs text-muted">
@@ -80,7 +80,7 @@ export default async function EducationPage() {
 
         <div className="mt-12">
           <Button href="/experience" variant="secondary">
-            View Work Experience
+            See my jobs
           </Button>
         </div>
       </section>
