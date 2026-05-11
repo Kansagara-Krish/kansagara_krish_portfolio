@@ -44,9 +44,19 @@ export function getBaseUrl(headersList?: Headers | null) {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
   }
-  const host = headersList?.get("host") ?? "localhost:3000";
-  const protocol = host.includes("localhost") ? "http" : "https";
-  return `${protocol}://${host}`;
+  
+  const host = headersList?.get("host");
+  if (host) {
+    const protocol = host.includes("localhost") ? "http" : "https";
+    return `${protocol}://${host}`;
+  }
+
+  // Build time or background task safety
+  if (process.env.SITE_URL) {
+    return process.env.SITE_URL.replace(/\/$/, "");
+  }
+
+  throw new Error("Unable to determine Base URL: Neither VERCEL_URL, Host header, nor SITE_URL are available.");
 }
 
 

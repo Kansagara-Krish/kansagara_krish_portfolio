@@ -29,13 +29,13 @@ export default async function AboutPage() {
           <div>
             <p className="text-xs font-medium uppercase tracking-widest text-primary">Who I am</p>
             <h1 className="mt-6 font-display text-4xl tracking-tight sm:text-5xl lg:text-6xl">
-              Building things <span className="text-gradient">that help.</span>
+              {settings.aboutTitle?.split(" ").slice(0, -2).join(" ")} <span className="text-gradient">{settings.aboutTitle?.split(" ").slice(-2).join(" ")}</span>
             </h1>
             <p className="mt-8 text-xl leading-relaxed text-muted sm:text-2xl">
-              I am {settings.name}, a {settings.title} focused on building good digital solutions.
+              I am {settings.name}, a {settings.heroTitle} focused on building good digital solutions and crafting beautiful user experiences.
             </p>
             <div className="mt-10 space-y-5 text-base leading-relaxed text-muted md:text-lg">
-              <p>{settings.bio}</p>
+              <p>{settings.heroBio}</p>
               <p>
                 I use my technical skills to build things that are easy for people to use.
               </p>
@@ -43,15 +43,15 @@ export default async function AboutPage() {
 
             <div className="mt-12 flex flex-wrap gap-10">
               <div className="flex flex-col">
-                <span className="text-3xl font-medium text-text">2+</span>
+                <span className="text-3xl font-medium text-text">{settings.aboutStatsWork}</span>
                 <span className="mt-1 text-xs text-muted">Years Work</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-medium text-text">15+</span>
+                <span className="text-3xl font-medium text-text">{settings.aboutStatsProjects}</span>
                 <span className="mt-1 text-xs text-muted">Projects Done</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-medium text-text">100%</span>
+                <span className="text-3xl font-medium text-text">{settings.aboutStatsCommitment}</span>
                 <span className="mt-1 text-xs text-muted">Commitment</span>
               </div>
             </div>
@@ -82,9 +82,9 @@ export default async function AboutPage() {
         </div>
 
         <div className="mt-32 rounded-2xl border border-border bg-surface p-10 text-center sm:p-16">
-          <h2 className="font-display text-2xl tracking-tight sm:text-3xl">Want to work together?</h2>
+          <h2 className="font-display text-2xl tracking-tight sm:text-3xl">{settings.contactCtaTitle}</h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted">
-            I&apos;m open to new jobs and interesting projects. If you have a problem to solve, let&apos;s talk.
+            {settings.contactCtaDesc}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button href="/contact" size="lg">Get In Touch</Button>

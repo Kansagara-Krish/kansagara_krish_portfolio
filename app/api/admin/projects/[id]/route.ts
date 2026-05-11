@@ -32,6 +32,9 @@ const projectSchema = z.object({
   tags: z.array(z.string()).default([]),
   featured: z.boolean().default(false),
   status: z.string().default("completed"),
+  seoTitle: z.string().optional().or(z.literal("")).or(z.null()),
+  seoDescription: z.string().optional().or(z.literal("")).or(z.null()),
+  seoKeywords: z.string().optional().or(z.literal("")).or(z.null()),
   projectLinks: z.array(projectLinkSchema).default([]),
 });
 

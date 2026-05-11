@@ -7,8 +7,8 @@ export function generatePersonSchema(settings: SiteSettingsDTO) {
     "@context": "https://schema.org",
     "@type": "Person",
     name: settings.name,
-    jobTitle: settings.title,
-    description: settings.bio,
+    jobTitle: settings.heroTitle,
+    description: settings.heroBio,
     email: settings.email,
     url: baseUrl,
     image: settings.avatarUrl,
@@ -25,8 +25,8 @@ export function generateBlogPostSchema(post: BlogPostDTO) {
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    headline: post.title,
-    description: post.excerpt,
+    headline: post.seoTitle ?? post.title,
+    description: post.seoDescription ?? post.excerpt,
     image: post.coverImage,
     author: {
       "@type": "Person",
@@ -35,7 +35,7 @@ export function generateBlogPostSchema(post: BlogPostDTO) {
     datePublished: post.createdAt,
     dateModified: post.updatedAt,
     url: `${baseUrl}/blog/${post.slug}`,
-    keywords: post.tags.join(", ")
+    keywords: post.seoKeywords ?? post.tags.join(", ")
   };
 }
 
@@ -44,8 +44,8 @@ export function generateProjectSchema(project: ProjectDTO) {
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareSourceCode",
-    name: project.title,
-    description: project.description,
+    name: project.seoTitle ?? project.title,
+    description: project.seoDescription ?? project.description,
     author: {
       "@type": "Person",
       name: "Pratham Rajbhar"
@@ -54,7 +54,7 @@ export function generateProjectSchema(project: ProjectDTO) {
     dateModified: project.updatedAt,
     url: `${baseUrl}/projects/${project.slug}`,
     programmingLanguage: project.techStack,
-    keywords: project.tags.join(", "),
+    keywords: project.seoKeywords ?? project.tags.join(", "),
     applicationCategory: project.category,
     offers: {
       "@type": "Offer",

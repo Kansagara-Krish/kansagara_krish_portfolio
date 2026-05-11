@@ -1,6 +1,5 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
-import { defaultSettings } from "@/lib/defaults";
 import type {
   BlogPostDTO,
   CertificationDTO,
@@ -10,7 +9,8 @@ import type {
   HackathonDTO,
   ProjectDTO,
   SiteSettingsDTO,
-  SkillDTO
+  SkillDTO,
+  ServiceDTO
 } from "@/lib/types";
 
 // ─── Transform Helpers ───────────────────────────────────────────────────────
@@ -49,6 +49,9 @@ function toProjectDTO(p: NonNullable<PrismaProject>): ProjectDTO {
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
     tags: p.tags,
+    seoTitle: p.seoTitle ?? null,
+    seoDescription: p.seoDescription ?? null,
+    seoKeywords: p.seoKeywords ?? null,
   };
 }
 
@@ -66,6 +69,9 @@ function toBlogPostDTO(p: NonNullable<Awaited<ReturnType<typeof prisma.blogPost.
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
     tags: p.tags,
+    seoTitle: p.seoTitle ?? null,
+    seoDescription: p.seoDescription ?? null,
+    seoKeywords: p.seoKeywords ?? null,
   };
 }
 
@@ -97,21 +103,55 @@ function toSkillDTO(s: NonNullable<Awaited<ReturnType<typeof prisma.skill.findFi
   };
 }
 
+function toServiceDTO(s: NonNullable<Awaited<ReturnType<typeof prisma.service.findFirst>>>): ServiceDTO {
+  return {
+    id: s.id,
+    title: s.title,
+    description: s.description,
+    icon: s.icon,
+    order: s.order,
+    createdAt: s.createdAt.toISOString(),
+  };
+}
+
 function toSiteSettingsDTO(s: NonNullable<Awaited<ReturnType<typeof prisma.siteSettings.findFirst>>>): SiteSettingsDTO {
   return {
     id: s.id,
     name: s.name,
-    title: s.title,
-    bio: s.bio,
     email: s.email,
+    location: s.location,
+    heroTitle: s.heroTitle,
+    heroTagline: s.heroTagline,
+    heroBio: s.heroBio,
+    avatarUrl: s.avatarUrl,
+    resumeUrl: s.resumeUrl,
+    aboutTitle: s.aboutTitle,
+    aboutGoalTitle: s.aboutGoalTitle,
+    aboutGoalDesc: s.aboutGoalDesc,
+    yearsOfExperience: s.yearsOfExperience,
+    aboutStatsWork: s.aboutStatsWork,
+    aboutStatsProjects: s.aboutStatsProjects,
+    aboutStatsCommitment: s.aboutStatsCommitment,
+    projectsTitle: s.projectsTitle,
+    projectsSubtitle: s.projectsSubtitle,
+    projectsDesc: s.projectsDesc,
+    homeWorkTitle: s.homeWorkTitle,
+    homeWorkSubtitle: s.homeWorkSubtitle,
+    homeBlogTitle: s.homeBlogTitle,
+    homeBlogSubtitle: s.homeBlogSubtitle,
+    contactCtaTitle: s.contactCtaTitle,
+    contactCtaDesc: s.contactCtaDesc,
     github: s.github,
     linkedin: s.linkedin,
     twitter: s.twitter,
-    resumeUrl: s.resumeUrl,
-    avatarUrl: s.avatarUrl,
-    heroTagline: s.heroTagline,
+    footerTitle: s.footerTitle,
+    footerBio: s.footerBio,
     openToWork: s.openToWork,
     updatedAt: s.updatedAt.toISOString(),
+    seoTitle: s.seoTitle ?? null,
+    seoDescription: s.seoDescription ?? null,
+    seoKeywords: s.seoKeywords ?? null,
+    ogImage: s.ogImage ?? null,
   };
 }
 
@@ -149,7 +189,6 @@ function toHackathonDTO(h: NonNullable<Awaited<ReturnType<typeof prisma.hackatho
 function toEducationDTO(e: NonNullable<Awaited<ReturnType<typeof prisma.education.findFirst>>>): EducationDTO {
   return {
     id: e.id,
-    slug: e.slug,
     institution: e.institution,
     degree: e.degree,
     field: e.field,
@@ -159,50 +198,20 @@ function toEducationDTO(e: NonNullable<Awaited<ReturnType<typeof prisma.educatio
     description: e.description,
     gpa: e.gpa,
     location: e.location,
+    slug: e.slug,
     order: e.order,
     createdAt: e.createdAt.toISOString(),
   };
 }
 
-function toContactMessageDTO(m: NonNullable<Awaited<ReturnType<typeof prisma.contactMessage.findFirst>>>): ContactMessageDTO {
-  return {
-    id: m.id,
-    name: m.name,
-    email: m.email,
-    subject: m.subject,
-    message: m.message,
-    read: m.read,
-    createdAt: m.createdAt.toISOString(),
-  };
-}
-
-// ─── Data Fetching ───────────────────────────────────────────────────────────
-// Every function wraps Prisma calls in try/catch for build-time resilience.
-// If the database is unreachable (e.g. during CI/CD), pages render with fallback data.
+// ─── Fetchers (Strict - No fallbacks, let errors throw for safety) ─────────────
 
 export const getExperiences = cache(async (): Promise<ExperienceDTO[]> => {
   try {
-    const rows = await prisma.experience.findMany({
-      select: {
-        id: true,
-        company: true,
-        role: true,
-        location: true,
-        type: true,
-        startDate: true,
-        endDate: true,
-        current: true,
-        description: true,
-        skills: true,
-        logoUrl: true,
-        order: true,
-        createdAt: true,
-      },
-      orderBy: { order: "asc" },
-    });
+    const rows = await prisma.experience.findMany({ orderBy: { startDate: "desc" } });
     return rows.map(toExperienceDTO);
   } catch (error) {
-    console.error("Failed to fetch experiences:", error);
+    console.error("Error fetching experiences:", error);
     return [];
   }
 });
@@ -221,7 +230,27 @@ export const getSkills = cache(async (): Promise<SkillDTO[]> => {
     });
     return rows.map(toSkillDTO);
   } catch (error) {
-    console.error("Failed to fetch skills:", error);
+    console.error("Error fetching skills:", error);
+    return [];
+  }
+});
+
+export const getServices = cache(async (): Promise<ServiceDTO[]> => {
+  try {
+    const rows = await prisma.service.findMany({
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        icon: true,
+        order: true,
+        createdAt: true,
+      },
+      orderBy: { order: "asc" },
+    });
+    return rows.map(toServiceDTO);
+  } catch (error) {
+    console.error("Error fetching services:", error);
     return [];
   }
 });
@@ -229,11 +258,13 @@ export const getSkills = cache(async (): Promise<SkillDTO[]> => {
 export const getProjects = cache(async (): Promise<ProjectDTO[]> => {
   try {
     const rows = await prisma.project.findMany({
+      where: { status: "completed" },
       select: {
         id: true,
         title: true,
         slug: true,
         description: true,
+        content: true,
         subtitle: true,
         role: true,
         client: true,
@@ -256,12 +287,15 @@ export const getProjects = cache(async (): Promise<ProjectDTO[]> => {
         createdAt: true,
         updatedAt: true,
         tags: true,
+        seoTitle: true,
+        seoDescription: true,
+        seoKeywords: true,
       },
       orderBy: { createdAt: "desc" },
     });
     return rows.map((row) => toProjectDTO(row as PrismaProject));
   } catch (error) {
-    console.error("Failed to fetch projects:", error);
+    console.error("Error fetching projects:", error);
     return [];
   }
 });
@@ -271,7 +305,7 @@ export const getAllProjectSlugs = cache(async (): Promise<string[]> => {
     const rows = await prisma.project.findMany({ select: { slug: true } });
     return rows.map((r) => r.slug);
   } catch (error) {
-    console.error("Failed to fetch project slugs:", error);
+    console.error("Error fetching project slugs:", error);
     return [];
   }
 });
@@ -293,12 +327,15 @@ export const getBlogPosts = cache(async (): Promise<BlogPostDTO[]> => {
         createdAt: true,
         updatedAt: true,
         tags: true,
+        seoTitle: true,
+        seoDescription: true,
+        seoKeywords: true,
       },
       orderBy: { createdAt: "desc" },
     });
     return rows.map(toBlogPostDTO);
   } catch (error) {
-    console.error("Failed to fetch blog posts:", error);
+    console.error("Error fetching blog posts:", error);
     return [];
   }
 });
@@ -311,7 +348,7 @@ export const getAllBlogPostSlugs = cache(async (): Promise<string[]> => {
     });
     return rows.map((r) => r.slug);
   } catch (error) {
-    console.error("Failed to fetch blog slugs:", error);
+    console.error("Error fetching blog post slugs:", error);
     return [];
   }
 });
@@ -319,10 +356,10 @@ export const getAllBlogPostSlugs = cache(async (): Promise<string[]> => {
 export const getSiteSettings = cache(async (): Promise<SiteSettingsDTO | null> => {
   try {
     const row = await prisma.siteSettings.findFirst();
-    return row ? toSiteSettingsDTO(row) : defaultSettings;
+    return row ? toSiteSettingsDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch site settings:", error);
-    return defaultSettings;
+    console.error("Error fetching site settings:", error);
+    return null;
   }
 });
 
@@ -331,7 +368,7 @@ export const getCertifications = cache(async (): Promise<CertificationDTO[]> => 
     const rows = await prisma.certification.findMany({ orderBy: { date: "desc" } });
     return rows.map(toCertificationDTO);
   } catch (error) {
-    console.error("Failed to fetch certifications:", error);
+    console.error("Error fetching certifications:", error);
     return [];
   }
 });
@@ -341,7 +378,7 @@ export const getHackathons = cache(async (): Promise<HackathonDTO[]> => {
     const rows = await prisma.hackathon.findMany({ orderBy: { date: "desc" } });
     return rows.map(toHackathonDTO);
   } catch (error) {
-    console.error("Failed to fetch hackathons:", error);
+    console.error("Error fetching hackathons:", error);
     return [];
   }
 });
@@ -352,9 +389,9 @@ export const getProjectBySlug = cache(async (slug: string): Promise<ProjectDTO |
       where: { slug },
       include: { projectLinks: true },
     });
-    return row ? toProjectDTO(row) : null;
+    return row ? toProjectDTO(row as PrismaProject) : null;
   } catch (error) {
-    console.error("Failed to fetch project by slug:", error);
+    console.error("Error fetching project by slug:", error);
     return null;
   }
 });
@@ -364,7 +401,7 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPostDTO
     const row = await prisma.blogPost.findUnique({ where: { slug } });
     return row ? toBlogPostDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch blog post by slug:", error);
+    console.error("Error fetching blog post by slug:", error);
     return null;
   }
 });
@@ -374,7 +411,7 @@ export const getContactMessages = cache(async (): Promise<ContactMessageDTO[]> =
     const rows = await prisma.contactMessage.findMany({ orderBy: { createdAt: "desc" } });
     return rows.map(toContactMessageDTO);
   } catch (error) {
-    console.error("Failed to fetch contact messages:", error);
+    console.error("Error fetching contact messages:", error);
     return [];
   }
 });
@@ -385,9 +422,9 @@ export const getProjectById = cache(async (id: string): Promise<ProjectDTO | nul
       where: { id },
       include: { projectLinks: true },
     });
-    return row ? toProjectDTO(row) : null;
+    return row ? toProjectDTO(row as PrismaProject) : null;
   } catch (error) {
-    console.error("Failed to fetch project by id:", error);
+    console.error("Error fetching project by id:", error);
     return null;
   }
 });
@@ -397,7 +434,7 @@ export const getBlogPostById = cache(async (id: string): Promise<BlogPostDTO | n
     const row = await prisma.blogPost.findUnique({ where: { id } });
     return row ? toBlogPostDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch blog post by id:", error);
+    console.error("Error fetching blog post by id:", error);
     return null;
   }
 });
@@ -407,7 +444,17 @@ export const getExperienceById = cache(async (id: string): Promise<ExperienceDTO
     const row = await prisma.experience.findUnique({ where: { id } });
     return row ? toExperienceDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch experience by id:", error);
+    console.error("Error fetching experience by id:", error);
+    return null;
+  }
+});
+
+export const getSkillById = cache(async (id: string): Promise<SkillDTO | null> => {
+  try {
+    const row = await prisma.skill.findUnique({ where: { id } });
+    return row ? toSkillDTO(row) : null;
+  } catch (error) {
+    console.error("Error fetching skill by id:", error);
     return null;
   }
 });
@@ -417,7 +464,7 @@ export const getCertificationById = cache(async (id: string): Promise<Certificat
     const row = await prisma.certification.findUnique({ where: { id } });
     return row ? toCertificationDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch certification by id:", error);
+    console.error("Error fetching certification by id:", error);
     return null;
   }
 });
@@ -427,7 +474,7 @@ export const getHackathonById = cache(async (id: string): Promise<HackathonDTO |
     const row = await prisma.hackathon.findUnique({ where: { id } });
     return row ? toHackathonDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch hackathon by id:", error);
+    console.error("Error fetching hackathon by id:", error);
     return null;
   }
 });
@@ -437,7 +484,7 @@ export const getHackathonBySlug = cache(async (slug: string): Promise<HackathonD
     const row = await prisma.hackathon.findUnique({ where: { slug } });
     return row ? toHackathonDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch hackathon by slug:", error);
+    console.error("Error fetching hackathon by slug:", error);
     return null;
   }
 });
@@ -447,7 +494,7 @@ export const getAllHackathonSlugs = cache(async (): Promise<string[]> => {
     const rows = await prisma.hackathon.findMany({ select: { slug: true } });
     return rows.map((r) => r.slug);
   } catch (error) {
-    console.error("Failed to fetch hackathon slugs:", error);
+    console.error("Error fetching hackathon slugs:", error);
     return [];
   }
 });
@@ -457,7 +504,7 @@ export const getCertificationBySlug = cache(async (slug: string): Promise<Certif
     const row = await prisma.certification.findUnique({ where: { slug } });
     return row ? toCertificationDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch certification by slug:", error);
+    console.error("Error fetching certification by slug:", error);
     return null;
   }
 });
@@ -467,7 +514,7 @@ export const getAllCertificationSlugs = cache(async (): Promise<string[]> => {
     const rows = await prisma.certification.findMany({ select: { slug: true } });
     return rows.map((r) => r.slug);
   } catch (error) {
-    console.error("Failed to fetch certification slugs:", error);
+    console.error("Error fetching certification slugs:", error);
     return [];
   }
 });
@@ -477,7 +524,7 @@ export const getEducation = cache(async (): Promise<EducationDTO[]> => {
     const rows = await prisma.education.findMany({ orderBy: { order: "asc" } });
     return rows.map(toEducationDTO);
   } catch (error) {
-    console.error("Failed to fetch education:", error);
+    console.error("Error fetching education:", error);
     return [];
   }
 });
@@ -487,7 +534,19 @@ export const getEducationBySlug = cache(async (slug: string): Promise<EducationD
     const row = await prisma.education.findUnique({ where: { slug } });
     return row ? toEducationDTO(row) : null;
   } catch (error) {
-    console.error("Failed to fetch education by slug:", error);
+    console.error("Error fetching education by slug:", error);
     return null;
   }
 });
+
+function toContactMessageDTO(m: NonNullable<Awaited<ReturnType<typeof prisma.contactMessage.findFirst>>>): ContactMessageDTO {
+  return {
+    id: m.id,
+    name: m.name,
+    email: m.email,
+    subject: m.subject,
+    message: m.message,
+    read: m.read,
+    createdAt: m.createdAt.toISOString(),
+  };
+}

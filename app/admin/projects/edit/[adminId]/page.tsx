@@ -12,7 +12,9 @@ import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
+import { Search } from "lucide-react";
 import { AIAssistant } from "@/components/admin/AIAssistant";
+import { normalize } from "@/lib/ai-autofill";
 import type { ProjectDTO } from "@/lib/types";
 
 interface ProjectLink {
@@ -54,6 +56,9 @@ export default function EditProjectPage() {
     tags: "",
     featured: false,
     status: "completed",
+    seoTitle: "",
+    seoDescription: "",
+    seoKeywords: "",
   });
 
   const [projectLinks, setProjectLinks] = useState<ProjectLink[]>([]);
@@ -92,6 +97,9 @@ export default function EditProjectPage() {
               tags: data.tags?.join("\n") || "",
               featured: data.featured,
               status: data.status,
+              seoTitle: data.seoTitle || "",
+              seoDescription: data.seoDescription || "",
+              seoKeywords: data.seoKeywords || "",
             });
             setProjectLinks(data.projectLinks || []);
           }
@@ -205,18 +213,15 @@ export default function EditProjectPage() {
           </div>
         </div>
 
-        <AIAssistant<ProjectDTO> 
-          module="projects" 
+        <AIAssistant<ProjectDTO>
+          module="projects"
           onFill={(data) => {
-            setFormData(prev => ({
-              ...prev,
-              ...(data as any),
-              techStack: Array.isArray(data.techStack) ? data.techStack.join('\n') : prev.techStack,
-              features: Array.isArray(data.features) ? data.features.join('\n') : prev.features,
-              outcomes: Array.isArray(data.outcomes) ? data.outcomes.join('\n') : prev.outcomes,
-              tags: Array.isArray(data.tags) ? data.tags.join('\n') : prev.tags,
-            }));
-          }} 
+            const normalized = normalize("projects", data);
+            if (Array.isArray(normalized.projectLinks)) {
+              setProjectLinks(normalized.projectLinks as { label: string; url: string }[]);
+            }
+            setFormData(prev => ({ ...prev, ...normalized }));
+          }}
         />
 
         <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-12">
@@ -446,6 +451,47 @@ export default function EditProjectPage() {
                   />
                   <span className="text-xs font-bold uppercase tracking-widest text-muted group-hover:text-text transition-colors">Featured on Homepage</span>
                 </label>
+              </div>
+            </Card>
+
+            {/* SEO Info */}
+            <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+              <div className="flex items-center gap-3 border-b border-border/50 bg-bg/30 px-8 py-4">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Search size={18} />
+                </div>
+                <h2 className="text-sm font-black uppercase tracking-widest text-text/80">SEO Configuration</h2>
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="seoTitle">Meta Title</Label>
+                  <Input 
+                    id="seoTitle" 
+                    placeholder="e.g. Acme Dashboard | My Portfolio" 
+                    value={formData.seoTitle} 
+                    onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })} 
+                  />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted/60">Overrides default title.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="seoDescription">Meta Description</Label>
+                  <Textarea 
+                    id="seoDescription" 
+                    placeholder="Short, keyword-rich description..." 
+                    value={formData.seoDescription} 
+                    onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="seoKeywords">Keywords</Label>
+                  <Input 
+                    id="seoKeywords" 
+                    placeholder="e.g. React, Dashboard, Analytics" 
+                    value={formData.seoKeywords} 
+                    onChange={(e) => setFormData({ ...formData, seoKeywords: e.target.value })} 
+                  />
+                </div>
               </div>
             </Card>
 

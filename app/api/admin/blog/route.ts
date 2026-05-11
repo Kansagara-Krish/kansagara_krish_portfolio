@@ -10,10 +10,13 @@ const blogSchema = z.object({
   excerpt: z.string().min(1, "Excerpt is required"),
   content: z.string().min(1, "Content is required"),
   contentFormat: z.string().default("mdx"),
-  coverImage: z.string().url().optional().or(z.literal("")),
-  published: z.boolean().default(false),
-  readingTime: z.number().optional(),
+  coverImage: z.string().url().optional().or(z.literal("")).or(z.null()),
+  published: z.coerce.boolean().default(false),
+  readingTime: z.coerce.number().optional(),
   tags: z.array(z.string()).default([]),
+  seoTitle: z.string().optional().or(z.literal("")).or(z.null()),
+  seoDescription: z.string().optional().or(z.literal("")).or(z.null()),
+  seoKeywords: z.string().optional().or(z.literal("")).or(z.null()),
 });
 
 export async function GET() {

@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2, Building2, Calendar, Link as LinkIcon, Image as ImageIcon, ShieldCheck, Fingerprint } from "lucide-react";
 import Link from "next/link";
-import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
 import { AIAssistant } from "@/components/admin/AIAssistant";
+import { IconSelector } from "@/components/admin/IconSelector";
+import { normalize } from "@/lib/ai-autofill";
 import type { CertificationDTO } from "@/lib/types";
 
 
@@ -110,11 +111,9 @@ export default function NewCertificationPage() {
         </div>
       </div>
 
-      <AIAssistant<CertificationDTO> 
-        module="certifications" 
-        onFill={(data) => {
-          setFormData(prev => ({ ...prev, ...(data as any) }));
-        }} 
+      <AIAssistant<CertificationDTO>
+        module="certifications"
+        onFill={(data) => setFormData(prev => ({ ...prev, ...normalize("certifications", data) }))}
       />
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">
@@ -259,11 +258,10 @@ export default function NewCertificationPage() {
             
             <div className="p-8 space-y-6">
               <div className="space-y-2">
-                <Label>Certificate Image</Label>
-                <FileUpload
+                <IconSelector
                   value={formData.image}
                   onChange={(url) => setFormData({ ...formData, image: url })}
-                  label="Upload a copy of your certificate"
+                  label="Certificate Icon"
                 />
                 {errors.image && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.image}</p>}
               </div>

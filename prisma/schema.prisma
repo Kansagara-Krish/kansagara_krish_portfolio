@@ -10,19 +10,74 @@ datasource db {
 // ─── Site Settings (Singleton) ───────────────────────────────────────────────
 
 model SiteSettings {
-  id          String   @id @default("singleton")
-  name        String
+  id                String   @id @default("singleton")
+  name              String
+  title             String?  @default("Software Engineer")
+  bio               String?
+  email             String
+  location          String?
+  
+  // Hero Section
+  heroTitle         String?  @default("Engineering Great Websites.")
+  heroTagline       String?  @default("FULL-STACK ENGINEER")
+  heroBio           String?
+  avatarUrl         String?
+  resumeUrl         String?
+  
+  // About Section
+  aboutTitle        String?  @default("Building things that work well.")
+  aboutGoalTitle    String?  @default("My Goal")
+  aboutGoalDesc     String?
+  yearsOfExperience String?  @default("2+")
+  aboutStatsWork    String?  @default("2+")
+  aboutStatsProjects String? @default("15+")
+  aboutStatsCommitment String? @default("100%")
+  
+  // Projects Section
+  projectsTitle     String?  @default("My Projects")
+  projectsSubtitle  String?  @default("My Work")
+  projectsDesc      String?  @default("I have built many projects that are fast and easy to use.")
+
+  // Home Page Additional Sections
+  homeWorkTitle     String?  @default("Work History")
+  homeWorkSubtitle  String?  @default("History")
+  homeBlogTitle     String?  @default("Recent Posts")
+  homeBlogSubtitle  String?  @default("Blog")
+  
+  // Contact CTA
+  contactCtaTitle   String?  @default("Have a project in mind?")
+  contactCtaDesc    String?  @default("I'm currently open for freelance work and new jobs. Let's build something great together.")
+  
+  // Links
+  github            String?
+  linkedin          String?
+  twitter           String?
+  
+  // Footer
+  footerTitle       String?  @default("Ready to bring your ideas to life?")
+  footerBio         String?  @default("I build fast, high-quality websites and apps that are easy to use.")
+  
+  // SEO
+  seoTitle          String?
+  seoDescription    String?
+  seoKeywords       String?
+  ogImage           String?
+  
+  openToWork        Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
+}
+
+// ─── Services ────────────────────────────────────────────────────────────────
+
+model Service {
+  id          String   @id @default(cuid())
   title       String
-  bio         String
-  email       String
-  github      String?
-  linkedin    String?
-  twitter     String?
-  resumeUrl   String?
-  avatarUrl   String?
-  heroTagline String?
-  openToWork  Boolean  @default(true)
-  updatedAt   DateTime @updatedAt
+  description String
+  icon        String?  @default("zap")
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([order])
 }
 
 // ─── Projects ────────────────────────────────────────────────────────────────
@@ -52,6 +107,9 @@ model Project {
   tags          String[]
   featured      Boolean       @default(false)
   status        String        @default("completed")
+  seoTitle      String?
+  seoDescription String?
+  seoKeywords   String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   projectLinks  ProjectLink[]
@@ -81,6 +139,9 @@ model BlogPost {
   coverImage    String?
   published     Boolean  @default(false)
   readingTime   Int      @default(1)
+  seoTitle      String?
+  seoDescription String?
+  seoKeywords   String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   tags          String[]

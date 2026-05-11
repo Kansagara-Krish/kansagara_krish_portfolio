@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { ArrowLeft, Loader2, FileText, Layout, Image as ImageIcon, Tags, Send, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Loader2, FileText, Layout, Image as ImageIcon, Tags, Send, Link as LinkIcon, Search } from "lucide-react";
 import Link from "next/link";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
 import { AIAssistant } from "@/components/admin/AIAssistant";
+import { normalize } from "@/lib/ai-autofill";
 import type { BlogPostDTO } from "@/lib/types";
 
 
@@ -30,6 +31,9 @@ export default function NewBlogPostPage() {
     coverImage: "",
     published: false,
     tags: "",
+    seoTitle: "",
+    seoDescription: "",
+    seoKeywords: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,15 +96,9 @@ export default function NewBlogPostPage() {
           </div>
         </div>
 
-        <AIAssistant<BlogPostDTO> 
-          module="blog" 
-          onFill={(data) => {
-            setFormData(prev => ({
-              ...prev,
-              ...(data as any),
-              tags: Array.isArray(data.tags) ? data.tags.join('\n') : prev.tags,
-            }));
-          }} 
+        <AIAssistant<BlogPostDTO>
+          module="blog"
+          onFill={(data) => setFormData(prev => ({ ...prev, ...normalize("blog", data) }))}
         />
 
         <form onSubmit={handleSubmit} className="grid gap-10">
@@ -249,6 +247,47 @@ export default function NewBlogPostPage() {
                     />
                     <span className="text-xs font-bold uppercase tracking-widest text-muted group-hover:text-text transition-colors">Publish immediately</span>
                   </label>
+                </div>
+              </Card>
+
+              {/* SEO Config */}
+              <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+                <div className="flex items-center gap-3 border-b border-border/50 bg-bg/30 px-8 py-4">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Search size={18} />
+                  </div>
+                  <h2 className="text-sm font-black uppercase tracking-widest text-text/80">SEO Configuration</h2>
+                </div>
+                <div className="p-8 space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="seoTitle">Meta Title</Label>
+                    <Input
+                      id="seoTitle"
+                      placeholder="e.g. My Post Title | Blog"
+                      value={formData.seoTitle}
+                      onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
+                    />
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted/60">Overrides default title.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="seoDescription">Meta Description</Label>
+                    <Textarea
+                      id="seoDescription"
+                      placeholder="Short, keyword-rich description..."
+                      value={formData.seoDescription}
+                      onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="seoKeywords">Keywords</Label>
+                    <Input
+                      id="seoKeywords"
+                      placeholder="e.g. React, Tutorial, Web Dev"
+                      value={formData.seoKeywords}
+                      onChange={(e) => setFormData({ ...formData, seoKeywords: e.target.value })}
+                    />
+                  </div>
                 </div>
               </Card>
 

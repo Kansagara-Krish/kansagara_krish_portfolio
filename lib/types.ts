@@ -31,6 +31,9 @@ export type ProjectDTO = {
   createdAt: string;
   updatedAt: string;
   tags: string[];
+  seoTitle: string | null;
+  seoDescription: string | null;
+  seoKeywords: string | null;
 };
 
 export type BlogPostDTO = {
@@ -46,6 +49,9 @@ export type BlogPostDTO = {
   createdAt: string;
   updatedAt: string;
   tags: string[];
+  seoTitle: string | null;
+  seoDescription: string | null;
+  seoKeywords: string | null;
 };
 
 export type ExperienceDTO = {
@@ -85,17 +91,66 @@ export type ContactMessageDTO = {
 export type SiteSettingsDTO = {
   id: string;
   name: string;
-  title: string;
-  bio: string;
   email: string;
+  location: string | null;
+  
+  // Hero Section
+  heroTitle: string | null;
+  heroTagline: string | null;
+  heroBio: string | null;
+  avatarUrl: string | null;
+  resumeUrl: string | null;
+  
+  // About Section
+  aboutTitle: string | null;
+  aboutGoalTitle: string | null;
+  aboutGoalDesc: string | null;
+  yearsOfExperience: string | null;
+  aboutStatsWork: string | null;
+  aboutStatsProjects: string | null;
+  aboutStatsCommitment: string | null;
+  
+  // Projects Section
+  projectsTitle: string | null;
+  projectsSubtitle: string | null;
+  projectsDesc: string | null;
+
+  // Home Page Additional Sections
+  homeWorkTitle: string | null;
+  homeWorkSubtitle: string | null;
+  homeBlogTitle: string | null;
+  homeBlogSubtitle: string | null;
+  
+  // Contact CTA
+  contactCtaTitle: string | null;
+  contactCtaDesc: string | null;
+  
+  // Links
   github: string | null;
   linkedin: string | null;
   twitter: string | null;
-  resumeUrl: string | null;
-  avatarUrl: string | null;
-  heroTagline: string | null;
+  
+  // Footer
+  footerTitle: string | null;
+  footerBio: string | null;
+  
   openToWork: boolean;
   updatedAt: string;
+
+  // SEO
+  seoTitle: string | null;
+  seoDescription: string | null;
+  seoKeywords: string | null;
+  ogImage: string | null;
+};
+
+export type ServiceDTO = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string | null;
+  order: number;
+  createdAt: string;
 };
 
 export type HackathonDTO = {

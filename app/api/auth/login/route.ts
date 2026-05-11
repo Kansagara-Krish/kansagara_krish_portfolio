@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     const { password } = await req.json();
 
-    if (password === process.env.ADMIN_PASSWORD) {
+    if (password === process.env.AUTH_ADMIN_PASSWORD) {
       const token = await signToken({ role: "admin" });
 
       const response = NextResponse.json({ success: true });

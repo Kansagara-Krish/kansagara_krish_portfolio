@@ -13,15 +13,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
   const baseUrl = getBaseUrl();
+
+  const title = post?.seoTitle ?? post?.title ?? "Blog Post";
+  const description = post?.seoDescription ?? post?.excerpt ?? "Blog post";
+  const keywords = post?.seoKeywords
+    ? post.seoKeywords.split(",").map((k) => k.trim())
+    : post?.tags ?? [];
+  const ogImage = `${baseUrl}/api/og?title=${encodeURIComponent(post?.title ?? "Blog Post")}&subtitle=${encodeURIComponent("Blog")}`;
+
   return {
-    title: post?.title ?? "Blog post",
-    description: post?.excerpt ?? "Blog post",
-    alternates: {
-      canonical: `/blog/${slug}`
-    },
+    title,
+    description,
+    keywords,
+    alternates: { canonical: `/blog/${slug}` },
     openGraph: {
-      images: [`${baseUrl}/api/og?title=${encodeURIComponent(post?.title ?? "Blog post")}&subtitle=${encodeURIComponent("Blog")}`]
-    }
+      title,
+      description,
+      url: `${baseUrl}/blog/${slug}`,
+      images: [ogImage],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 

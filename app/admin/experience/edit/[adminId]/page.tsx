@@ -9,10 +9,11 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Save, ArrowLeft, Loader2, Briefcase, MapPin, Calendar, Building2, AlignLeft, Sparkles, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
-import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AIAssistant } from "@/components/admin/AIAssistant";
+import { IconSelector } from "@/components/admin/IconSelector";
+import { normalize } from "@/lib/ai-autofill";
 import type { ExperienceDTO } from "@/lib/types";
 
 
@@ -157,15 +158,9 @@ export default function EditExperiencePage() {
           </div>
         </div>
 
-        <AIAssistant<ExperienceDTO> 
-          module="experience" 
-          onFill={(data) => {
-            setFormData(prev => ({
-              ...prev,
-              ...(data as any),
-              skills: Array.isArray(data.skills) ? data.skills.join('\n') : prev.skills,
-            }));
-          }} 
+        <AIAssistant<ExperienceDTO>
+          module="experience"
+          onFill={(data) => setFormData(prev => ({ ...prev, ...normalize("experience", data) }))}
         />
 
         <form onSubmit={handleSubmit} className="grid gap-10">
@@ -342,10 +337,10 @@ export default function EditExperiencePage() {
                   <h2 className="text-sm font-black uppercase tracking-widest text-text/80">Company Logo</h2>
                 </div>
                 <div className="p-8">
-                  <FileUpload
+                  <IconSelector
                     value={formData.logoUrl}
                     onChange={(url) => setFormData({ ...formData, logoUrl: url })}
-                    label="Upload company logo"
+                    label="Company Logo"
                   />
                   {errors.logoUrl && <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.logoUrl}</p>}
                 </div>

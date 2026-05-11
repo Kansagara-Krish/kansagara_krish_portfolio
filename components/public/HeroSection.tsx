@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/Button";
 import { fadeInUp, staggerContainer, scaleIn } from "@/lib/animations";
 import type { SiteSettingsDTO } from "@/lib/types";
 
-const roles = ["Full-Stack Engineer", "Computer Engineer", "Product Builder"];
 const fallbackImage = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=900&h=900&fit=crop";
 
 export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
@@ -16,7 +15,8 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    const role = roles[roleIndex % roles.length];
+    const rolesToCycle = [settings.heroTagline || "Full-Stack Engineer", "Computer Engineer", "Product Builder"];
+    const role = rolesToCycle[roleIndex % rolesToCycle.length];
     if (text.length < role.length) {
       const timeout = window.setTimeout(() => setText(role.slice(0, text.length + 1)), 70);
       return () => window.clearTimeout(timeout);
@@ -26,7 +26,7 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
       setRoleIndex((current) => current + 1);
     }, 2000);
     return () => window.clearTimeout(timeout);
-  }, [roleIndex, text]);
+  }, [roleIndex, text, settings.heroTagline]);
 
   return (
     <section className="relative flex min-h-[90vh] items-center overflow-hidden px-6 pt-12 lg:pt-16">
@@ -59,8 +59,8 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
 
             <motion.div variants={fadeInUp}>
               <h1 className="font-display text-5xl font-bold leading-[1.05] tracking-tighter text-text sm:text-7xl lg:text-8xl">
-                Engineering <br />
-                <span className="text-gradient">Great Websites.</span>
+                {settings.heroTitle?.split(" ").slice(0, -2).join(" ")} <br />
+                <span className="text-gradient">{settings.heroTitle?.split(" ").slice(-2).join(" ")}</span>
               </h1>
             </motion.div>
 
@@ -68,9 +68,7 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
               variants={fadeInUp}
               className="mt-6 max-w-xl text-lg leading-relaxed text-muted sm:text-xl"
             >
-              Hi, I&apos;m <span className="font-bold text-text">{settings.name}</span>. 
-              A <span className="text-primary font-medium">{settings.title}</span> building 
-              fast, beautiful websites that work perfectly.
+              {settings.heroBio || `Hi, I'm ${settings.name}. A ${settings.heroTagline} building fast, beautiful websites that work perfectly.`}
             </motion.p>
 
             <motion.div variants={fadeInUp} className="mt-8">

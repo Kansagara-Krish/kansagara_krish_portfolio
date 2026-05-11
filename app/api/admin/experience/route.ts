@@ -9,11 +9,11 @@ const experienceSchema = z.object({
   type: z.string().default("Full-time"),
   startDate: z.string().or(z.date()),
   endDate: z.string().or(z.date()).nullable(),
-  current: z.boolean().default(false),
+  current: z.coerce.boolean().default(false),
   description: z.string().min(1, "Description is required"),
   skills: z.array(z.string()).default([]),
-  logoUrl: z.string().url().optional().or(z.literal("")),
-  order: z.number().default(0),
+  logoUrl: z.string().url().optional().or(z.literal("")).or(z.null()),
+  order: z.coerce.number().default(0),
 });
 
 export async function GET() {

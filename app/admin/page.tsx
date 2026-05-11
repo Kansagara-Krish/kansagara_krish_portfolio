@@ -14,7 +14,8 @@ import {
   Clock,
   Sparkles,
   ArrowUpRight,
-  GraduationCap
+  GraduationCap,
+  Loader2
 } from "lucide-react";
 import React from "react";
 import Link from "next/link";
@@ -37,6 +38,41 @@ const item = {
 };
 
 export default function AdminDashboard() {
+  const [stats, setStats] = React.useState({
+    projects: 0,
+    skills: 0,
+    messages: 0,
+    experience: 0,
+    hackathons: 0,
+    education: 0,
+    views: 0
+  });
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("/api/admin/stats");
+        const json = await res.json();
+        if (json.success) setStats(json.data);
+      } catch (_err) {
+        console.error("Failed to fetch stats");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-40">
+        <Loader2 className="h-12 w-12 animate-spin text-primary opacity-50" />
+        <p className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-muted">Calculating Dashboard Analytics...</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div 
       variants={container}
@@ -59,7 +95,7 @@ export default function AdminDashboard() {
               Welcome back, <span className="text-gradient">Pratham.</span>
             </h1>
             <p className="text-lg text-muted max-w-xl">
-              Your portfolio is performing exceptionally. You have <span className="font-bold text-text">3 new messages</span> and <span className="font-bold text-text">12.4% more traffic</span> this week.
+              Your portfolio is performing exceptionally. You have <span className="font-bold text-text">{stats.messages} new messages</span> and <span className="font-bold text-text">{stats.views} total views</span> across all pages.
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
@@ -81,10 +117,10 @@ export default function AdminDashboard() {
 
       {/* Primary Stats Grid */}
       <motion.div variants={item} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Projects" value="12" icon={FolderOpen} trend="+2 new" color="primary" />
-        <StatCard title="Portfolio Views" value="2,482" icon={Eye} trend="+18.4%" color="blue" />
-        <StatCard title="Inbound Leads" value="14" icon={MessageSquare} trend="+3 unread" color="emerald" />
-        <StatCard title="Technical Skills" value="28" icon={Zap} trend="+4 updated" color="amber" />
+        <StatCard title="Total Projects" value={stats.projects.toString()} icon={FolderOpen} trend="Live Count" color="primary" />
+        <StatCard title="Portfolio Views" value={stats.views.toLocaleString()} icon={Eye} trend="Aggregated" color="blue" />
+        <StatCard title="Unread Leads" value={stats.messages.toString()} icon={MessageSquare} trend="Inbound" color="emerald" />
+        <StatCard title="Technical Skills" value={stats.skills.toString()} icon={Zap} trend="Verified" color="amber" />
       </motion.div>
 
       {/* Main Content Sections */}
@@ -107,28 +143,28 @@ export default function AdminDashboard() {
               description="Keep your professional journey and career milestones updated."
               icon={Briefcase}
               href="/admin/experience"
-              badge="4 Positions"
+              badge={`${stats.experience} Positions`}
             />
             <DashboardCard
               title="Skills"
               description="Manage the technical arsenal and tools you excel at."
               icon={Zap}
               href="/admin/skills"
-              badge="28 Skills"
+              badge={`${stats.skills} Skills`}
             />
             <DashboardCard
               title="Hackathons"
               description="Showcase your competitive spirit and award-winning projects."
               icon={Trophy}
               href="/admin/hackathons"
-              badge="8 Entries"
+              badge={`${stats.hackathons} Entries`}
             />
             <DashboardCard
               title="Education"
               description="Your academic foundation and certifications gallery."
               icon={GraduationCap}
               href="/admin/education"
-              badge="3 Degrees"
+              badge={`${stats.education} Degrees`}
             />
           </motion.div>
         </div>
@@ -142,29 +178,11 @@ export default function AdminDashboard() {
 
           <motion.div variants={item} className="space-y-4">
             <ActivityItem 
-              title="Project Updated" 
-              time="2 hours ago" 
-              subtitle="Traveloop Mobile App"
-              icon={FolderOpen}
-            />
-            <ActivityItem 
-              title="New Message" 
-              time="5 hours ago" 
-              subtitle="From: John Doe (Lead Request)"
-              icon={MessageSquare}
-              highlight
-            />
-            <ActivityItem 
-              title="Skill Added" 
-              time="Yesterday" 
-              subtitle="Advanced Framer Motion"
+              title="Database Live" 
+              time="Just now" 
+              subtitle="System connected to Prisma"
               icon={Zap}
-            />
-            <ActivityItem 
-              title="Blog Draft" 
-              time="2 days ago" 
-              subtitle="The Future of Vibe Coding"
-              icon={FileText}
+              highlight
             />
             <Link href="/admin/blog" className="block text-center rounded-2xl border border-dashed border-border/50 py-4 text-xs font-bold uppercase tracking-widest text-muted transition-colors hover:bg-surface/30">
               View All Activity
@@ -172,9 +190,48 @@ export default function AdminDashboard() {
           </motion.div>
         </div>
       </div>
+
+      {/* Danger Zone */}
+      <motion.div variants={item} className="mt-12 rounded-[2.5rem] border border-red-500/20 bg-red-500/5 p-10 backdrop-blur-md">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full bg-red-500/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-red-500">
+              <Zap size={12} className="fill-red-500" />
+              Danger Zone
+            </div>
+            <h2 className="font-display text-4xl font-bold tracking-tight text-text">System Reset</h2>
+            <p className="text-lg text-muted max-w-xl">
+              Permanently remove all mock data, projects, experience, and analytics. This action is <span className="text-red-500 font-bold uppercase underline underline-offset-4">irreversible</span>.
+            </p>
+          </div>
+          <button
+            onClick={async () => {
+              if (confirm("🚨 WARNING: This will PERMANENTLY DELETE all your projects, experience, skills, and messages. Are you absolutely sure?")) {
+                if (confirm("Final confirmation: Type 'RESET' in your mind and click OK to wipe everything.")) {
+                  try {
+                    const res = await fetch("/api/admin/system/clear-mock", { method: "POST" });
+                    if (res.ok) {
+                      alert("Portfolio successfully reset. All mock data cleared.");
+                      window.location.reload();
+                    }
+                  } catch (_err) {
+                    alert("Failed to reset database.");
+                  }
+                }
+              }
+            }}
+            className="group flex items-center gap-3 rounded-2xl bg-red-500 px-8 py-5 text-sm font-black uppercase tracking-widest text-white shadow-2xl shadow-red-500/20 transition-all hover:scale-105 active:scale-95 hover:bg-red-600"
+          >
+            <Trash2 size={20} />
+            Wipe All Mock Data
+          </button>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
+
+import { Trash2 } from "lucide-react";
 
 function StatCard({ title, value, icon: Icon, trend, color }: { title: string; value: string; icon: React.ElementType, trend?: string, color: string }) {
   return (

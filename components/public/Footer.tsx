@@ -31,8 +31,8 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
         <div className="mb-20 grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
             <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              Ready to bring your <br />
-              <span className="text-gradient">ideas to life?</span>
+              {settings.footerTitle?.split(" ").slice(0, -3).join(" ")} <br />
+              <span className="text-gradient">{settings.footerTitle?.split(" ").slice(-3).join(" ")}</span>
             </h2>
           </div>
           <div className="flex lg:justify-end">
@@ -52,14 +52,14 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
           <div className="lg:col-span-5">
             <Link href="/" className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-bg">
-                 <span className="font-display text-sm font-black uppercase">{settings.name[0]}</span>
+                 <span className="font-display text-sm font-black uppercase">{settings.name?.[0]}</span>
               </div>
               <span className="font-display text-xl font-bold tracking-tight">
                 {settings.name}
               </span>
             </Link>
             <p className="mt-6 max-w-sm text-lg leading-relaxed text-muted">
-              I build fast, high-quality websites and apps that are easy to use.
+              {settings.footerBio}
             </p>
             <div className="mt-8 flex items-center gap-2">
               {socialLinks.map(({ href, label, icon: Icon }) => (

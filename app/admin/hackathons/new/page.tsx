@@ -13,6 +13,7 @@ import { FileUpload } from "@/components/ui/FileUpload";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
 import { AIAssistant } from "@/components/admin/AIAssistant";
+import { normalize } from "@/lib/ai-autofill";
 import type { HackathonDTO } from "@/lib/types";
 
 
@@ -114,11 +115,9 @@ export default function NewHackathonPage() {
         </div>
       </div>
 
-      <AIAssistant<HackathonDTO> 
-        module="hackathons" 
-        onFill={(data) => {
-          setFormData(prev => ({ ...prev, ...(data as any) }));
-        }} 
+      <AIAssistant<HackathonDTO>
+        module="hackathons"
+        onFill={(data) => setFormData(prev => ({ ...prev, ...normalize("hackathons", data) }))}
       />
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">

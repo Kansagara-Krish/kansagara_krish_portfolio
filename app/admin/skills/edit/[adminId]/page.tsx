@@ -11,6 +11,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AIAssistant } from "@/components/admin/AIAssistant";
+import { IconSelector } from "@/components/admin/IconSelector";
+import { CategorySelector } from "@/components/admin/CategorySelector";
+import { normalize } from "@/lib/ai-autofill";
 import type { SkillDTO } from "@/lib/types";
 
 
@@ -138,11 +141,9 @@ export default function EditSkillPage() {
           </div>
         </div>
 
-        <AIAssistant<SkillDTO> 
-          module="skills" 
-        onFill={(data) => {
-          setFormData(prev => ({ ...prev, ...(data as any) }));
-        }} 
+        <AIAssistant<SkillDTO>
+          module="skills"
+          onFill={(data) => setFormData(prev => ({ ...prev, ...normalize("skills", data) }))}
         />
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -167,26 +168,18 @@ export default function EditSkillPage() {
                   />
                   {errors.name && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.name}</p>}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
-                  <Input
-                    id="category"
-                    placeholder="e.g. Frontend"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className={cn(errors.category && "border-red-500/50 focus:ring-red-500/10")}
-                  />
-                  {errors.category && <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">{errors.category}</p>}
-                </div>
+                <CategorySelector
+                  value={formData.category}
+                  onChange={(val) => setFormData({ ...formData, category: val })}
+                  error={errors.category}
+                />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="iconUrl">Icon URL (SVG or Image)</Label>
-                <Input
-                  id="iconUrl"
-                  placeholder="https://..."
+                <IconSelector
                   value={formData.iconUrl}
-                  onChange={(e) => setFormData({ ...formData, iconUrl: e.target.value })}
+                  onChange={(url) => setFormData({ ...formData, iconUrl: url })}
+                  label="Skill Icon"
                 />
               </div>
 

@@ -15,6 +15,11 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  env: {
+    SITE_URL: process.env.SITE_URL,
+    STORAGE_URL: process.env.STORAGE_URL,
+    STORAGE_KEY: process.env.STORAGE_KEY,
+  },
   experimental: {
   },
   headers: async () => {

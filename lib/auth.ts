@@ -1,9 +1,9 @@
 import { jwtVerify, SignJWT, type JWTPayload } from "jose";
 
 export const getJwtSecretKey = () => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret || secret.length === 0) {
-    throw new Error("The environment variable JWT_SECRET is not set.");
+  const secret = process.env.AUTH_JWT_SECRET;
+  if (!secret) {
+    throw new Error("The environment variable AUTH_JWT_SECRET is not set.");
   }
   return new TextEncoder().encode(secret);
 };

@@ -2,12 +2,13 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Sparkles, X, Loader2, Send, Bot, CheckCircle2 } from "lucide-react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { Sparkles, X, Loader2, Send, Bot, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { normalize } from "@/lib/ai-autofill";
 
 type SupportedModule =
   | "experience"
@@ -16,7 +17,8 @@ type SupportedModule =
   | "certifications"
   | "hackathons"
   | "education"
-  | "skills";
+  | "skills"
+  | "services";
 
 interface AIAssistantProps<T> {
   module: SupportedModule;
@@ -24,30 +26,38 @@ interface AIAssistantProps<T> {
 }
 
 /**
- * Extracts all tool invocations carrying 'fill_form' data from the last
- * assistant message. In AI SDK v6, tool calls arrive as parts with a
- * type that starts with 'tool-'. We look for the 'input' or 'args'
- * property which holds the extracted form data.
+ * Extracts validated fill_form data from the last assistant message.
+ * In AI SDK v6, tool-invocation parts have a `state` field. We read
+ * `inv.result` only when `state === "result"` so we get the validated
+ * server response, not the raw model arguments.
  */
-function extractFillFormData(parts: any[]): unknown | null {
+function extractFillFormData(parts: unknown[]): unknown | null {
   for (const part of parts) {
-    if (typeof part.type !== "string") continue;
+    if (!part || typeof (part as Record<string, unknown>).type !== "string") continue;
 
-    // AI SDK v6 uses 'tool-invocation' as the part type
-    if (part.type === "tool-invocation") {
-      const inv = part.toolInvocation as any;
+    const p = part as Record<string, unknown>;
+    if (p.type === "tool-invocation") {
+      const inv = p.toolInvocation as Record<string, unknown> | undefined;
       if (inv?.toolName === "fill_form") {
-        // The args are available once the call is confirmed or completed
-        const args = inv.args ?? inv.input;
-        if (args) return args;
+        // DEBUG: log the raw invocation so we can see its shape
+        console.log("[AI DEBUG] fill_form invocation:", JSON.stringify(inv, null, 2));
+        // Prefer validated server result
+        if (inv.result && typeof inv.result === "object") {
+          const result = inv.result as Record<string, unknown>;
+          console.log("[AI DEBUG] returning result.data or result:", result.data ?? inv.result);
+          return result.data ?? inv.result;
+        }
+        // Fallback to raw model arguments if result wasn't streamed back
+        if (inv.args && typeof inv.args === "object") {
+          console.log("[AI DEBUG] falling back to args:", inv.args);
+          return inv.args;
+        }
       }
       continue;
     }
 
-    // Fallback: older versions may use dynamic 'tool-{name}' types
-    if (part.type.startsWith("tool-")) {
-      const args = part.args ?? part.input ?? part.result?.data;
-      if (args) return args;
+    if ((p.type as string).startsWith("tool-")) {
+      return p.result ?? p.args ?? p.input;
     }
   }
   return null;
@@ -56,43 +66,46 @@ function extractFillFormData(parts: any[]): unknown | null {
 export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [filled, setFilled] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const onFillRef = useRef(onFill);
 
-  const { messages, sendMessage, status } = useChat({
+  useEffect(() => {
+    onFillRef.current = onFill;
+  }, [onFill]);
+
+  const { messages, sendMessage, status, error } = useChat({
+    id: `autofill-${module}`,
     transport: new DefaultChatTransport({
       api: "/api/admin/ai-autofill",
       body: { module },
     }),
+    onFinish: ({ message }) => {
+      if (message.role !== "assistant" || !Array.isArray(message.parts)) return;
+      const data = extractFillFormData(message.parts);
+      if (data) {
+        onFillRef.current(normalize(module, data) as Partial<T>);
+      }
+    },
   });
 
   const isLoading = status === "submitted" || status === "streaming";
+
+  // Show success banner only when the latest assistant message contains a tool result
+  const filled = useMemo(() => {
+    const last = messages[messages.length - 1];
+    if (!last || !Array.isArray(last.parts)) return false;
+    return extractFillFormData(last.parts) !== null;
+  }, [messages]);
 
   // Auto-scroll to the latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Detect fill_form tool calls in the last assistant message
-  useEffect(() => {
-    const last = messages[messages.length - 1];
-    if (last?.role !== "assistant" || !Array.isArray(last.parts)) return;
-
-    const data = extractFillFormData(last.parts);
-    if (data) {
-      onFill(data as Partial<T>);
-      setFilled(true);
-    }
-  }, [messages, onFill]);
-
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      const text = input.trim();
+  const handleSend = useCallback(
+    async (text: string) => {
       if (!text || isLoading) return;
-
       setInput("");
-      setFilled(false);
       try {
         await sendMessage({ text });
       } catch (err) {
@@ -100,17 +113,25 @@ export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
         setInput(text);
       }
     },
-    [input, isLoading, sendMessage],
+    [isLoading, sendMessage],
+  );
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      handleSend(input.trim());
+    },
+    [input, handleSend],
   );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        handleSubmit(e as any);
+        handleSend(input.trim());
       }
     },
-    [handleSubmit],
+    [input, handleSend],
   );
 
   return (
@@ -189,15 +210,16 @@ export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
                         )}
                       >
                         {/* Render text parts — UIMessage in AI SDK v6 always has parts */}
-                        {m.parts.map((part: any, i) => {
-                          if (part.type === "text" && part.text) {
-                            return <div key={i}>{part.text}</div>;
+                        {m.parts.map((part: unknown, i) => {
+                          const p = part as Record<string, unknown>;
+                          if (p.type === "text" && p.text) {
+                            return <div key={i}>{String(p.text)}</div>;
                           }
                           // Show a success indicator for any tool call part
                           if (
-                            part.type === "tool-invocation" ||
-                            (typeof part.type === "string" &&
-                              part.type.startsWith("tool-"))
+                            p.type === "tool-invocation" ||
+                            (typeof p.type === "string" &&
+                              p.type.startsWith("tool-"))
                           ) {
                             return (
                               <div
@@ -214,6 +236,17 @@ export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
                       </div>
                     </div>
                   ))}
+
+                  {error && (
+                    <div className="flex gap-3 justify-start">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+                        <AlertCircle size={16} />
+                      </div>
+                      <div className="px-4 py-3 rounded-2xl bg-bg/80 border border-red-500/20 rounded-tl-sm text-text">
+                        <p className="text-sm text-red-500">Something went wrong. Please try again.</p>
+                      </div>
+                    </div>
+                  )}
 
                   {isLoading && (
                     <div className="flex gap-3 justify-start">

@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,15 +7,18 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  validate:
+    name: Validate & Test
     runs-on: ubuntu-latest
-
     env:
-      NEXT_TELEMETRY_DISABLED: 1
-      DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+      TELEMETRY_DISABLED: 1
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AUTH_JWT_SECRET: ${{ secrets.AUTH_JWT_SECRET }}
+      AUTH_ADMIN_PASSWORD: ${{ secrets.AUTH_ADMIN_PASSWORD }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -23,12 +26,31 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
-      - name: Build
+      - name: Run Lint & Type Check
+        run: npm run test
+
+      - name: Build Application
         run: npm run build
 
+  deploy:
+    name: Deploy to Production
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Step
+        run: |
+          echo "Ready for deployment."
+          # To deploy to Vercel, uncomment the following lines and add VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID to your GitHub Secrets.
+          # npm install --global vercel
+          # vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --prod

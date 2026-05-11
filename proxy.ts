@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyAuth } from "./lib/auth";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const token = req.cookies.get("admin-token")?.value;
 
   const verifiedToken = token && (await verifyAuth(token));
 
   if (req.nextUrl.pathname.startsWith("/login") && !verifiedToken) {
-    return;
+    return NextResponse.next();
   }
 
   const url = req.url;
@@ -26,6 +26,8 @@ export async function middleware(req: NextRequest) {
     }
     return NextResponse.redirect(new URL("/login", req.url));
   }
+
+  return NextResponse.next();
 }
 
 export const config = {

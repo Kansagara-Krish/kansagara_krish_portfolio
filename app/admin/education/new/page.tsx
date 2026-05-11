@@ -12,6 +12,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn, slugify } from "@/lib/utils";
 import { AIAssistant } from "@/components/admin/AIAssistant";
+import { normalize } from "@/lib/ai-autofill";
 import type { EducationDTO } from "@/lib/types";
 
 
@@ -109,11 +110,9 @@ export default function NewEducationPage() {
         </div>
       </div>
 
-      <AIAssistant<EducationDTO> 
-        module="education" 
-        onFill={(data) => {
-          setFormData(prev => ({ ...prev, ...(data as any) }));
-        }} 
+      <AIAssistant<EducationDTO>
+        module="education"
+        onFill={(data) => setFormData(prev => ({ ...prev, ...normalize("education", data) }))}
       />
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-12">

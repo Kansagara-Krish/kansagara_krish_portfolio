@@ -14,6 +14,9 @@ const blogSchema = z.object({
   published: z.boolean().default(false),
   readingTime: z.number().optional(),
   tags: z.array(z.string()).default([]),
+  seoTitle: z.string().optional().or(z.literal("")).or(z.null()),
+  seoDescription: z.string().optional().or(z.literal("")).or(z.null()),
+  seoKeywords: z.string().optional().or(z.literal("")).or(z.null()),
 });
 
 export async function GET(

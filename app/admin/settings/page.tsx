@@ -3,56 +3,89 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/Textarea";
 import { Label } from "@/components/ui/Label";
-import { Loader2, Save, AlertCircle, CheckCircle2, User, Share2, Image as ImageIcon, Settings2, Globe, Monitor, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { 
+  Save, 
+  Loader2, 
+  Sparkles, 
+  Globe, 
+  User, 
+  Layout, 
+  ShieldCheck, 
+  Mail,
+  MapPin,
+  Briefcase,
+  FileText,
+  Search
+} from "lucide-react";
+import { Github, Linkedin, X as XIcon } from "@/components/ui/BrandIcons";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import type { SiteSettingsDTO } from "@/lib/types";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
-interface SiteSettings {
-  name: string;
-  title: string;
-  bio: string;
-  email: string;
-  github: string;
-  linkedin: string;
-  twitter: string;
-  avatarUrl: string;
-  resumeUrl: string;
-  heroTagline: string;
-  openToWork: boolean;
-}
-
-const defaultForm: SiteSettings = {
-  name: "",
-  title: "",
-  bio: "",
-  email: "",
-  github: "",
-  linkedin: "",
-  twitter: "",
-  avatarUrl: "",
-  resumeUrl: "",
-  heroTagline: "",
-  openToWork: false,
-};
+const tabs = [
+  { id: "hero", label: "Hero Section", icon: Layout },
+  { id: "about", label: "About Me", icon: User },
+  { id: "pages", label: "Page Content", icon: FileText },
+  { id: "seo", label: "SEO & Meta", icon: Search },
+  { id: "social", label: "Social & Footer", icon: Globe },
+];
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<SiteSettings>(defaultForm);
+  const [activeTab, setActiveTab] = useState("hero");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState<SiteSettingsDTO>({
+    id: "singleton",
+    name: "",
+    email: "",
+    location: "",
+    heroTitle: "",
+    heroTagline: "",
+    heroBio: "",
+    avatarUrl: "",
+    resumeUrl: "",
+    aboutTitle: "",
+    aboutGoalTitle: "",
+    aboutGoalDesc: "",
+    yearsOfExperience: "",
+    aboutStatsWork: "",
+    aboutStatsProjects: "",
+    aboutStatsCommitment: "",
+    projectsTitle: "",
+    projectsSubtitle: "",
+    projectsDesc: "",
+    homeWorkTitle: "",
+    homeWorkSubtitle: "",
+    homeBlogTitle: "",
+    homeBlogSubtitle: "",
+    contactCtaTitle: "",
+    contactCtaDesc: "",
+    github: "",
+    linkedin: "",
+    twitter: "",
+    footerTitle: "",
+    footerBio: "",
+    openToWork: true,
+    seoTitle: "",
+    seoDescription: "",
+    seoKeywords: "",
+    ogImage: "",
+    updatedAt: new Date().toISOString(),
+  });
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const res = await fetch("/api/admin/settings");
         const json = await res.json();
-        if (json.data) {
-          setSettings(json.data);
+        if (json.success && json.data) {
+          setFormData(json.data);
         }
-      } catch (error) {
-        console.error("Error fetching settings:", error);
+      } catch (_err) {
+        console.error("Failed to fetch settings");
       } finally {
         setLoading(false);
       }
@@ -60,35 +93,20 @@ export default function SettingsPage() {
     fetchSettings();
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setSettings((prev) => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setError("");
-    setSuccess(false);
-
     try {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(formData),
       });
-
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error || "Failed to save settings");
+      if (res.ok) {
+        alert("Settings updated successfully!");
       }
-
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to save settings");
+    } catch (_err) {
+      alert("Failed to update settings");
     } finally {
       setSaving(false);
     }
@@ -96,227 +114,482 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32">
+      <div className="flex flex-col items-center justify-center py-40">
         <Loader2 className="h-12 w-12 animate-spin text-primary opacity-50" />
-        <p className="mt-4 text-sm font-black uppercase tracking-widest text-muted">Configuring console...</p>
+        <p className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-muted">Loading Configuration...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-12 pb-20">
-      {/* Header Section */}
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-            <Settings2 size={12} />
-            System Control
-          </div>
-          <h1 className="font-display text-5xl font-bold tracking-tight text-text sm:text-6xl">Settings</h1>
-          <p className="text-lg text-muted max-w-2xl">Refine your digital identity, update global metadata, and manage the core configuration of your portfolio platform.</p>
+    <div className="max-w-5xl mx-auto space-y-12 pb-20">
+      <div className="flex flex-col gap-4">
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-primary w-fit">
+          <ShieldCheck size={12} />
+          Global Configuration
         </div>
-        <div className="flex items-center gap-4">
-          <AnimatePresence>
-            {success && (
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }} 
-                animate={{ opacity: 1, x: 0 }} 
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="hidden md:flex items-center gap-2 text-sm font-bold text-emerald-500"
-              >
-                <CheckCircle2 size={18} />
-                Changes Applied
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <button 
-            onClick={handleSubmit} 
-            disabled={saving} 
-            className="group flex items-center gap-3 rounded-2xl bg-primary px-8 py-5 text-sm font-black uppercase tracking-widest text-bg shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-          >
-            {saving ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <>
-                <Save size={20} className="transition-transform group-hover:-translate-y-0.5" />
-                Publish Changes
-              </>
-            )}
-          </button>
-        </div>
+        <h1 className="font-display text-5xl font-bold tracking-tight text-text sm:text-6xl text-gradient">Site Settings</h1>
+        <p className="text-lg text-muted max-w-2xl leading-relaxed">Customize your portfolio&apos;s identity, hero content, and professional links in one place.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-12">
-        <div className="lg:col-span-8 space-y-10">
-          <AnimatePresence>
-            {error && (
-              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/5 p-4 text-sm font-bold text-red-500 backdrop-blur-md">
-                <AlertCircle size={18} />
-                {error}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Identity Section */}
-          <Card className="border-border/50 bg-surface/30 p-10 backdrop-blur-md relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-10 text-muted/5 transition-colors group-hover:text-primary/5">
-              <User size={120} />
-            </div>
-            <div className="relative z-10">
-              <div className="mb-10 flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-                  <User size={24} />
-                </div>
-                <div>
-                  <h3 className="font-display text-2xl font-bold tracking-tight">Personal Identity</h3>
-                  <p className="text-sm text-muted">How you are presented across the site.</p>
-                </div>
-              </div>
-              
-              <div className="space-y-8">
-                <div className="grid gap-8 md:grid-cols-2">
-                  <div className="space-y-3">
-                    <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-muted/60">Display Name</Label>
-                    <Input id="name" name="name" value={settings.name} onChange={handleChange} required className="h-14 rounded-2xl border-border/50 bg-bg/40 px-6 font-bold text-text focus:bg-bg focus:ring-4 focus:ring-primary/5 transition-all" />
-                  </div>
-                  <div className="space-y-3">
-                    <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest text-muted/60">Professional Title</Label>
-                    <Input id="title" name="title" value={settings.title} onChange={handleChange} required className="h-14 rounded-2xl border-border/50 bg-bg/40 px-6 font-bold text-text focus:bg-bg focus:ring-4 focus:ring-primary/5 transition-all" />
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-muted/60">Public Email Address</Label>
-                  <Input id="email" name="email" type="email" value={settings.email} onChange={handleChange} required className="h-14 rounded-2xl border-border/50 bg-bg/40 px-6 font-bold text-text focus:bg-bg focus:ring-4 focus:ring-primary/5 transition-all" />
-                </div>
-                
-                <div className="space-y-3">
-                  <Label htmlFor="bio" className="text-[10px] font-black uppercase tracking-widest text-muted/60">Narrative Biography</Label>
-                  <Textarea id="bio" name="bio" value={settings.bio} onChange={handleChange} rows={5} required className="rounded-3xl border-border/50 bg-bg/40 p-6 font-medium leading-relaxed text-text focus:bg-bg focus:ring-4 focus:ring-primary/5 transition-all" />
-                </div>
-                
-                <div className="space-y-3">
-                  <Label htmlFor="heroTagline" className="text-[10px] font-black uppercase tracking-widest text-muted/60">Global Hero Tagline</Label>
-                  <Input id="heroTagline" name="heroTagline" value={settings.heroTagline} onChange={handleChange} placeholder="Innovating at the intersection of..." className="h-14 rounded-2xl border-border/50 bg-bg/40 px-6 font-bold text-text focus:bg-bg focus:ring-4 focus:ring-primary/5 transition-all" />
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Social Presence */}
-          <Card className="border-border/50 bg-surface/30 p-10 backdrop-blur-md relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-10 text-muted/5 transition-colors group-hover:text-primary/5">
-              <Globe size={120} />
-            </div>
-            <div className="relative z-10">
-              <div className="mb-10 flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-                  <Share2 size={24} />
-                </div>
-                <div>
-                  <h3 className="font-display text-2xl font-bold tracking-tight">Social Presence</h3>
-                  <p className="text-sm text-muted">Connect your external professional profiles.</p>
-                </div>
-              </div>
-              
-              <div className="grid gap-8 md:grid-cols-2">
-                <div className="space-y-3">
-                  <Label htmlFor="github" className="text-[10px] font-black uppercase tracking-widest text-muted/60">GitHub URL</Label>
-                  <Input id="github" name="github" value={settings.github} onChange={handleChange} placeholder="https://github.com/..." className="h-14 rounded-2xl border-border/50 bg-bg/40 px-6 font-bold text-text focus:bg-bg focus:ring-4 focus:ring-primary/5 transition-all" />
-                </div>
-                <div className="space-y-3">
-                  <Label htmlFor="linkedin" className="text-[10px] font-black uppercase tracking-widest text-muted/60">LinkedIn URL</Label>
-                  <Input id="linkedin" name="linkedin" value={settings.linkedin} onChange={handleChange} placeholder="https://linkedin.com/in/..." className="h-14 rounded-2xl border-border/50 bg-bg/40 px-6 font-bold text-text focus:bg-bg focus:ring-4 focus:ring-primary/5 transition-all" />
-                </div>
-                <div className="space-y-3 md:col-span-2">
-                  <Label htmlFor="twitter" className="text-[10px] font-black uppercase tracking-widest text-muted/60">X (Twitter) URL</Label>
-                  <Input id="twitter" name="twitter" value={settings.twitter} onChange={handleChange} placeholder="https://twitter.com/..." className="h-14 rounded-2xl border-border/50 bg-bg/40 px-6 font-bold text-text focus:bg-bg focus:ring-4 focus:ring-primary/5 transition-all" />
-                </div>
-              </div>
-            </div>
-          </Card>
+      <div className="flex flex-col gap-8 lg:flex-row">
+        {/* Sidebar Tabs */}
+        <div className="flex flex-col gap-2 lg:w-64 shrink-0">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex items-center gap-3 px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 text-left",
+                  isActive 
+                    ? "bg-primary text-bg shadow-xl shadow-primary/20 scale-105" 
+                    : "text-muted hover:text-text hover:bg-surface/50"
+                )}
+              >
+                <Icon size={18} />
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="lg:col-span-4 space-y-10">
-          {/* Media Assets */}
-          <Card className="border-border/50 bg-surface/30 p-8 backdrop-blur-md relative overflow-hidden group">
-            <div className="mb-8 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-                <ImageIcon size={24} />
-              </div>
-              <h3 className="font-display text-xl font-bold tracking-tight">Media Assets</h3>
-            </div>
-            
-            <div className="space-y-8">
-              <div className="space-y-3">
-                <Label htmlFor="avatarUrl" className="text-[10px] font-black uppercase tracking-widest text-muted/60">Profile Photo URL</Label>
-                <Input id="avatarUrl" name="avatarUrl" value={settings.avatarUrl} onChange={handleChange} className="h-12 rounded-xl border-border/50 bg-bg/40 px-4 font-bold text-text focus:bg-bg transition-all" />
-              </div>
-              <div className="space-y-3">
-                <Label htmlFor="resumeUrl" className="text-[10px] font-black uppercase tracking-widest text-muted/60">Resume / CV URL</Label>
-                <Input id="resumeUrl" name="resumeUrl" value={settings.resumeUrl} onChange={handleChange} className="h-12 rounded-xl border-border/50 bg-bg/40 px-4 font-bold text-text focus:bg-bg transition-all" />
-              </div>
-              {settings.avatarUrl && (
-                <div className="relative h-32 w-32 mx-auto rounded-full overflow-hidden border-4 border-surface shadow-2xl">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={settings.avatarUrl} alt="Preview" className="h-full w-full object-cover" />
-                </div>
-              )}
-            </div>
-          </Card>
+        {/* Content Area */}
+        <form onSubmit={handleSubmit} className="flex-1 space-y-8">
+          <Card className="overflow-hidden border-border/50 bg-surface/30 backdrop-blur-md">
+            <div className="p-8">
+              <AnimatePresence mode="wait">
+                {activeTab === "hero" && (
+                  <motion.div
+                    key="hero"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="space-y-6"
+                  >
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Name</Label>
+                        <Input 
+                          value={formData.name || ""}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="Your full name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Hero Tagline</Label>
+                        <Input 
+                          value={formData.heroTagline || ""}
+                          onChange={(e) => setFormData({ ...formData, heroTagline: e.target.value })}
+                          placeholder="e.g. FULL-STACK ENGINEER"
+                        />
+                      </div>
+                    </div>
 
-          {/* Status Section */}
-          <Card className="border-border/50 bg-surface/30 p-8 backdrop-blur-md relative overflow-hidden group">
-            <div className="mb-8 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-                <ShieldCheck size={24} />
-              </div>
-              <h3 className="font-display text-xl font-bold tracking-tight">Availability</h3>
-            </div>
-            
-            <label className="group relative flex cursor-pointer items-center justify-between gap-4 rounded-[2rem] border border-border/50 bg-bg/40 p-8 transition-all hover:border-primary/30 hover:bg-primary/5">
-              <div className="space-y-1">
-                <span className="block text-sm font-black uppercase tracking-widest text-text">Open to Work</span>
-                <span className="block text-xs text-muted">Show hiring status on profile</span>
-              </div>
-              <div className="relative flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full bg-muted/20 transition-colors group-hover:bg-muted/30 has-[:checked]:bg-emerald-500 shadow-inner">
-                <input
-                  type="checkbox"
-                  className="peer sr-only"
-                  checked={settings.openToWork}
-                  onChange={(e) => setSettings({ ...settings, openToWork: e.target.checked })}
-                />
-                <div className="absolute left-1.5 h-5 w-5 rounded-full bg-white shadow-lg transition-all peer-checked:left-7" />
-              </div>
-            </label>
-          </Card>
+                    <div className="space-y-2">
+                      <Label>Hero Main Heading</Label>
+                      <Input 
+                        value={formData.heroTitle || ""}
+                        onChange={(e) => setFormData({ ...formData, heroTitle: e.target.value })}
+                        placeholder="e.g. Engineering Great Websites."
+                      />
+                    </div>
 
-          {/* Platform Info */}
-          <Card className="border-border/50 bg-surface/10 p-8 backdrop-blur-md border-dashed">
-            <div className="flex items-center gap-4 mb-4 text-muted/60">
-              <Monitor size={18} />
-              <span className="text-[10px] font-black uppercase tracking-widest">System Info</span>
+                    <div className="space-y-2">
+                      <Label>Hero Bio</Label>
+                      <textarea
+                        value={formData.heroBio || ""}
+                        onChange={(e) => setFormData({ ...formData, heroBio: e.target.value })}
+                        placeholder="A short, impactful introduction..."
+                        className="w-full min-h-[120px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                      />
+                    </div>
+
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <ImageUpload
+                        value={formData.avatarUrl || ""}
+                        onChange={(val) => setFormData({ ...formData, avatarUrl: val })}
+                        label="Profile Avatar Image"
+                      />
+                      <div className="space-y-2">
+                        <Label>Resume Link (URL)</Label>
+                        <Input 
+                          value={formData.resumeUrl || ""}
+                          onChange={(e) => setFormData({ ...formData, resumeUrl: e.target.value })}
+                          placeholder="Link to your PDF resume"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "about" && (
+                  <motion.div
+                    key="about"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="space-y-6"
+                  >
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>About Heading</Label>
+                        <Input 
+                          value={formData.aboutTitle || ""}
+                          onChange={(e) => setFormData({ ...formData, aboutTitle: e.target.value })}
+                          placeholder="e.g. Building things that work well."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Years of Experience</Label>
+                        <Input 
+                          value={formData.yearsOfExperience || ""}
+                          onChange={(e) => setFormData({ ...formData, yearsOfExperience: e.target.value })}
+                          placeholder="e.g. 2+"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Goal Title</Label>
+                      <Input 
+                        value={formData.aboutGoalTitle || ""}
+                        onChange={(e) => setFormData({ ...formData, aboutGoalTitle: e.target.value })}
+                        placeholder="e.g. My Goal"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Goal Description</Label>
+                      <textarea
+                        value={formData.aboutGoalDesc || ""}
+                        onChange={(e) => setFormData({ ...formData, aboutGoalDesc: e.target.value })}
+                        placeholder="Describe your professional mission..."
+                        className="w-full min-h-[120px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                      />
+                    </div>
+
+                    <div className="grid gap-6 sm:grid-cols-3">
+                      <div className="space-y-2">
+                        <Label>Stats Work</Label>
+                        <Input 
+                          value={formData.aboutStatsWork || ""}
+                          onChange={(e) => setFormData({ ...formData, aboutStatsWork: e.target.value })}
+                          placeholder="e.g. 2+"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Stats Projects</Label>
+                        <Input 
+                          value={formData.aboutStatsProjects || ""}
+                          onChange={(e) => setFormData({ ...formData, aboutStatsProjects: e.target.value })}
+                          placeholder="e.g. 15+"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Stats Commitment</Label>
+                        <Input 
+                          value={formData.aboutStatsCommitment || ""}
+                          onChange={(e) => setFormData({ ...formData, aboutStatsCommitment: e.target.value })}
+                          placeholder="e.g. 100%"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-6 p-6 rounded-2xl bg-primary/5 border border-primary/20">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-bg">
+                        <Briefcase size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-text">Availability Status</p>
+                        <p className="text-xs text-muted">Show a &quot;Looking for work&quot; badge on your hero section.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, openToWork: !formData.openToWork })}
+                        className={cn(
+                          "relative h-7 w-12 rounded-full transition-colors",
+                          formData.openToWork ? "bg-primary" : "bg-muted"
+                        )}
+                      >
+                        <div className={cn(
+                          "absolute top-1 h-5 w-5 rounded-full bg-white transition-all",
+                          formData.openToWork ? "right-1" : "left-1"
+                        )} />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "pages" && (
+                  <motion.div
+                    key="pages"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="space-y-6"
+                  >
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Home Work Title</Label>
+                        <Input 
+                          value={formData.homeWorkTitle || ""}
+                          onChange={(e) => setFormData({ ...formData, homeWorkTitle: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Home Work Subtitle</Label>
+                        <Input 
+                          value={formData.homeWorkSubtitle || ""}
+                          onChange={(e) => setFormData({ ...formData, homeWorkSubtitle: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Home Blog Title</Label>
+                        <Input 
+                          value={formData.homeBlogTitle || ""}
+                          onChange={(e) => setFormData({ ...formData, homeBlogTitle: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Home Blog Subtitle</Label>
+                        <Input 
+                          value={formData.homeBlogSubtitle || ""}
+                          onChange={(e) => setFormData({ ...formData, homeBlogSubtitle: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 pt-6 border-t border-border/50">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-text/80">Projects Page</h3>
+                      <div className="grid gap-6 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label>Projects Title</Label>
+                          <Input 
+                            value={formData.projectsTitle || ""}
+                            onChange={(e) => setFormData({ ...formData, projectsTitle: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Projects Subtitle</Label>
+                          <Input 
+                            value={formData.projectsSubtitle || ""}
+                            onChange={(e) => setFormData({ ...formData, projectsSubtitle: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Projects Description</Label>
+                        <textarea
+                          value={formData.projectsDesc || ""}
+                          onChange={(e) => setFormData({ ...formData, projectsDesc: e.target.value })}
+                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 pt-6 border-t border-border/50">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-text/80">Contact CTA</h3>
+                      <div className="space-y-2">
+                        <Label>Contact CTA Title</Label>
+                        <Input 
+                          value={formData.contactCtaTitle || ""}
+                          onChange={(e) => setFormData({ ...formData, contactCtaTitle: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Contact CTA Description</Label>
+                        <textarea
+                          value={formData.contactCtaDesc || ""}
+                          onChange={(e) => setFormData({ ...formData, contactCtaDesc: e.target.value })}
+                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "social" && (
+                  <motion.div
+                    key="social"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="space-y-6"
+                  >
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Mail size={14} className="text-muted" />
+                          <Label>Professional Email</Label>
+                        </div>
+                        <Input 
+                          value={formData.email || ""}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          placeholder="hello@example.com"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <MapPin size={14} className="text-muted" />
+                          <Label>Location</Label>
+                        </div>
+                        <Input 
+                          value={formData.location || ""}
+                          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                          placeholder="e.g. Surat, India"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 pt-6 border-t border-border/50">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-text/80">Social Matrix</h3>
+                      
+                      <div className="grid gap-6 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Github size={14} className="text-muted" />
+                            <Label>GitHub URL</Label>
+                          </div>
+                          <Input 
+                            value={formData.github || ""}
+                            onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                            placeholder="https://github.com/..."
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Linkedin size={14} className="text-muted" />
+                            <Label>LinkedIn URL</Label>
+                          </div>
+                          <Input 
+                            value={formData.linkedin || ""}
+                            onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                            placeholder="https://linkedin.com/in/..."
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <XIcon size={14} className="text-muted" />
+                            <Label>Twitter (X) URL</Label>
+                          </div>
+                          <Input 
+                            value={formData.twitter || ""}
+                            onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                            placeholder="https://twitter.com/..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 pt-6 border-t border-border/50">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-text/80">Footer Configuration</h3>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Footer Title</Label>
+                          <Input 
+                            value={formData.footerTitle || ""}
+                            onChange={(e) => setFormData({ ...formData, footerTitle: e.target.value })}
+                            placeholder="e.g. Ready to bring your ideas to life?"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Footer Description</Label>
+                          <textarea
+                            value={formData.footerBio || ""}
+                            onChange={(e) => setFormData({ ...formData, footerBio: e.target.value })}
+                            placeholder="A short description for the footer..."
+                            className="w-full min-h-[100px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "seo" && (
+                  <motion.div
+                    key="seo"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="space-y-6"
+                  >
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-text/80">Global SEO Settings</h3>
+                      
+                      <div className="space-y-2">
+                        <Label>Meta Title</Label>
+                        <Input 
+                          value={formData.seoTitle || ""}
+                          onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
+                          placeholder="e.g. Pratham Rajbhar | Full-Stack Engineer"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Meta Description</Label>
+                        <textarea
+                          value={formData.seoDescription || ""}
+                          onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
+                          placeholder="Short, keyword-rich description for search engines..."
+                          className="w-full min-h-[100px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Keywords (Comma separated)</Label>
+                        <Input 
+                          value={formData.seoKeywords || ""}
+                          onChange={(e) => setFormData({ ...formData, seoKeywords: e.target.value })}
+                          placeholder="e.g. React, Next.js, Portfolio, Engineer"
+                        />
+                      </div>
+
+                      <div className="space-y-2 pt-4">
+                        <ImageUpload
+                          value={formData.ogImage || ""}
+                          onChange={(val) => setFormData({ ...formData, ogImage: val })}
+                          label="Default Open Graph Image (for social sharing)"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <div className="space-y-4">
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted/40">
-                <span>Core Version</span>
-                <span>v2.4.0-premium</span>
+
+            <div className="flex items-center justify-between border-t border-border/50 bg-bg/30 px-8 py-6">
+              <div className="flex items-center gap-3 text-xs font-bold text-muted">
+                <Sparkles size={16} className="text-primary animate-pulse" />
+                Changes auto-save only on Inject
               </div>
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted/40">
-                <span>Last Deployment</span>
-                <span>{new Date().toLocaleDateString()}</span>
-              </div>
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted/40">
-                <span>Database Status</span>
-                <span className="text-emerald-500 flex items-center gap-1.5">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Synchronized
-                </span>
-              </div>
+              <Button 
+                type="submit" 
+                disabled={saving} 
+                size="lg" 
+                className="rounded-2xl px-10 shadow-xl shadow-primary/20 min-w-[180px]"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-5 w-5" />
+                    Inject Settings
+                  </>
+                )}
+              </Button>
             </div>
           </Card>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
