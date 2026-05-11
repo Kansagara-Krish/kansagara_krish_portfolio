@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool } from "ai";
-import { z } from "zod";
 import { NextResponse } from "next/server";
 import {
   schemas,

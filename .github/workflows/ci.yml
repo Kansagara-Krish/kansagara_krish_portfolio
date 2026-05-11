@@ -15,6 +15,11 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       AUTH_JWT_SECRET: ${{ secrets.AUTH_JWT_SECRET }}
       AUTH_ADMIN_PASSWORD: ${{ secrets.AUTH_ADMIN_PASSWORD }}
+      SITE_URL: ${{ secrets.SITE_URL }}
+      STORAGE_URL: ${{ secrets.STORAGE_URL }}
+      STORAGE_KEY: ${{ secrets.STORAGE_KEY }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
+      AI_MODEL: ${{ secrets.AI_MODEL }}
 
     steps:
       - name: Checkout Repository
