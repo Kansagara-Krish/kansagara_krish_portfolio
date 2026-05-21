@@ -25,12 +25,14 @@ import { cn } from "@/lib/utils";
 import type { SiteSettingsDTO } from "@/lib/types";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { AISuggestField } from "@/components/admin/AISuggestField";
+import { getAIProviderLabel, getAIModelOptions, getDefaultAIBaseUrl, getDefaultAIModel, normalizeAIProvider } from "@/lib/ai-defaults";
 
 const tabs = [
   { id: "hero", label: "Hero Section", icon: Layout },
   { id: "about", label: "About Me", icon: User },
   { id: "pages", label: "Page Content", icon: FileText },
   { id: "seo", label: "SEO & Meta", icon: Search },
+  { id: "ai", label: "AI Provider", icon: Sparkles },
   { id: "social", label: "Social & Footer", icon: Globe },
 ];
 
@@ -38,6 +40,9 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("hero");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [testingAI, setTestingAI] = useState(false);
+  const [aiTestStatus, setAiTestStatus] = useState<"idle" | "success" | "error">("idle");
+  const [aiTestMessage, setAiTestMessage] = useState("");
   const [formData, setFormData] = useState<SiteSettingsDTO>({
     id: "singleton",
     name: "",
@@ -84,6 +89,9 @@ export default function SettingsPage() {
     seoDescription: "",
     seoKeywords: "",
     ogImage: "",
+    aiProvider: "ollama",
+    aiModel: getDefaultAIModel("ollama"),
+    aiBaseUrl: getDefaultAIBaseUrl("ollama"),
     updatedAt: new Date().toISOString(),
   });
 
@@ -93,7 +101,13 @@ export default function SettingsPage() {
         const res = await fetch("/api/admin/settings");
         const json = await res.json();
         if (json.success && json.data) {
-          setFormData(json.data);
+          const provider = normalizeAIProvider(json.data.aiProvider);
+          setFormData({
+            ...json.data,
+            aiProvider: provider,
+            aiModel: json.data.aiModel || getDefaultAIModel(provider),
+            aiBaseUrl: json.data.aiBaseUrl || getDefaultAIBaseUrl(provider),
+          });
         }
       } catch (_err) {
         console.error("Failed to fetch settings");
@@ -120,6 +134,60 @@ export default function SettingsPage() {
       alert("Failed to update settings");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAIProviderChange = (provider: "openrouter" | "ollama") => {
+    const nextModel = getDefaultAIModel(provider);
+    const nextBaseUrl = getDefaultAIBaseUrl(provider);
+
+    setFormData({
+      ...formData,
+      aiProvider: provider,
+      aiModel: nextModel,
+      aiBaseUrl: nextBaseUrl,
+    });
+  };
+
+  const handleAITest = async () => {
+    setTestingAI(true);
+    setAiTestStatus("idle");
+    setAiTestMessage("");
+
+    try {
+      const payload = {
+        provider: normalizeAIProvider(formData.aiProvider),
+        model: (formData.aiModel || getDefaultAIModel(normalizeAIProvider(formData.aiProvider))).trim(),
+        baseUrl: (formData.aiBaseUrl || getDefaultAIBaseUrl(normalizeAIProvider(formData.aiProvider))).trim(),
+      };
+
+      const res = await fetch("/api/admin/ai-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json() as {
+        success?: boolean;
+        error?: string;
+        message?: string;
+        provider?: string;
+        model?: string;
+      };
+
+      if (!res.ok || !json.success) {
+        setAiTestStatus("error");
+        setAiTestMessage(json.error || "AI test failed");
+        return;
+      }
+
+      setAiTestStatus("success");
+      setAiTestMessage(`${getAIProviderLabel(payload.provider)} responded: ${json.message || "Connection succeeded."}`);
+    } catch (_err) {
+      setAiTestStatus("error");
+      setAiTestMessage("Unable to reach the selected AI endpoint.");
+    } finally {
+      setTestingAI(false);
     }
   };
 
@@ -240,7 +308,7 @@ export default function SettingsPage() {
                         value={formData.heroBio || ""}
                         onChange={(e) => setFormData({ ...formData, heroBio: e.target.value })}
                         placeholder="A short, impactful introduction..."
-                        className="w-full min-h-[120px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                        className="w-full min-h-30 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                       />
                     </div>
 
@@ -313,7 +381,7 @@ export default function SettingsPage() {
                         value={formData.aboutGoalDesc || ""}
                         onChange={(e) => setFormData({ ...formData, aboutGoalDesc: e.target.value })}
                         placeholder="Describe your professional mission..."
-                        className="w-full min-h-[120px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                        className="w-full min-h-30 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                       />
                     </div>
 
@@ -421,7 +489,7 @@ export default function SettingsPage() {
                           value={formData.homeWorkDesc || ""}
                           onChange={(e) => setFormData({ ...formData, homeWorkDesc: e.target.value })}
                           placeholder="Short description for the work history section on the home page..."
-                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          className="w-full min-h-20 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                         />
                       </div>
                     </div>
@@ -467,7 +535,7 @@ export default function SettingsPage() {
                           value={formData.blogIntro || ""}
                           onChange={(e) => setFormData({ ...formData, blogIntro: e.target.value })}
                           placeholder="Introduction paragraph for the blog page..."
-                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          className="w-full min-h-20 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                         />
                       </div>
                     </div>
@@ -494,7 +562,7 @@ export default function SettingsPage() {
                           value={formData.experienceHeroDesc || ""}
                           onChange={(e) => setFormData({ ...formData, experienceHeroDesc: e.target.value })}
                           placeholder="Description for the experience page hero..."
-                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          className="w-full min-h-20 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                         />
                       </div>
                     </div>
@@ -510,7 +578,7 @@ export default function SettingsPage() {
                           value={formData.educationHeroDesc || ""}
                           onChange={(e) => setFormData({ ...formData, educationHeroDesc: e.target.value })}
                           placeholder="Description for the education page hero..."
-                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          className="w-full min-h-20 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                         />
                       </div>
                     </div>
@@ -526,7 +594,7 @@ export default function SettingsPage() {
                           value={formData.aboutExtraBio || ""}
                           onChange={(e) => setFormData({ ...formData, aboutExtraBio: e.target.value })}
                           placeholder="Extra bio paragraph for the about page..."
-                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          className="w-full min-h-20 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                         />
                       </div>
                     </div>
@@ -563,7 +631,7 @@ export default function SettingsPage() {
                         <textarea
                           value={formData.projectsDesc || ""}
                           onChange={(e) => setFormData({ ...formData, projectsDesc: e.target.value })}
-                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          className="w-full min-h-20 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                         />
                       </div>
                     </div>
@@ -588,10 +656,105 @@ export default function SettingsPage() {
                         <textarea
                           value={formData.contactCtaDesc || ""}
                           onChange={(e) => setFormData({ ...formData, contactCtaDesc: e.target.value })}
-                          className="w-full min-h-[80px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          className="w-full min-h-20 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                         />
                       </div>
                     </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "ai" && (
+                  <motion.div
+                    key="ai"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="space-y-6"
+                  >
+                    <div className="rounded-3xl border border-primary/15 bg-primary/5 p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-bg">
+                          <Sparkles size={22} />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-base font-black uppercase tracking-widest text-text">AI routing</h3>
+                          <p className="text-sm leading-relaxed text-muted">
+                            Choose OpenRouter or Ollama for the admin AI tools. OpenRouter uses your <span className="font-semibold text-text">AI_API_KEY</span> from the environment. Ollama uses the model and endpoint below, for example <span className="font-semibold text-text">glm-4.6:cloud</span>.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>AI Provider</Label>
+                        <select
+                          value={formData.aiProvider || "openrouter"}
+                          onChange={(e) => handleAIProviderChange(e.target.value as "openrouter" | "ollama")}
+                          className="w-full rounded-2xl border border-border/50 bg-bg/50 px-4 py-3 text-sm font-medium text-text outline-none transition-all focus:border-primary/50"
+                        >
+                          <option value="openrouter">OpenRouter</option>
+                          <option value="ollama">Ollama</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Model</Label>
+                        <select
+                          value={formData.aiModel || getDefaultAIModel(normalizeAIProvider(formData.aiProvider))}
+                          onChange={(e) => setFormData({ ...formData, aiModel: e.target.value })}
+                          className="w-full rounded-2xl border border-border/50 bg-bg/50 px-4 py-3 text-sm font-medium text-text outline-none transition-all focus:border-primary/50"
+                        >
+                          {getAIModelOptions(normalizeAIProvider(formData.aiProvider)).map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>API Endpoint</Label>
+                      <Input
+                        value={formData.aiBaseUrl || ""}
+                        onChange={(e) => setFormData({ ...formData, aiBaseUrl: e.target.value })}
+                        placeholder={getDefaultAIBaseUrl(normalizeAIProvider(formData.aiProvider))}
+                      />
+                      <p className="text-xs text-muted">
+                        Default Ollama endpoint: http://13.61.17.160:11434/v1/chat/completions.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-bg/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="space-y-1">
+                        <p className="text-sm font-bold text-text">Test this configuration</p>
+                        <p className="text-xs text-muted">
+                          Sends a quick connection check using the current provider, model, and endpoint.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAITest}
+                        disabled={testingAI || !formData.aiModel?.trim()}
+                        className="sm:w-auto"
+                      >
+                        {testingAI ? "Testing..." : "Test Connection"}
+                      </Button>
+                    </div>
+
+                    {aiTestStatus !== "idle" && aiTestMessage && (
+                      <p
+                        className={cn(
+                          "rounded-2xl border px-4 py-3 text-sm",
+                          aiTestStatus === "success"
+                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+                            : "border-red-500/20 bg-red-500/10 text-red-300",
+                        )}
+                      >
+                        {aiTestMessage}
+                      </p>
+                    )}
                   </motion.div>
                 )}
 
@@ -691,7 +854,7 @@ export default function SettingsPage() {
                             value={formData.footerBio || ""}
                             onChange={(e) => setFormData({ ...formData, footerBio: e.target.value })}
                             placeholder="A short description for the footer..."
-                            className="w-full min-h-[100px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                            className="w-full min-h-25 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                           />
                         </div>
                       </div>
@@ -731,7 +894,7 @@ export default function SettingsPage() {
                           value={formData.seoDescription || ""}
                           onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
                           placeholder="Short, keyword-rich description for search engines..."
-                          className="w-full min-h-[100px] rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
+                          className="w-full min-h-25 rounded-2xl border border-border/50 bg-bg/50 p-4 text-sm font-medium text-text outline-none focus:border-primary/50 transition-all"
                         />
                       </div>
 
@@ -766,7 +929,7 @@ export default function SettingsPage() {
                 type="submit" 
                 disabled={saving} 
                 size="lg" 
-                className="rounded-2xl px-10 shadow-xl shadow-primary/20 min-w-[180px]"
+                className="rounded-2xl px-10 shadow-xl shadow-primary/20 min-w-45"
               >
                 {saving ? (
                   <>

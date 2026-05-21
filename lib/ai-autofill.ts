@@ -170,6 +170,14 @@ const ARRAY_FIELDS: Record<string, string[]> = {
   experience: ["skills"],
 };
 
+/** Fields whose form state should always be boolean values. */
+const BOOLEAN_FIELDS: Record<string, string[]> = {
+  projects: ["featured"],
+  blog: ["published"],
+  experience: ["current"],
+  education: ["current"],
+};
+
 /** Fields that must be coerced to YYYY-MM-DD for form state. */
 const DATE_FIELDS = ["date", "startDate", "endDate"];
 
@@ -187,6 +195,7 @@ export function normalize(
 
   const result: Record<string, unknown> = {};
   const arrayFields = ARRAY_FIELDS[module] ?? [];
+  const booleanFields = BOOLEAN_FIELDS[module] ?? [];
 
   for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
     if (value === undefined || value === null) continue;
@@ -205,10 +214,29 @@ export function normalize(
       continue;
     }
 
+    if (booleanFields.includes(key)) {
+      const coerced = coerceBoolean(value);
+      if (coerced !== undefined) {
+        result[key] = coerced;
+        continue;
+      }
+    }
+
     result[key] = value;
   }
 
   return result;
+}
+
+function coerceBoolean(value: unknown): boolean | undefined {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["true", "1", "yes", "y", "on"].includes(normalized)) return true;
+    if (["false", "0", "no", "n", "off"].includes(normalized)) return false;
+  }
+  return undefined;
 }
 
 /**

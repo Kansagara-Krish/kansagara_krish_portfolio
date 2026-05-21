@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "../generated/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import { getDefaultAIBaseUrl, getDefaultAIModel, normalizeAIProvider } from "../lib/ai-config";
 
 // Strip sslmode from URL — we configure SSL via Pool options to avoid TLS cert errors with AWS RDS
 const rawUrl = process.env.DATABASE_URL!;
@@ -16,6 +17,10 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("🌱 Seeding database...");
+
+  const aiProvider = normalizeAIProvider(process.env.AI_PROVIDER ?? null);
+  const aiModel = process.env.AI_MODEL?.trim() || getDefaultAIModel(aiProvider);
+  const aiBaseUrl = process.env.AI_BASE_URL?.trim() || getDefaultAIBaseUrl(aiProvider);
 
   // ─── Site Settings ─────────────────────────────────────────────────────────
   await prisma.siteSettings.upsert({
@@ -38,6 +43,9 @@ async function main() {
       github: "https://github.com/prathamrajbhar",
       linkedin: "https://linkedin.com/in/prathamrajbhar",
       twitter: null,
+      aiProvider,
+      aiModel,
+      aiBaseUrl,
       openToWork: true,
     },
   });

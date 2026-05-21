@@ -6,23 +6,37 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 process.loadEnvFile(join(__dirname, "..", ".env"));
 
 const API_KEY = process.env.AI_API_KEY;
+const PROVIDER = (process.env.AI_PROVIDER || "openrouter").toLowerCase();
 const MODEL = process.env.AI_MODEL;
+const BASE_URL = process.env.AI_BASE_URL || (PROVIDER === "ollama"
+  ? "http://13.61.17.160:11434/v1/chat/completions"
+  : "https://openrouter.ai/api/v1/chat/completions");
 
-if (!API_KEY?.trim() || API_KEY.trim().length < 10) {
+if (!MODEL?.trim()) {
+  console.error("FAIL: AI_MODEL missing or empty");
+  process.exit(1);
+}
+
+if (PROVIDER === "openrouter" && (!API_KEY?.trim() || API_KEY.trim().length < 10)) {
   console.error("FAIL: AI_API_KEY missing or invalid");
   process.exit(1);
 }
 
 console.log("=== Testing AI Suggest ===");
+console.log("Provider:", PROVIDER);
 console.log("Model:", MODEL);
 
 async function testSuggest() {
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const res = await fetch(BASE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${API_KEY.trim()}`,
-      "HTTP-Referer": "https://localhost:3000",
+      ...(PROVIDER === "openrouter"
+        ? {
+            Authorization: `Bearer ${API_KEY.trim()}`,
+            "HTTP-Referer": "https://localhost:3000",
+          }
+        : {}),
       "X-Title": "Portfolio CMS",
     },
     body: JSON.stringify({
@@ -67,12 +81,16 @@ async function testSuggest() {
 async function testAutofill() {
   console.log("\n=== Testing AI Autofill ===");
 
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const res = await fetch(BASE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${API_KEY.trim()}`,
-      "HTTP-Referer": "https://localhost:3000",
+      ...(PROVIDER === "openrouter"
+        ? {
+            Authorization: `Bearer ${API_KEY.trim()}`,
+            "HTTP-Referer": "https://localhost:3000",
+          }
+        : {}),
       "X-Title": "Portfolio CMS",
     },
     body: JSON.stringify({

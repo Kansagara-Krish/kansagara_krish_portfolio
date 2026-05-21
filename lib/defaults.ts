@@ -1,4 +1,5 @@
 import type { SiteSettingsDTO } from "@/lib/types";
+import { getDefaultAIBaseUrl, getDefaultAIModel } from "@/lib/ai-defaults";
 
 export const defaultSettings: SiteSettingsDTO = {
   id: "singleton",
@@ -74,4 +75,9 @@ export const defaultSettings: SiteSettingsDTO = {
   seoDescription: null,
   seoKeywords: null,
   ogImage: null,
+
+  // AI
+  aiProvider: "ollama",
+  aiModel: getDefaultAIModel("ollama"),
+  aiBaseUrl: getDefaultAIBaseUrl("ollama"),
 };

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { resolveAIConfigFromDatabase, getAIProviderLabel } from "@/lib/ai-config";
 
 const requestSchema = z.object({
   module: z.string().min(1),
@@ -24,17 +25,18 @@ export async function POST(req: Request) {
 
     const { module, field, prompt, context } = parsed.data;
 
-    const apiKey = process.env.AI_API_KEY?.trim();
-    if (!apiKey || apiKey.length < 10) {
+    const config = await resolveAIConfigFromDatabase();
+
+    if (!config.model) {
       return NextResponse.json(
-        { success: false, error: "AI API Key is missing or invalid. Add a real OpenRouter key to your .env file (AI_API_KEY=sk-or-v1-...)" },
+        { success: false, error: "AI Model is not configured" },
         { status: 500 }
       );
     }
 
-    if (!process.env.AI_MODEL) {
+    if (config.provider === "openrouter" && (!config.apiKey || config.apiKey.length < 10)) {
       return NextResponse.json(
-        { success: false, error: "AI Model is not configured" },
+        { success: false, error: "AI API Key is missing or invalid. Add a real OpenRouter key to your .env file (AI_API_KEY=sk-or-v1-...)" },
         { status: 500 }
       );
     }
@@ -53,16 +55,20 @@ export async function POST(req: Request) {
       `User request: ${prompt}\n\n` +
       `Generate 3 excellent suggestions for the "${field}" field.`;
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await fetch(config.baseUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.AI_API_KEY}`,
-        "HTTP-Referer": "https://localhost:3000",
+        ...(config.provider === "openrouter"
+          ? {
+              Authorization: `Bearer ${config.apiKey}`,
+              "HTTP-Referer": "https://localhost:3000",
+            }
+          : {}),
         "X-Title": "Portfolio CMS",
       },
       body: JSON.stringify({
-        model: process.env.AI_MODEL,
+        model: config.model,
         messages: [
           {
             role: "system",
@@ -86,9 +92,9 @@ export async function POST(req: Request) {
 
     if (!res.ok) {
       const err = await res.text();
-      console.error("OpenRouter error:", res.status, err);
+      console.error(`${getAIProviderLabel(config.provider)} error:`, res.status, err);
       return NextResponse.json(
-        { success: false, error: `OpenRouter error: ${res.status}` },
+        { success: false, error: `${getAIProviderLabel(config.provider)} error: ${res.status}` },
         { status: 500 }
       );
     }

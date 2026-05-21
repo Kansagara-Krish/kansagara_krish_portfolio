@@ -162,6 +162,9 @@ function toSiteSettingsDTO(s: NonNullable<Awaited<ReturnType<typeof prisma.siteS
     seoDescription: s.seoDescription ?? null,
     seoKeywords: s.seoKeywords ?? null,
     ogImage: s.ogImage ?? null,
+    aiProvider: (s.aiProvider as "openrouter" | "ollama" | null) ?? "openrouter",
+    aiModel: s.aiModel ?? null,
+    aiBaseUrl: s.aiBaseUrl ?? null,
   };
 }
 

@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { getDefaultAIBaseUrl, getDefaultAIModel, normalizeAIProvider } from "@/lib/ai-config";
 
 export async function POST() {
   try {
     await requireAdmin();
+
+    const aiProvider = normalizeAIProvider(process.env.AI_PROVIDER ?? null);
+    const aiModel = process.env.AI_MODEL?.trim() || getDefaultAIModel(aiProvider);
+    const aiBaseUrl = process.env.AI_BASE_URL?.trim() || getDefaultAIBaseUrl(aiProvider);
 
     // 1. Seed SiteSettings
     await prisma.siteSettings.upsert({
@@ -48,6 +53,9 @@ export async function POST() {
         github: "https://github.com/alexmorgan",
         linkedin: "https://linkedin.com/in/alexmorgan",
         twitter: "https://twitter.com/alexmorgan",
+        aiProvider,
+        aiModel,
+        aiBaseUrl,
         openToWork: true,
       },
       create: {
@@ -89,6 +97,9 @@ export async function POST() {
         github: "https://github.com/alexmorgan",
         linkedin: "https://linkedin.com/in/alexmorgan",
         twitter: "https://twitter.com/alexmorgan",
+        aiProvider,
+        aiModel,
+        aiBaseUrl,
         openToWork: true,
       },
     });

@@ -97,10 +97,15 @@ export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
         }
 
         const data = (await res.json()) as Message;
-        setMessages((prev) => [...prev, data]);
+        const assistantMsg: Message = {
+          id: data.id || `a-${typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Date.now()}`,
+          role: data.role,
+          parts: Array.isArray(data.parts) ? data.parts : [],
+        };
+        setMessages((prev) => [...prev, assistantMsg]);
 
-        if (data.role === "assistant" && Array.isArray(data.parts)) {
-          const extracted = extractFillFormData(data.parts);
+        if (assistantMsg.role === "assistant" && Array.isArray(assistantMsg.parts)) {
+          const extracted = extractFillFormData(assistantMsg.parts);
           if (extracted) {
             onFillRef.current(normalize(module, extracted) as Partial<T>);
           }
@@ -197,7 +202,7 @@ export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="max-h-[300px] overflow-y-auto space-y-4 pr-1"
+                  className="max-h-75 overflow-y-auto space-y-4 pr-1"
                 >
                   {messages.map((m) => (
                     <div
@@ -223,8 +228,9 @@ export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
                         {/* Render text parts — UIMessage in AI SDK v6 always has parts */}
                         {m.parts.map((part: unknown, i) => {
                           const p = part as Record<string, unknown>;
+                          const partKey = `${m.id}-${String(p.type ?? "part")}-${i}`;
                           if (p.type === "text" && p.text) {
-                            return <div key={i}>{String(p.text)}</div>;
+                            return <div key={partKey}>{String(p.text)}</div>;
                           }
                           // Show a success indicator for any tool call part
                           if (
@@ -234,7 +240,7 @@ export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
                           ) {
                             return (
                               <div
-                                key={i}
+                                key={partKey}
                                 className="mt-2 text-xs flex items-center gap-1.5 text-emerald-500"
                               >
                                 <CheckCircle2 size={12} />
@@ -301,7 +307,7 @@ export function AIAssistant<T>({ module, onFill }: AIAssistantProps<T>) {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={`e.g. Worked at Vercel as a SWE from Jan 2023 to present…`}
-                className="min-h-[80px] w-full resize-none rounded-xl pr-14 focus:ring-primary/20 text-sm"
+                className="min-h-20 w-full resize-none rounded-xl pr-14 focus:ring-primary/20 text-sm"
                 disabled={isLoading}
               />
               <div className="absolute bottom-2 right-2">

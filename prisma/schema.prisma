@@ -81,6 +81,11 @@ model SiteSettings {
   seoDescription    String?
   seoKeywords       String?
   ogImage           String?
+
+  // AI
+  aiProvider        String?  @default("openrouter")
+  aiModel           String?
+  aiBaseUrl         String?
   
   openToWork        Boolean  @default(true)
   updatedAt         DateTime @updatedAt

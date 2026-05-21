@@ -21,6 +21,66 @@ const blogSchema = z.object({
   seoKeywords: z.string().optional().or(z.literal("")).or(z.null()),
 });
 
+function coerceBoolean(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return ["true", "1", "yes", "y", "on"].includes(normalized);
+  }
+  return false;
+}
+
+function normalizeTags(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((tag) => String(tag).trim()).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(/[\n,]/)
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function deriveExcerpt(content: string): string {
+  const text = content
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/!\[[^\]]*]\([^)]+\)/g, " ")
+    .replace(/\[[^\]]+]\([^)]+\)/g, " ")
+    .replace(/[#>*_`|~-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return text.slice(0, 180) || content.slice(0, 180).trim();
+}
+
+function buildBlogPayload(body: Record<string, unknown>) {
+  const title = typeof body.title === "string" ? body.title.trim() : "";
+  const content = typeof body.content === "string" ? body.content.trim() : "";
+  const excerpt = typeof body.excerpt === "string" ? body.excerpt.trim() : "";
+
+  return {
+    ...body,
+    title,
+    slug: typeof body.slug === "string" && body.slug.trim() ? body.slug.trim() : slugify(title),
+    excerpt: excerpt || deriveExcerpt(content),
+    content,
+    contentFormat: typeof body.contentFormat === "string" && body.contentFormat.trim() ? body.contentFormat.trim() : "mdx",
+    coverImage: typeof body.coverImage === "string" ? body.coverImage.trim() : body.coverImage,
+    published: coerceBoolean(body.published),
+    readingTime: readingTimeFromContent(content),
+    tags: normalizeTags(body.tags),
+    seoTitle: typeof body.seoTitle === "string" ? body.seoTitle.trim() : body.seoTitle,
+    seoDescription: typeof body.seoDescription === "string" ? body.seoDescription.trim() : body.seoDescription,
+    seoKeywords: typeof body.seoKeywords === "string" ? body.seoKeywords.trim() : body.seoKeywords,
+  };
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -57,11 +117,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
-    const dataToValidate = {
-      ...body,
-      slug: body.slug || slugify(body.title),
-      readingTime: body.readingTime || readingTimeFromContent(body.content || ""),
-    };
+    const dataToValidate = buildBlogPayload(body);
     
     const result = blogSchema.safeParse(dataToValidate);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -22,8 +22,12 @@ export default function NewBlogPostPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const [origin, setOrigin] = useState("");
   const [isEditingSlug, setIsEditingSlug] = useState(false);
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -153,7 +157,7 @@ export default function NewBlogPostPage() {
                               onChange={(e) => setFormData({ ...formData, slug: slugify(e.target.value) })}
                               onBlur={() => setIsEditingSlug(false)}
                               autoFocus
-                              className="bg-transparent border-none p-0 focus:ring-0 text-primary font-bold lowercase w-fit min-w-[50px] outline-none"
+                              className="bg-transparent border-none p-0 focus:ring-0 text-primary font-bold lowercase w-fit min-w-12.5 outline-none"
                             />
                           ) : (
                             <span 

@@ -162,6 +162,11 @@ export type SiteSettingsDTO = {
   seoDescription: string | null;
   seoKeywords: string | null;
   ogImage: string | null;
+
+  // AI
+  aiProvider: "openrouter" | "ollama";
+  aiModel: string | null;
+  aiBaseUrl: string | null;
 };
 
 export type ServiceDTO = {
