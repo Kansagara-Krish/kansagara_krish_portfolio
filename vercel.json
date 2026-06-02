@@ -5,9 +5,6 @@
     "enabled": true,
     "silent": true
   },
-  "build": {
-    "command": "pnpm build"
-  },
   "cleanUrls": true,
   "trailingSlash": false,
   "images": {
