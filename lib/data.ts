@@ -756,6 +756,14 @@ export const getHackathons = cache(async (): Promise<HackathonDTO[]> => {
   return hackathons;
 });
 
+export const getAllHackathonSlugs = cache(async (): Promise<string[]> => {
+  return hackathons.map((hackathon) => hackathon.slug);
+});
+
+export const getHackathonBySlug = cache(async (slug: string): Promise<HackathonDTO | null> => {
+  return hackathons.find((hackathon) => hackathon.slug === slug) ?? null;
+});
+
 export const getCertifications = cache(async (): Promise<CertificationDTO[]> => {
   return certifications;
 });

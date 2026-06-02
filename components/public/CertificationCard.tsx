@@ -29,6 +29,8 @@ export function CertificationCard({ cert }: { cert: CertificationDTO }) {
     };
   }, [open]);
 
+  const portalHost = typeof document !== "undefined" ? document.body ?? document.createElement("div") : null;
+
   return (
     <Card className="group relative flex h-full flex-col overflow-hidden border-border/50 bg-surface/30 transition-all duration-500 hover:border-primary/30 hover:bg-surface/50 hover:shadow-2xl hover:shadow-primary/5">
       {cert.image ? (
@@ -49,7 +51,7 @@ export function CertificationCard({ cert }: { cert: CertificationDTO }) {
             <div className="absolute inset-0 bg-gradient-to-t from-bg/90 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           </button>
 
-          {open
+          {open && portalHost
             ? createPortal(
                 <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black bg-opacity-90 p-6">
                   <div className="relative max-w-[95%] max-h-[95%]">
@@ -65,7 +67,7 @@ export function CertificationCard({ cert }: { cert: CertificationDTO }) {
                     <img src={cert.image} alt={cert.name} className="max-w-full max-h-[85vh] object-contain rounded" />
                   </div>
                 </div>,
-                typeof document !== "undefined" ? document.body : document.createElement("div")
+                portalHost
               )
             : null}
         </>

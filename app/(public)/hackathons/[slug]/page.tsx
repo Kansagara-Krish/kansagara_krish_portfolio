@@ -4,9 +4,14 @@ import Image from "next/image";
 import { ArrowLeft, Calendar, MapPin, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { getHackathonBySlug } from "@/lib/data";
+import { getHackathonBySlug, getHackathons } from "@/lib/data";
 
 export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const hackathons = await getHackathons();
+  return hackathons.map((hackathon) => ({ slug: hackathon.slug }));
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
