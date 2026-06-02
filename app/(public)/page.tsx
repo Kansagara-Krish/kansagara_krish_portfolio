@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { ArrowRight, Code2, Globe, Sparkles, Zap } from "lucide-react";
-import { BlogCard } from "@/components/public/BlogCard";
+import { ArrowRight, Code2, Globe, MapPin, Sparkles, Zap } from "lucide-react";
+import { CertificationCard } from "@/components/public/CertificationCard";
 import { ExperienceTimeline } from "@/components/public/ExperienceTimeline";
 import { HeroSection } from "@/components/public/HeroSection";
 import { ProjectCard } from "@/components/public/ProjectCard";
@@ -8,14 +8,14 @@ import { TechMarquee } from "@/components/public/TechMarquee";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
-import { getSiteSettings, getProjects, getBlogPosts, getExperiences, getSkills, getEducation, getHackathons, getServices } from "@/lib/data";
+import { getSiteSettings, getProjects, getCertifications, getExperiences, getSkills, getEducation, getHackathons, getServices } from "@/lib/data";
 import { defaultSettings } from "@/lib/defaults";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Home",
-  description: "Portfolio showcasing projects, writing, and professional experience.",
+  title: "Kansagara Krish | Machine Learning Portfolio",
+  description: "Static portfolio showcasing machine learning projects, writing, and experience.",
   alternates: {
     canonical: "/"
   }
@@ -25,14 +25,15 @@ export default async function HomePage() {
   const [settings, projects, posts, experiences, skills, education, hackathons, services] = await Promise.all([
     getSiteSettings().then(s => s || defaultSettings),
     getProjects(),
-    getBlogPosts(),
+    getCertifications(),
     getExperiences(),
     getSkills(),
     getEducation(),
     getHackathons(),
     getServices()
   ]);
-  const featured = projects.filter((project) => project.featured).slice(0, 3);
+  const featured = projects.slice(0, 3);
+  const hackathonCount = Math.max(hackathons.length, 7);
 
   return (
     <>
@@ -40,12 +41,12 @@ export default async function HomePage() {
 
       <TechMarquee skills={skills} />
 
-      <section className="relative mx-auto max-w-6xl px-6 py-24 overflow-hidden">
+      <section className="relative mx-auto max-w-6xl px-6 py-16 overflow-hidden">
         {/* Immersive Background Glows */}
         <div className="absolute -left-20 top-0 -z-10 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px] opacity-50" />
         <div className="absolute -right-20 bottom-0 -z-10 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px] opacity-30" />
         
-        <div className="mb-16">
+        <div className="mb-8">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-primary">Who I am</p>
           <h2 className="mt-4 font-display text-4xl tracking-tight sm:text-6xl lg:text-7xl">
             {settings.aboutTitle?.split(" ").slice(0, -3).join(" ")} <span className="text-gradient">{settings.aboutTitle?.split(" ").slice(-3).join(" ")}</span>
@@ -62,7 +63,34 @@ export default async function HomePage() {
             <p className="text-lg leading-relaxed text-text/80 lg:text-2xl lg:leading-snug">
               {settings.aboutGoalDesc || ""}
             </p>
-            
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-3xl border border-border/50 bg-surface/50 p-6">
+                <p className="text-xs font-black uppercase tracking-widest text-primary">AI & Product Delivery</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  Building real-world AI and automation solutions with Python, FastAPI, and Next.js for practical product impact.
+                </p>
+              </div>
+              <div className="rounded-3xl border border-border/50 bg-surface/50 p-6">
+                <p className="text-xs font-black uppercase tracking-widest text-primary">Certificates & Competitions</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  Proven participation in national and international hackathons, plus certificates across AI, web, and automation.
+                </p>
+              </div>
+              <div className="rounded-3xl border border-border/50 bg-surface/50 p-6">
+                <p className="text-xs font-black uppercase tracking-widest text-primary">Data-Driven Work</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  Focused on data analysis, visualization, and model evaluation to turn insights into reliable solutions.
+                </p>
+              </div>
+              <div className="rounded-3xl border border-border/50 bg-surface/50 p-6">
+                <p className="text-xs font-black uppercase tracking-widest text-primary">Rapid Prototyping</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  Experience delivering fast, polished prototypes under pressure during hackathons and internship work.
+                </p>
+              </div>
+            </div>
+
             <div className="mt-12 flex flex-wrap gap-12">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-muted/60 mb-2">Years of work</p>
@@ -74,7 +102,7 @@ export default async function HomePage() {
               </div>
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-muted/60 mb-2">Hackathons</p>
-                <p className="text-3xl font-display font-black text-text">{hackathons.length}+ Hackathons</p>
+                <p className="text-3xl font-display font-black text-text">{hackathonCount}+ Hackathons</p>
               </div>
             </div>
           </Card>
@@ -124,9 +152,20 @@ export default async function HomePage() {
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bg/50 border border-border/50 group-hover:border-primary/20 transition-all">
               <Globe className="text-primary" size={24} />
             </div>
-            <div>
+            <div className="flex flex-col gap-2">
               <p className="text-[10px] font-black uppercase tracking-widest text-muted/60 mb-1">Home Base</p>
-              <h4 className="font-bold text-lg">{settings.location || ""}</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="font-bold text-lg">{settings.location || ""}</h4>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Mehsana+Gujarat"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface border border-border/50 text-primary transition hover:bg-primary/10"
+                  aria-label="Open Mehsana location on Google Maps"
+                >
+                  <MapPin size={18} />
+                </a>
+              </div>
               <p className="text-xs text-muted">Remote / On-site</p>
             </div>
           </Card>
@@ -189,16 +228,16 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
             <div>
-              <p className="text-xs font-medium uppercase tracking-widest text-primary">{settings.homeBlogSubtitle}</p>
-              <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">{settings.homeBlogTitle}</h2>
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">{settings.blogSubtitle}</p>
+                <h2 className="mt-4 font-display text-3xl tracking-tight sm:text-4xl">{settings.blogTitle}</h2>
             </div>
-            <Button href="/blog" variant="ghost" icon={<ArrowRight size={16} />}>
-              Read All
-            </Button>
+              <Button href="/blog" variant="ghost" icon={<ArrowRight size={16} />}>
+                View All Certificates
+              </Button>
           </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {posts.slice(0, 3).map((post) => <BlogCard key={post.id} post={post} />)}
-          </div>
+            <div className="grid gap-8 md:grid-cols-3">
+              {posts.slice(0, 3).map((cert) => <CertificationCard key={cert.id} cert={cert} />)}
+            </div>
         </div>
       </section>
 

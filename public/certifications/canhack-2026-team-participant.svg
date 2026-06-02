@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect width="800" height="500" rx="36" fill="#111827" />
+  <rect x="40" y="40" width="720" height="420" rx="24" fill="#1F2937" stroke="#F59E0B" stroke-width="6" />
+  <text x="50%" y="40%" dominant-baseline="middle" text-anchor="middle" fill="#FDE68A" font-family="Inter, sans-serif" font-size="42" font-weight="700">CanHack 2026</text>
+  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="#FBBF24" font-family="Inter, sans-serif" font-size="28">Team Participant</text>
+  <text x="50%" y="66%" dominant-baseline="middle" text-anchor="middle" fill="#CBD5E1" font-family="Inter, sans-serif" font-size="24">University of Canberra</text>
+  <circle cx="120" cy="120" r="48" fill="#F59E0B" opacity="0.14" />
+  <circle cx="680" cy="140" r="36" fill="#FBBF24" opacity="0.2" />
+</svg>

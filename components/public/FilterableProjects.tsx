@@ -51,8 +51,8 @@ export function FilterableProjects({ projects }: { projects: ProjectDTO[] }) {
           animate="show"
           className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {visible.map((project) => (
-            <motion.div key={project.id} variants={item}>
+          {visible.map((project, i) => (
+            <motion.div key={`${project.id}-${i}`} variants={item}>
               <ProjectCard project={project} />
             </motion.div>
           ))}

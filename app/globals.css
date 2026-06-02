@@ -22,13 +22,13 @@
   --font-inter: Inter, ui-sans-serif, system-ui, sans-serif;
   --font-outfit: Outfit, ui-sans-serif, system-ui, sans-serif;
 
-  --color-bg-val: #fafafa;
+  --color-bg-val: #eef4ff;
   --color-surface-val: #ffffff;
-  --color-border-val: #f0f0f0;
-  --color-text-val: #202124;
-  --color-muted-val: #5f6368;
-  --color-primary-val: #1a73e8;
-  --color-primary-hover-val: #174ea6;
+  --color-border-val: #dbeafe;
+  --color-text-val: #111827;
+  --color-muted-val: #475569;
+  --color-primary-val: #2563eb;
+  --color-primary-hover-val: #1d4ed8;
 
   --shadow-sm-val: 0 1px 2px 0 rgb(60 64 67 / 0.3), 0 1px 3px 1px rgb(60 64 67 / 0.15);
   --shadow-md-val: 0 1px 3px 0 rgb(60 64 67 / 0.3), 0 4px 8px 3px rgb(60 64 67 / 0.15);

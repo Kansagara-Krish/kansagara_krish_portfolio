@@ -51,7 +51,7 @@ export default async function ContactPage() {
                 </h2>
                 <p className="mt-2 text-muted">I will get back to you in a day.</p>
               </div>
-              <ContactForm />
+              <ContactForm email={settings.email} />
             </div>
           </Card>
 

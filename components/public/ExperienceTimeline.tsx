@@ -1,12 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Briefcase } from "lucide-react";
+import { Calendar, ExternalLink, MapPin, Briefcase } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/Badge";
 import type { ExperienceDTO } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
+
+const getGoogleMapsUrl = (location: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 
 export function ExperienceTimeline({ experiences }: { experiences: ExperienceDTO[] }) {
   return (
@@ -78,9 +81,20 @@ export function ExperienceTimeline({ experiences }: { experiences: ExperienceDTO
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                       <span className="text-base font-bold text-primary">{item.company}</span>
                       {item.location && (
-                        <span className="flex items-center gap-1.5 text-xs text-muted/70">
-                          <MapPin size={14} className="text-primary/40" />
-                          {item.location}
+                        <span className="flex flex-wrap items-center gap-2 text-xs text-muted/70">
+                          <span className="flex items-center gap-1.5">
+                            <MapPin size={14} className="text-primary/40" />
+                            {item.location}
+                          </span>
+                          <a
+                            href={getGoogleMapsUrl(item.location)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 rounded-full border border-border/50 bg-surface/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary transition-colors hover:border-primary/40 hover:bg-primary/10"
+                          >
+                            <ExternalLink size={12} />
+                            View map
+                          </a>
                         </span>
                       )}
                     </div>

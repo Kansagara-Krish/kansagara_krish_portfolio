@@ -15,7 +15,7 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/projects", label: "Projects" },
-    { href: "/blog", label: "Blog" },
+    { href: "/blog", label: "Certificates" },
     { href: "/experience", label: "Experience" },
     { href: "/contact", label: "Contact" }
   ];

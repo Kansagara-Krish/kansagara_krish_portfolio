@@ -22,14 +22,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   const baseUrl = getBaseUrl();
 
-  // No fallbacks - if settings is missing, these will be undefined or empty
-  const name = settings?.name ?? "";
+  const name = settings?.name ?? "Pratham Rajbhar";
   const title = settings?.seoTitle ?? name;
   const description = settings?.seoDescription ?? settings?.heroBio ?? "";
   const keywords = settings?.seoKeywords
     ? settings.seoKeywords.split(",").map((k) => k.trim())
     : [];
-  const ogImage = settings?.ogImage ?? `${baseUrl}/api/og?title=${encodeURIComponent(name)}`;
+  const ogImage = settings?.ogImage ?? null;
 
   return {
     title: {
@@ -48,13 +47,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       siteName: name,
-      images: [ogImage],
+      images: ogImage ? [ogImage] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [ogImage],
+      images: ogImage ? [ogImage] : undefined,
     },
     icons: {
       icon: "/favicon.ico",
@@ -78,7 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const baseUrl = getBaseUrl();
   const settings = await getSiteSettings();
   
-  const name = settings?.name ?? "";
+  const name = settings?.name ?? "Pratham Rajbhar";
   const description = settings?.seoDescription ?? settings?.heroBio ?? "";
 
   const websiteSchema = JSON.stringify({

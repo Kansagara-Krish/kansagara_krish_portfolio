@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect width="800" height="500" rx="36" fill="#1B2430" />
+  <rect x="40" y="40" width="720" height="420" rx="24" fill="#111827" stroke="#3B82F6" stroke-width="6" />
+  <text x="50%" y="40%" dominant-baseline="middle" text-anchor="middle" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="46" font-weight="700">India AI Impact</text>
+  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="#93C5FD" font-family="Inter, sans-serif" font-size="32">Buildathon 2026</text>
+  <text x="50%" y="66%" dominant-baseline="middle" text-anchor="middle" fill="#CBD5E1" font-family="Inter, sans-serif" font-size="24">Participant Certificate</text>
+  <circle cx="700" cy="120" r="40" fill="#3B82F6" opacity="0.2" />
+  <circle cx="100" cy="420" r="52" fill="#60A5FA" opacity="0.18" />
+</svg>

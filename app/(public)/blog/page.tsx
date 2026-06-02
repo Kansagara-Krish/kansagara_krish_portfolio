@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { FilterableBlog } from "@/components/public/FilterableBlog";
-import { getBlogPosts, getSiteSettings } from "@/lib/data";
+import { CertificationCard } from "@/components/public/CertificationCard";
+import { getCertifications, getSiteSettings } from "@/lib/data";
 import { defaultSettings } from "@/lib/defaults";
 
 export const revalidate = 3600;
@@ -14,8 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const [posts, settings] = await Promise.all([
-    getBlogPosts(),
+  const [certifications, settings] = await Promise.all([
+    getCertifications(),
     getSiteSettings().then(s => s || defaultSettings),
   ]);
   return (
@@ -35,8 +35,10 @@ export default async function BlogPage() {
           </p>
         </div>
 
-        <div className="mt-16">
-          <FilterableBlog posts={posts} />
+        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {certifications.map((cert) => (
+            <CertificationCard key={cert.id} cert={cert} />
+          ))}
         </div>
       </section>
     </div>

@@ -3,11 +3,16 @@ import { notFound } from "next/navigation";
 import Script from "next/script";
 import { BlogPostClient } from "@/components/public/BlogPostClient";
 import { MdxContent } from "@/components/public/MdxContent";
-import { getBlogPostBySlug } from "@/lib/data";
+import { getBlogPostBySlug, getAllBlogPostSlugs } from "@/lib/data";
 import { getBaseUrl } from "@/lib/utils";
 import { generateBlogPostSchema, generateBreadcrumbSchema } from "@/lib/structured-data";
 
 export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const slugs = await getAllBlogPostSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

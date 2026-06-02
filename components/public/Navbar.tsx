@@ -11,7 +11,7 @@ import { ThemeColorPicker } from "@/components/public/ThemeColorPicker";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/projects", label: "Projects" },
-  { href: "/blog", label: "Blog" },
+  { href: "/blog", label: "Certificates" },
   { href: "/experience", label: "Experience" },
   { href: "/contact", label: "Contact" }
 ];
@@ -41,7 +41,12 @@ export function Navbar({ name, openToWork }: { name: string; openToWork?: boolea
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 pointer-events-none">
+    <motion.header
+      initial={{ y: -40, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 pointer-events-none"
+    >
       <nav
         className={cn(
           "pointer-events-auto relative flex items-center justify-between gap-8 rounded-full border border-border/40 bg-surface/60 px-4 py-2 shadow-2xl backdrop-blur-2xl transition-all duration-500",
@@ -56,7 +61,7 @@ export function Navbar({ name, openToWork }: { name: string; openToWork?: boolea
              <span className="font-display text-sm font-black uppercase">{name[0]}</span>
           </div>
           <span className="hidden font-display text-lg font-bold tracking-tight text-text sm:block">
-            {name.split(" ")[0]}
+            {name.split(" ").slice(-1)[0]}
           </span>
         </Link>
 
@@ -189,6 +194,6 @@ export function Navbar({ name, openToWork }: { name: string; openToWork?: boolea
           </motion.div>
         ) : null}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }

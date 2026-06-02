@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 type State = "idle" | "loading" | "success" | "error";
 
-export function ContactForm() {
+export function ContactForm({ email }: { email: string }) {
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
 
@@ -27,19 +27,12 @@ export function ContactForm() {
     };
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const subject = encodeURIComponent(payload.subject || "Portfolio inquiry");
+      const body = encodeURIComponent(
+        `Name: ${payload.name}\nEmail: ${payload.email}\n\n${payload.message}`
+      );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        const message = data.error || "Error. Please try again.";
-        throw new Error(message);
-      }
-
+      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
       event.currentTarget.reset();
       setState("success");
       setTimeout(() => setState("idle"), 5000);

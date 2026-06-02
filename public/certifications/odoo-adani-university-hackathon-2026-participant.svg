@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect width="800" height="500" rx="36" fill="#0F172A" />
+  <rect x="40" y="40" width="720" height="420" rx="24" fill="#111827" stroke="#10B981" stroke-width="6" />
+  <text x="50%" y="40%" dominant-baseline="middle" text-anchor="middle" fill="#ECFCCB" font-family="Inter, sans-serif" font-size="42" font-weight="700">Odoo × Adani</text>
+  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="#A7F3D0" font-family="Inter, sans-serif" font-size="28">University Hackathon ’26</text>
+  <text x="50%" y="66%" dominant-baseline="middle" text-anchor="middle" fill="#94A3B8" font-family="Inter, sans-serif" font-size="24">Participant</text>
+  <circle cx="720" cy="380" r="50" fill="#34D399" opacity="0.18" />
+  <path d="M160 380 h240" stroke="#A7F3D0" stroke-width="10" stroke-linecap="round" opacity="0.7" />
+</svg>

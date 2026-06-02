@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, GraduationCap, Award, Trophy, Download, MapPin, Calendar, ArrowRight } from "lucide-react";
+import { Sparkles, GraduationCap, Award, Trophy, Download, ExternalLink, MapPin, Calendar, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ExperienceTimeline } from "@/components/public/ExperienceTimeline";
@@ -34,6 +34,9 @@ interface ExperienceClientProps {
   settings: SiteSettingsDTO;
   education: EducationDTO[];
 }
+
+const getGoogleMapsUrl = (location: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 
 export function ExperienceClient({ experiences, skills, hackathons, certifications, settings, education }: ExperienceClientProps) {
   return (
@@ -122,7 +125,22 @@ export function ExperienceClient({ experiences, skills, hackathons, certificatio
                         <p className="mt-1 text-sm text-primary font-bold">{edu.institution}</p>
                         <div className="mt-3 flex items-center gap-4 text-xs text-muted">
                           <span className="flex items-center gap-1"><Calendar size={12} /> {edu.startYear} — {edu.current ? "Present" : edu.endYear}</span>
-                          {edu.location && <span className="flex items-center gap-1"><MapPin size={12} /> {edu.location}</span>}
+                          {edu.location && (
+                            <span className="flex flex-wrap items-center gap-2">
+                              <span className="flex items-center gap-1"><MapPin size={12} /> {edu.location}</span>
+                              <Button
+                                href={getGoogleMapsUrl(edu.location)}
+                                target="_blank"
+                                rel="noreferrer"
+                                variant="outline"
+                                size="sm"
+                                icon={<ExternalLink size={12} />}
+                                className="uppercase tracking-[0.18em]"
+                              >
+                                Map
+                              </Button>
+                            </span>
+                          )}
                         </div>
                       </div>
                     ))}

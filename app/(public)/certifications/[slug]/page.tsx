@@ -4,12 +4,17 @@ import Image from "next/image";
 import { ArrowLeft, Calendar, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { getCertificationBySlug } from "@/lib/data";
+import { getCertificationBySlug, getAllCertificationSlugs } from "@/lib/data";
 
 export const revalidate = 86400;
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+  const slugs = await getAllCertificationSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

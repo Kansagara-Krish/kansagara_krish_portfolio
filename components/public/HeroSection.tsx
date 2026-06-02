@@ -1,18 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, Code2 } from "lucide-react";
+import { FileText, Code2, Mail } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Github, Linkedin } from "@/components/ui/BrandIcons";
 import { fadeInUp, staggerContainer, scaleIn } from "@/lib/animations";
 import type { SiteSettingsDTO } from "@/lib/types";
 
 const fallbackImage = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=900&h=900&fit=crop";
 
+function splitHeroTitle(title: string | null) {
+  const words = title?.trim().split(/\s+/).filter(Boolean) ?? [];
+
+  if (words.length <= 1) {
+    return { leading: "", highlighted: words[0] ?? "" };
+  }
+
+  if (words.length === 2) {
+    return { leading: words[0], highlighted: words[1] };
+  }
+
+  return {
+    leading: words.slice(0, -2).join(" "),
+    highlighted: words.slice(-2).join(" "),
+  };
+}
+
 export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
   const [roleIndex, setRoleIndex] = useState(0);
   const [text, setText] = useState("");
+  const heroTitle = splitHeroTitle(settings.heroTitle);
 
   useEffect(() => {
     const defaultRoles = settings.heroTagline ? [settings.heroTagline] : [""];
@@ -63,8 +82,8 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
 
             <motion.div variants={fadeInUp}>
               <h1 className="font-display text-5xl font-bold leading-[1.05] tracking-tighter text-text sm:text-7xl lg:text-8xl">
-                {settings.heroTitle?.split(" ").slice(0, -2).join(" ")} <br />
-                <span className="text-gradient">{settings.heroTitle?.split(" ").slice(-2).join(" ")}</span>
+                {heroTitle.leading ? <>{heroTitle.leading} <br /></> : null}
+                <span className="text-gradient">{heroTitle.highlighted}</span>
               </h1>
             </motion.div>
 
@@ -83,14 +102,43 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
               </div>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="mt-10 flex flex-wrap gap-5">
-              <Button href="#featured-projects" size="lg" className="h-14 rounded-full px-10 text-base font-bold shadow-lg shadow-primary/20">
-                See my work
-              </Button>
+            <motion.div variants={fadeInUp} className="mt-10 flex items-center gap-4">
               {settings.resumeUrl && (
-                <Button href={settings.resumeUrl} variant="secondary" size="lg" className="h-14 rounded-full border-border/50 bg-surface/30 px-10 text-base font-bold backdrop-blur-md" icon={<FileText size={18} />}>
-                  Get my resume
-                </Button>
+                <div className="flex items-center gap-3">
+                  <Button href={settings.resumeUrl} variant="secondary" size="lg" className="h-14 rounded-full border-border/50 bg-surface/30 px-8 text-base font-bold backdrop-blur-md" icon={<FileText size={18} />}>
+                    Get my resume
+                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://www.linkedin.com/in/krish-kansagara-6093352b4/?skipRedirect=true"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="LinkedIn"
+                      className="group h-12 w-12 flex items-center justify-center rounded-full border border-border/30 bg-surface/20 text-text transition-all duration-300 hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Linkedin size={18} className="transition-transform duration-500 ease-in-out group-hover:-rotate-12 group-hover:scale-110" />
+                    </a>
+
+                    <a
+                      href="https://github.com/Kansagara-Krish"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GitHub"
+                      className="group h-12 w-12 flex items-center justify-center rounded-full border border-border/30 bg-surface/20 text-text transition-all duration-300 hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Github size={18} className="transition-transform duration-500 ease-in-out group-hover:-rotate-12 group-hover:scale-110" />
+                    </a>
+
+                    <a
+                      href="mailto:kansagara.krish2006@gmail.com"
+                      aria-label="Email"
+                      className="group h-12 w-12 flex items-center justify-center rounded-full border border-border/30 bg-surface/20 text-text transition-all duration-300 hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Mail size={18} className="transition-transform duration-500 ease-in-out group-hover:-rotate-12 group-hover:scale-110" />
+                    </a>
+                  </div>
+                </div>
               )}
             </motion.div>
           </div>
