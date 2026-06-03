@@ -14,6 +14,9 @@ interface Props {
 
 export async function generateStaticParams() {
   const slugs = await getAllCertificationSlugs();
+  if (slugs.length === 0) {
+    return [{ slug: "placeholder" }];
+  }
   return slugs.map((slug) => ({ slug }));
 }
 

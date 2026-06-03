@@ -11,6 +11,9 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs = await getAllBlogPostSlugs();
+  if (slugs.length === 0) {
+    return [{ slug: "placeholder" }];
+  }
   return slugs.map((slug) => ({ slug }));
 }
 

@@ -10,6 +10,9 @@ export const revalidate = 86400;
 
 export async function generateStaticParams() {
   const hackathons = await getHackathons();
+  if (hackathons.length === 0) {
+    return [{ slug: "placeholder" }];
+  }
   return hackathons.map((hackathon) => ({ slug: hackathon.slug }));
 }
 
