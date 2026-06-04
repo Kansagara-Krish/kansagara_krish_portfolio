@@ -33,6 +33,49 @@ export function Navbar({ name, openToWork }: { name: string; openToWork?: boolea
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Robust scroll lock for desktop + iOS: fix body position and prevent touchmove
+    let scrollY = 0;
+    const preventTouch = (e: any) => {
+      e.preventDefault();
+    };
+
+    if (open) {
+      scrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+      // hide any remaining overscroll on html
+      document.documentElement.style.overflow = "hidden";
+      document.addEventListener("touchmove", preventTouch, { passive: false });
+    } else {
+      const top = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      document.documentElement.style.overflow = "";
+      document.removeEventListener("touchmove", preventTouch);
+      if (top) {
+        const y = -parseInt(top || "0", 10) || 0;
+        window.scrollTo(0, y);
+      }
+    }
+
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      document.documentElement.style.overflow = "";
+      document.removeEventListener("touchmove", preventTouch);
+    };
+  }, [open]);
+
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
@@ -56,14 +99,23 @@ export function Navbar({ name, openToWork }: { name: string; openToWork?: boolea
         {/* Glass Shine Effect */}
         <div className="absolute inset-0 -z-10 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         
-        <Link href="/" className="group flex items-center gap-3 pl-1">
+        <div className="flex items-center gap-3 pl-1">
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-300 hover:bg-primary hover:text-bg md:hidden mr-2"
+            onClick={() => setOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={20} strokeWidth={2.5} />
+          </button>
+          <Link href="/" className="group flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-bg shadow-lg shadow-primary/20 transition-all duration-500 group-hover:rotate-12 group-hover:scale-110">
              <span className="font-display text-sm font-black uppercase">{name[0]}</span>
           </div>
           <span className="hidden font-display text-lg font-bold tracking-tight text-text sm:block">
             {name.split(" ").slice(-1)[0]}
           </span>
-        </Link>
+          </Link>
+        </div>
 
         <div className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => {
@@ -111,14 +163,6 @@ export function Navbar({ name, openToWork }: { name: string; openToWork?: boolea
               </AnimatePresence>
             </button>
           </div>
-
-          <button
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-300 hover:bg-primary hover:text-bg md:hidden"
-            onClick={() => setOpen(true)}
-            aria-label="Open menu"
-          >
-            <Menu size={20} strokeWidth={2.5} />
-          </button>
         </div>
       </nav>
 
