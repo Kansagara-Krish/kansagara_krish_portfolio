@@ -596,6 +596,17 @@ const education: EducationDTO[] = [
 const hackathons: HackathonDTO[] = [];
 const certifications: CertificationDTO[] = [
   {
+    id: "cert-ganpat-internship-engagement-letter",
+    slug: "ganpat-university-internship-engagement",
+    name: "Internship Engagement Letter (Ganpat University)",
+    issuer: "Ganpat University",
+    date: "2026-02-17T00:00:00.000Z",
+    url: null,
+    credentialId: null,
+    image: "/certifications/Ganpat_internship_certificate.png",
+    createdAt: "2026-06-18T00:00:00.000Z",
+  },
+  {
     id: "cert-ml-internship-launched-global",
     slug: "machine-learning-internship-launched-global",
     name: "Machine Learning Internship",
