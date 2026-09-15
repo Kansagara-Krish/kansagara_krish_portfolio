@@ -1,22 +1,38 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ProjectCard } from "@/components/public/ProjectCard";
 import type { ProjectDTO } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const container = {
+const container: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1 }
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 }
   }
 };
 
-const item = {
-  hidden: { opacity: 0, scale: 0.95, y: 20 },
-  show: { opacity: 1, scale: 1, y: 0 }
+const item: Variants = {
+  hidden: { opacity: 0, scale: 0.95, y: 24, filter: "blur(4px)" },
+  show: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.5,
+      ease: [0.21, 0.47, 0.32, 0.98]
+    }
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    y: -10,
+    filter: "blur(4px)",
+    transition: { duration: 0.25 }
+  }
 };
 
 export function FilterableProjects({ projects }: { projects: ProjectDTO[] }) {
@@ -26,7 +42,13 @@ export function FilterableProjects({ projects }: { projects: ProjectDTO[] }) {
 
   return (
     <div className="space-y-12">
-      <div className="scrollbar-hide flex w-full gap-3 overflow-x-auto pb-4 sm:flex-wrap sm:overflow-visible">
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="scrollbar-hide flex w-full gap-3 overflow-x-auto pb-4 sm:flex-wrap sm:overflow-visible"
+      >
         {tags.map((tag) => (
           <button
             key={tag}
@@ -41,18 +63,20 @@ export function FilterableProjects({ projects }: { projects: ProjectDTO[] }) {
             {tag}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       <AnimatePresence mode="wait">
         <motion.div
           key={active}
           variants={container}
           initial="hidden"
-          animate="show"
+          whileInView="show"
+          viewport={{ once: true, margin: "-40px" }}
+          exit="hidden"
           className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3"
         >
           {visible.map((project, i) => (
-            <motion.div key={`${project.id}-${i}`} variants={item}>
+            <motion.div key={`${project.id}-${i}`} variants={item} layout>
               <ProjectCard project={project} />
             </motion.div>
           ))}
@@ -61,8 +85,8 @@ export function FilterableProjects({ projects }: { projects: ProjectDTO[] }) {
 
       {visible.length === 0 && (
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-dashed border-border/50 bg-surface/30 p-12 text-center backdrop-blur-sm"
         >
           <p className="text-xl font-medium text-muted">No projects found in this category.</p>

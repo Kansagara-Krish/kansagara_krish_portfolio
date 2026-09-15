@@ -8,6 +8,7 @@ import { CopyCodeButtons } from "@/components/public/CopyCodeButtons";
 import { ReadingProgress } from "@/components/public/ReadingProgress";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import type { BlogPostDTO } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
@@ -77,14 +78,16 @@ export function BlogPostClient({ post, children }: { post: BlogPostDTO; children
 
           <div className="prose-content">{children}</div>
 
-          <div className="mt-20 rounded-2xl border border-border bg-surface p-10 text-center">
-            <h3 className="font-display text-xl tracking-tight">Thanks for reading!</h3>
-            <p className="mt-3 text-sm text-muted">If you have any questions or feedback, feel free to reach out.</p>
-            <div className="mt-6 flex justify-center gap-4">
-              <Button href="/contact" size="lg">Get In Touch</Button>
-              <Button href="/blog" variant="secondary" size="lg">More Posts</Button>
+          <ScrollReveal animation="zoom-in" className="mt-20">
+            <div className="rounded-2xl border border-border bg-surface/50 p-10 text-center backdrop-blur-md shadow-xl">
+              <h3 className="font-display text-xl tracking-tight sm:text-2xl">Thanks for reading!</h3>
+              <p className="mt-3 text-sm text-muted">If you have any questions or feedback, feel free to reach out.</p>
+              <div className="mt-6 flex flex-wrap justify-center gap-4">
+                <Button href="/contact" size="lg">Get In Touch</Button>
+                <Button href="/blog" variant="secondary" size="lg">More Posts</Button>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
         </motion.div>
       </div>
     </article>

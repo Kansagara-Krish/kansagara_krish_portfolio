@@ -169,10 +169,33 @@ export function HeroSection({ settings }: { settings: SiteSettingsDTO }) {
             </motion.div>
           </div>
         </div>
+
+        {/* Scroll Indicator Prompt */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.8 }}
+          className="mt-12 hidden lg:flex items-center justify-center"
+        >
+          <a
+            href="#who-i-am"
+            className="group flex flex-col items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted/60 hover:text-primary transition-colors duration-300"
+            aria-label="Scroll to explore"
+          >
+            <span>Scroll to explore</span>
+            <div className="flex h-9 w-5 items-start justify-center rounded-full border-2 border-border/80 p-1 group-hover:border-primary/50 transition-colors">
+              <motion.div
+                animate={{ y: [0, 12, 0], opacity: [1, 0.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="h-1.5 w-1.5 rounded-full bg-primary"
+              />
+            </div>
+          </a>
+        </motion.div>
       </motion.div>
 
       {/* Background Gradient Bottom */}
-      <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-bg to-transparent" />
+      <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-bg to-transparent pointer-events-none" />
     </section>
   );
 }

@@ -17,7 +17,7 @@ export function ExperienceTimeline({ experiences }: { experiences: ExperienceDTO
       variants={staggerContainer}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: false, margin: "-40px" }}
       className="relative space-y-10 pl-10"
     >
       {/* Immersive Vertical Timeline Line */}
