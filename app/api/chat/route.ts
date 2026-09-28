@@ -48,40 +48,40 @@ ${skills.map((s) => `- ${s.name} (${s.category})`).join("\n")}
 
 SELECTED PROJECTS:
 ${projects
-  .map(
-    (p) =>
-      `- Project: "${p.title}" | Status: ${p.status} | Tech: ${p.techStack.join(", ")} | Description: ${p.description}`
-  )
-  .join("\n")}
+        .map(
+          (p) =>
+            `- Project: "${p.title}" | Status: ${p.status} | Tech: ${p.techStack.join(", ")} | Description: ${p.description}`
+        )
+        .join("\n")}
 
 WORK EXPERIENCE & ROLES:
 ${experiences
-  .map(
-    (e) =>
-      `- Role: ${e.role} at ${e.company} (${e.startDate} - ${e.current ? "Present" : e.endDate || ""}) in ${e.location}. Highlights: ${e.description}`
-  )
-  .join("\n")}
+        .map(
+          (e) =>
+            `- Role: ${e.role} at ${e.company} (${e.startDate} - ${e.current ? "Present" : e.endDate || ""}) in ${e.location}. Highlights: ${e.description}`
+        )
+        .join("\n")}
 
 EDUCATION:
 ${education
-  .map(
-    (edu) =>
-      `- Degree: ${edu.degree} in ${edu.field} at ${edu.institution} (${edu.startYear} - ${edu.current ? "Present" : edu.endYear}). ${edu.description || ""}`
-  )
-  .join("\n")}
+        .map(
+          (edu) =>
+            `- Degree: ${edu.degree} in ${edu.field} at ${edu.institution} (${edu.startYear} - ${edu.current ? "Present" : edu.endYear}). ${edu.description || ""}`
+        )
+        .join("\n")}
 
 HACKATHONS & COMPETITIONS:
 ${hackathons
-  .map(
-    (h) =>
-      `- Hackathon: "${h.title}" | Project: "${h.project}" | Result/Prize: ${h.result || "Participant"} | Date: ${h.date}. Description: ${h.description}`
-  )
-  .join("\n")}
+        .map(
+          (h) =>
+            `- Hackathon: "${h.title}" | Project: "${h.project}" | Result/Prize: ${h.result || "Participant"} | Date: ${h.date}. Description: ${h.description}`
+        )
+        .join("\n")}
 
 CERTIFICATIONS:
 ${certifications
-  .map((c) => `- Certification: "${c.name}" issued by ${c.issuer} (${c.date})`)
-  .join("\n")}
+        .map((c) => `- Certification: "${c.name}" issued by ${c.issuer} (${c.date})`)
+        .join("\n")}
 `;
 
     const geminiKey = process.env.GEMINI_API_KEY;
@@ -95,9 +95,42 @@ RULES:
 1. Ground your knowledge STRICTLY on Krish Kansagara's portfolio data provided below.
 2. Do NOT answer unrelated questions outside of Krish Kansagara's portfolio (e.g. general history, math problems, random code generation for other topics). If asked about something unrelated, politely decline and offer to help with Krish's projects, skills, background, or contact info.
 3. Keep responses concise (2-4 sentences max), friendly, engaging, and professional.
-4. If relevant, mention that they can check the /projects, /experience, /about, or /contact pages.`;
+4. When pointing to other sections, you can mention About, Projects, Experience, Education, or Contact naturally.`;
 
       const prompt = `WEBSITE KNOWLEDGE CONTEXT:\n${portfolioContext}\n\nUSER QUESTION: ${message}`;
+
+      const generateQuickLinks = (userQuery: string, botReply: string) => {
+        const lowerMsg = (userQuery + " " + botReply).toLowerCase();
+        const links: { label: string; url: string; isDownload?: boolean }[] = [];
+
+        if (lowerMsg.includes("resume") || lowerMsg.includes("cv")) {
+          links.push({ label: "Download Resume", url: "/resume.pdf", isDownload: true });
+        }
+        if (lowerMsg.includes("project") || lowerMsg.includes("build") || lowerMsg.includes("work")) {
+          links.push({ label: "Explore Projects", url: "/projects" });
+        }
+        if (lowerMsg.includes("contact") || lowerMsg.includes("email") || lowerMsg.includes("hire") || lowerMsg.includes("reach")) {
+          links.push({ label: "Contact Krish", url: "/contact" });
+        }
+        if (lowerMsg.includes("hackathon")) {
+          links.push({ label: "View Hackathons", url: "/experience" });
+        }
+        if (lowerMsg.includes("about") || lowerMsg.includes("who is")) {
+          links.push({ label: "About Krish", url: "/about" });
+        }
+        if (lowerMsg.includes("skill") || lowerMsg.includes("stack") || lowerMsg.includes("experience")) {
+          links.push({ label: "View Experience & Skills", url: "/experience" });
+        }
+        if (lowerMsg.includes("education") || lowerMsg.includes("college") || lowerMsg.includes("degree")) {
+          links.push({ label: "View Education", url: "/education" });
+        }
+        if (lowerMsg.includes("certif")) {
+          links.push({ label: "View Certifications", url: "/certifications" });
+        }
+
+        // Return up to 2 most relevant links
+        return links.length > 0 ? links.slice(0, 2) : undefined;
+      };
 
       // 1. Try Google Gemini (gemini-2.5-flash / gemini-flash-latest / gemini-1.5-flash)
       if (geminiKey || !apiKey.startsWith("sk-or-")) {
@@ -128,19 +161,7 @@ RULES:
               const data = await res.json();
               const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
               if (rawText) {
-                // Attach dynamic quick navigation links if relevant
-                let quickLinks: { label: string; url: string; isDownload?: boolean }[] | undefined;
-                const lowerMsg = (message + " " + rawText).toLowerCase();
-                if (lowerMsg.includes("resume") || lowerMsg.includes("cv")) {
-                  quickLinks = [{ label: "Download Resume", url: "/resume.pdf", isDownload: true }];
-                } else if (lowerMsg.includes("project")) {
-                  quickLinks = [{ label: "Explore Projects", url: "/projects" }];
-                } else if (lowerMsg.includes("contact") || lowerMsg.includes("email") || lowerMsg.includes("hire")) {
-                  quickLinks = [{ label: "Contact Krish", url: "/contact" }, { label: "Email Directly", url: `mailto:${settings.email}` }];
-                } else if (lowerMsg.includes("hackathon")) {
-                  quickLinks = [{ label: "View Hackathons", url: "/about#hackathons" }];
-                }
-
+                const quickLinks = generateQuickLinks(message, rawText);
                 return NextResponse.json({ reply: rawText.trim(), quickLinks });
               }
             }
@@ -174,7 +195,8 @@ RULES:
             const data = await res.json();
             const rawText = data?.choices?.[0]?.message?.content;
             if (rawText) {
-              return NextResponse.json({ reply: rawText.trim() });
+              const quickLinks = generateQuickLinks(message, rawText);
+              return NextResponse.json({ reply: rawText.trim(), quickLinks });
             }
           }
         } catch (e) {
@@ -197,7 +219,7 @@ RULES:
       quickLinks = [{ label: "Explore Skills", url: "/experience" }];
     } else if (lower.includes("experience") || lower.includes("intern") || lower.includes("job")) {
       const latestExp = experiences[0];
-      reply = `Krish is currently working as a ${latestExp?.role || "IT Developer Intern"} at ${latestExp?.company || "Ganpat University"}, focusing on practical AI solutions and machine learning workflows.`;
+      reply = `Krish completed his role as an ${latestExp?.role || "IT Developer Intern"} at ${latestExp?.company || "Ganpat University"}, focusing on practical AI solutions and machine learning workflows. He is currently looking for work and open to new opportunities!`;
       quickLinks = [{ label: "View Experience", url: "/experience" }];
     } else if (lower.includes("hackathon") || lower.includes("competition")) {
       reply = `Krish has competed in 7+ national and international hackathons, building high-speed prototypes under tight pressure and winning recognition for practical solutions!`;
@@ -213,12 +235,12 @@ RULES:
       ];
     } else if (lower.includes("resume") || lower.includes("cv") || lower.includes("download")) {
       reply = `You can download Krish's official resume directly to review his academic background, project history, and technical achievements.`;
-      quickLinks = [{ label: "📄 Download Resume", url: "/resume.pdf", isDownload: true }];
+      quickLinks = [{ label: "Download Resume", url: "/resume.pdf", isDownload: true }];
     } else if (lower.includes("who") || lower.includes("about") || lower.includes("krish")) {
       reply = `Krish Kansagara is a Machine Learning Developer and Software Engineer from Mehsana, Gujarat, dedicated to crafting scalable AI integrations and modern digital experiences.`;
       quickLinks = [{ label: "Read About Page", url: "/about" }];
     } else if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey")) {
-      reply = `Hello! 👋 I'm Krish's AI Robot Assistant. Ask me anything about Krish's machine learning projects, skills, education, or get his contact info!`;
+      reply = `Hello! I'm Krish AI. Ask me anything about Krish's machine learning projects, skills, education, or get his contact info!`;
     } else {
       reply = `I can answer any questions about Krish Kansagara's portfolio, machine learning projects, skills, hackathons, education, or contact details. How can I assist you?`;
       quickLinks = [

@@ -54,7 +54,7 @@ export default async function HomePage() {
           </h2>
         </ScrollReveal>
 
-        <StaggerContainer staggerDelay={0.12} className="grid gap-6 md:grid-cols-12 md:grid-rows-3">
+        <StaggerContainer staggerDelay={0.12} className="grid gap-6 md:grid-cols-12">
           {/* 1. Main Mission Module */}
           <StaggerItem className="col-span-full md:col-span-8 md:row-span-2">
             <Card className="group relative flex h-full flex-col justify-between overflow-hidden border-border/50 bg-surface/30 p-8 backdrop-blur-md transition-all duration-500 hover:border-primary/20 hover:bg-surface/50 hover:shadow-2xl hover:shadow-primary/5 lg:p-12">
@@ -140,58 +140,66 @@ export default async function HomePage() {
 
           {/* 3. Education */}
           {education.length > 0 && (
-            <StaggerItem className="col-span-full md:col-span-4">
-              <Card className="group border-border/50 bg-surface/30 p-6 backdrop-blur-md transition-all duration-500 hover:border-primary/20 hover:bg-surface/50 flex items-center gap-6">
+            <StaggerItem className="col-span-full md:col-span-4 flex">
+              <Card className="group flex h-full w-full items-center gap-5 border-border/50 bg-surface/30 p-6 backdrop-blur-md transition-all duration-500 hover:border-primary/20 hover:bg-surface/50">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bg/50 border border-border/50 group-hover:border-primary/20 transition-all">
-                  <Sparkles className="text-primary" size={24} />
+                  <Sparkles className="text-primary" size={22} />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted/60 mb-1">Education</p>
-                  <h4 className="font-bold text-lg truncate max-w-[200px]">{education[0].degree}</h4>
-                  <p className="text-xs text-muted truncate max-w-[200px]">{education[0].institution}</p>
+                  <h4 className="font-bold text-base text-text truncate">{education[0].degree}</h4>
+                  <p className="text-xs text-muted truncate mt-0.5">{education[0].institution}</p>
                 </div>
               </Card>
             </StaggerItem>
           )}
 
-          {/* 4. Location/Availability */}
-          <StaggerItem className="col-span-full md:col-span-4">
-            <Card className="group border-border/50 bg-surface/30 p-6 backdrop-blur-md transition-all duration-500 hover:border-primary/20 hover:bg-surface/50 flex items-center gap-6">
+          {/* 4. Location */}
+          <StaggerItem className="col-span-full md:col-span-4 flex">
+            <Card className="group flex h-full w-full items-center gap-5 border-border/50 bg-surface/30 p-6 backdrop-blur-md transition-all duration-500 hover:border-primary/20 hover:bg-surface/50">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bg/50 border border-border/50 group-hover:border-primary/20 transition-all">
-                <Globe className="text-primary" size={24} />
+                <Globe className="text-primary" size={22} />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted/60 mb-1">Home Base</p>
                 <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-lg">{settings.location || ""}</h4>
+                  <h4 className="font-bold text-base text-text truncate">{settings.location || ""}</h4>
                   <a
                     href="https://www.google.com/maps/search/?api=1&query=Mehsana+Gujarat"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface border border-border/50 text-primary transition hover:bg-primary/10"
+                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface border border-border/50 text-primary transition hover:bg-primary/10"
                     aria-label="Open Mehsana location on Google Maps"
                   >
-                    <MapPin size={18} />
+                    <MapPin size={13} />
                   </a>
                 </div>
-                <p className="text-xs text-muted">Remote / On-site</p>
+                <p className="text-xs text-muted truncate mt-0.5">Remote / On-site</p>
               </div>
             </Card>
           </StaggerItem>
 
           {/* 5. Status Module */}
-          <StaggerItem className="col-span-full md:col-span-4">
-            <div className="flex h-full items-center justify-center rounded-[2rem] border border-primary/20 bg-primary/5 p-6 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:bg-primary/10">
-               <div className="flex items-center gap-4">
-                 <span className="relative flex h-3 w-3">
-                   {settings.openToWork && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>}
-                   <span className={cn("relative inline-flex rounded-full h-3 w-3", settings.openToWork ? "bg-primary" : "bg-muted")}></span>
-                 </span>
-                 <span className={cn("text-sm font-bold uppercase tracking-[0.2em]", settings.openToWork ? "text-primary" : "text-muted")}>
-                   {settings.openToWork ? "Available for work" : "Not looking for work"}
-                 </span>
-               </div>
-            </div>
+          <StaggerItem className="col-span-full md:col-span-4 flex">
+            <Card className="group flex h-full w-full items-center gap-5 border-border/50 bg-surface/30 p-6 backdrop-blur-md transition-all duration-500 hover:border-primary/20 hover:bg-surface/50">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bg/50 border border-border/50 group-hover:border-primary/20 transition-all">
+                <span className="relative flex h-3 w-3">
+                  {settings.openToWork && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                  )}
+                  <span className={cn("relative inline-flex rounded-full h-3 w-3", settings.openToWork ? "bg-primary" : "bg-muted")} />
+                </span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted/60 mb-1">Status</p>
+                <h4 className={cn("font-bold text-base truncate", settings.openToWork ? "text-primary" : "text-muted")}>
+                  {settings.openToWork ? "Available for work" : "Not looking for work"}
+                </h4>
+                <p className="text-xs text-muted truncate mt-0.5">
+                  {settings.openToWork ? "Open to opportunities" : "Focused on current work"}
+                </p>
+              </div>
+            </Card>
           </StaggerItem>
         </StaggerContainer>
       </section>
