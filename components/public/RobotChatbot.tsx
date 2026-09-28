@@ -427,7 +427,7 @@ export function RobotChatbot() {
       }));
 
     try {
-      const res = await fetch("/api/chat/", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -447,6 +447,63 @@ export function RobotChatbot() {
         const mainAction = data.actionButton || (data.quickLinks && data.quickLinks.length === 1 ? data.quickLinks[0] : undefined);
         streamBotResponse(data.reply, mainAction, data.followUpSuggestions, false, data.quickLinks);
       } else {
+        // Smart client fallback if API route returned non-OK status
+        const lower = query.toLowerCase();
+        if (lower.includes("skill") || lower.includes("tech") || lower.includes("stack") || lower.includes("python")) {
+          streamBotResponse(
+            "Krish specializes in Machine Learning and Python engineering. His core stack includes Python, TensorFlow, PyTorch, Scikit-Learn, Next.js, and FastAPI.",
+            { label: "View Experience & Skills", url: "/experience" },
+            ["Tell me about Krish's projects", "How to contact Krish?"],
+            false,
+            [{ label: "View Skills", url: "/experience" }]
+          );
+        } else if (lower.includes("project") || lower.includes("work") || lower.includes("build")) {
+          streamBotResponse(
+            "Krish has developed key projects like Conference Chatbot Management System and AI HR Copilot. Explore full case studies on the Projects page!",
+            { label: "Explore Projects", url: "/projects" },
+            ["What technologies does Krish use?", "How can I contact Krish?"],
+            false,
+            [{ label: "Explore Projects", url: "/projects" }]
+          );
+        } else if (lower.includes("contact") || lower.includes("hire") || lower.includes("email")) {
+          streamBotResponse(
+            "You can reach Krish via email or by using the contact form on this site!",
+            { label: "Contact Form", url: "/contact" },
+            ["Tell me about Krish's projects"],
+            false,
+            [{ label: "Contact Form", url: "/contact" }]
+          );
+        } else {
+          setLastFailedQuery(query);
+          streamBotResponse(
+            "I couldn't reach the AI service right now. Please try again in a moment.",
+            undefined,
+            [],
+            true
+          );
+        }
+      }
+    } catch {
+      setIsTyping(false);
+      // Smart client fallback on network disconnect
+      const lower = query.toLowerCase();
+      if (lower.includes("skill") || lower.includes("tech") || lower.includes("stack") || lower.includes("python")) {
+        streamBotResponse(
+          "Krish specializes in Machine Learning and Python engineering. His core stack includes Python, TensorFlow, PyTorch, Scikit-Learn, Next.js, and FastAPI.",
+          { label: "View Experience & Skills", url: "/experience" },
+          ["Tell me about Krish's projects", "How to contact Krish?"],
+          false,
+          [{ label: "View Skills", url: "/experience" }]
+        );
+      } else if (lower.includes("project") || lower.includes("work") || lower.includes("build")) {
+        streamBotResponse(
+          "Krish has developed key projects like Conference Chatbot Management System and AI HR Copilot. Explore full case studies on the Projects page!",
+          { label: "Explore Projects", url: "/projects" },
+          ["What technologies does Krish use?", "How can I contact Krish?"],
+          false,
+          [{ label: "Explore Projects", url: "/projects" }]
+        );
+      } else {
         setLastFailedQuery(query);
         streamBotResponse(
           "I couldn't reach the AI service right now. Please try again in a moment.",
@@ -455,15 +512,6 @@ export function RobotChatbot() {
           true
         );
       }
-    } catch {
-      setIsTyping(false);
-      setLastFailedQuery(query);
-      streamBotResponse(
-        "I couldn't reach the AI service right now. Please try again in a moment.",
-        undefined,
-        [],
-        true
-      );
     }
   };
 
