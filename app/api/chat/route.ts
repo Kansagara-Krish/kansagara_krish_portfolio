@@ -89,19 +89,36 @@ ${certifications
     const apiKey = geminiKey || aiKey;
 
     if (apiKey) {
-      const systemInstruction = `You are Krish's AI Mini Robot Assistant on Kansagara Krish's personal machine learning portfolio website.
-Your job is to answer questions ONLY using the provided portfolio website context about Krish Kansagara.
-RULES:
+      const systemInstruction = `You are Krish's AI Portfolio Assistant on Kansagara Krish's machine learning portfolio website.
+PRIMARY OBJECTIVE: Answer questions strictly about Krish Kansagara (his background, machine learning projects, technical skills, work experience, education, hackathons, and contact information).
+
+RULES & OFF-TOPIC HANDLING:
 1. Ground your knowledge STRICTLY on Krish Kansagara's portfolio data provided below.
-2. Do NOT answer unrelated questions outside of Krish Kansagara's portfolio (e.g. general history, math problems, random code generation for other topics). If asked about something unrelated, politely decline and offer to help with Krish's projects, skills, background, or contact info.
+2. If the user asks an off-topic question NOT related to Krish Kansagara or his portfolio (such as general knowledge, world politics like "who is pm of india", geography, history, general math, weather, jokes, or random code requests):
+   - Do NOT answer the off-topic question.
+   - Do NOT pretend Krish is the subject of the off-topic query.
+   - Politely decline and explain that you are dedicated exclusively to Krish Kansagara's portfolio, machine learning work, and background.
+   - Example refusal: "I am specialized exclusively as Krish Kansagara's portfolio assistant. While I don't answer general knowledge or external trivia questions, I'd be happy to tell you about Krish's machine learning projects, skills, or help you contact him!"
 3. Keep responses concise (2-4 sentences max), friendly, engaging, and professional.
-4. When pointing to other sections, you can mention About, Projects, Experience, Education, or Contact naturally.`;
+4. When referring to pages, you can naturally suggest exploring About, Projects, Experience, Education, or Contact.`;
 
       const prompt = `WEBSITE KNOWLEDGE CONTEXT:\n${portfolioContext}\n\nUSER QUESTION: ${message}`;
 
       const generateQuickLinks = (userQuery: string, botReply: string) => {
         const lowerMsg = (userQuery + " " + botReply).toLowerCase();
         const links: { label: string; url: string; isDownload?: boolean }[] = [];
+
+        // Check if reply is a polite off-topic decline
+        if (
+          botReply.toLowerCase().includes("specialized exclusively") ||
+          botReply.toLowerCase().includes("don't answer general") ||
+          botReply.toLowerCase().includes("unrelated to krish")
+        ) {
+          return [
+            { label: "Explore Projects", url: "/projects" },
+            { label: "About Krish", url: "/about" },
+          ];
+        }
 
         if (lowerMsg.includes("resume") || lowerMsg.includes("cv")) {
           links.push({ label: "Download Resume", url: "/resume.pdf", isDownload: true });
@@ -115,7 +132,7 @@ RULES:
         if (lowerMsg.includes("hackathon")) {
           links.push({ label: "View Hackathons", url: "/experience" });
         }
-        if (lowerMsg.includes("about") || lowerMsg.includes("who is")) {
+        if (lowerMsg.includes("who is krish") || lowerMsg.includes("about krish") || lowerMsg.includes("about him")) {
           links.push({ label: "About Krish", url: "/about" });
         }
         if (lowerMsg.includes("skill") || lowerMsg.includes("stack") || lowerMsg.includes("experience")) {
@@ -128,7 +145,6 @@ RULES:
           links.push({ label: "View Certifications", url: "/certifications" });
         }
 
-        // Return up to 2 most relevant links
         return links.length > 0 ? links.slice(0, 2) : undefined;
       };
 
@@ -150,7 +166,7 @@ RULES:
                     },
                   ],
                   generationConfig: {
-                    temperature: 0.3,
+                    temperature: 0.2,
                     maxOutputTokens: 600,
                   },
                 }),
@@ -186,7 +202,7 @@ RULES:
                 { role: "system", content: systemInstruction },
                 { role: "user", content: prompt },
               ],
-              temperature: 0.3,
+              temperature: 0.2,
               max_tokens: 250,
             }),
           });
@@ -210,24 +226,40 @@ RULES:
     let reply = "";
     let quickLinks: { label: string; url: string; isDownload?: boolean }[] | undefined;
 
-    if (lower.includes("project") || lower.includes("build") || lower.includes("work")) {
-      reply = `Krish has developed innovative projects including the "${projects[0]?.title || "Conference Chatbot Management System"}" (${projects[0]?.techStack.slice(0, 3).join(", ")}) and "${projects[1]?.title || "AI HR Copilot"}". You can explore full case studies on the Projects page!`;
-      quickLinks = [{ label: "View Projects", url: "/projects" }];
-    } else if (lower.includes("skill") || lower.includes("stack") || lower.includes("python") || lower.includes("machine learning")) {
+    const isKrishAboutQuery =
+      lower.includes("who is krish") ||
+      lower.includes("who are you") ||
+      lower.includes("tell me about krish") ||
+      lower.includes("tell me about yourself") ||
+      lower.includes("about krish") ||
+      lower === "who" ||
+      lower === "about" ||
+      lower === "bio" ||
+      lower === "krish" ||
+      lower.includes("krish kansagara") ||
+      lower.includes("introduce yourself");
+
+    if (isKrishAboutQuery) {
+      reply = `Krish Kansagara is a Machine Learning Developer and Software Engineer from Mehsana, Gujarat, dedicated to crafting scalable AI integrations, ML models, and modern digital applications.`;
+      quickLinks = [{ label: "About Krish", url: "/about" }];
+    } else if (lower.includes("project") || lower.includes("build") || lower.includes("portfolio") || lower.includes("apps") || lower.includes("work")) {
+      reply = `Krish has developed innovative projects including "${projects[0]?.title || "Conference Chatbot Management System"}" (${projects[0]?.techStack.slice(0, 3).join(", ")}) and "${projects[1]?.title || "AI HR Copilot"}". You can explore full case studies on the Projects page!`;
+      quickLinks = [{ label: "Explore Projects", url: "/projects" }];
+    } else if (lower.includes("skill") || lower.includes("stack") || lower.includes("python") || lower.includes("machine learning") || lower.includes("tech") || lower.includes("framework")) {
       const topSkills = skills.slice(0, 6).map((s) => s.name).join(", ");
       reply = `Krish specializes in Machine Learning and Python engineering. His core tools include ${topSkills}, plus FastAPI and Next.js for end-to-end product delivery.`;
       quickLinks = [{ label: "Explore Skills", url: "/experience" }];
-    } else if (lower.includes("experience") || lower.includes("intern") || lower.includes("job")) {
+    } else if (lower.includes("experience") || lower.includes("intern") || lower.includes("job") || lower.includes("career") || lower.includes("role")) {
       const latestExp = experiences[0];
       reply = `Krish completed his role as an ${latestExp?.role || "IT Developer Intern"} at ${latestExp?.company || "Ganpat University"}, focusing on practical AI solutions and machine learning workflows. He is currently looking for work and open to new opportunities!`;
       quickLinks = [{ label: "View Experience", url: "/experience" }];
     } else if (lower.includes("hackathon") || lower.includes("competition")) {
       reply = `Krish has competed in 7+ national and international hackathons, building high-speed prototypes under tight pressure and winning recognition for practical solutions!`;
       quickLinks = [{ label: "View Hackathons", url: "/experience" }];
-    } else if (lower.includes("education") || lower.includes("college") || lower.includes("degree")) {
+    } else if (lower.includes("education") || lower.includes("college") || lower.includes("degree") || lower.includes("university")) {
       reply = `Krish is pursuing Computer Engineering at Ganpat University (2023 - 2027) with a strong focus on artificial intelligence, data structures, and software architecture.`;
       quickLinks = [{ label: "Education Details", url: "/education" }];
-    } else if (lower.includes("contact") || lower.includes("email") || lower.includes("hire") || lower.includes("message")) {
+    } else if (lower.includes("contact") || lower.includes("email") || lower.includes("hire") || lower.includes("reach") || lower.includes("message")) {
       reply = `You can get in touch with Krish via email at ${settings.email} or by filling out the contact form on this site. He typically responds within 24 hours!`;
       quickLinks = [
         { label: "Contact Form", url: "/contact" },
@@ -236,15 +268,18 @@ RULES:
     } else if (lower.includes("resume") || lower.includes("cv") || lower.includes("download")) {
       reply = `You can download Krish's official resume directly to review his academic background, project history, and technical achievements.`;
       quickLinks = [{ label: "Download Resume", url: "/resume.pdf", isDownload: true }];
-    } else if (lower.includes("who") || lower.includes("about") || lower.includes("krish")) {
-      reply = `Krish Kansagara is a Machine Learning Developer and Software Engineer from Mehsana, Gujarat, dedicated to crafting scalable AI integrations and modern digital experiences.`;
-      quickLinks = [{ label: "Read About Page", url: "/about" }];
-    } else if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey")) {
-      reply = `Hello! I'm Krish AI. Ask me anything about Krish's machine learning projects, skills, education, or get his contact info!`;
-    } else {
-      reply = `I can answer any questions about Krish Kansagara's portfolio, machine learning projects, skills, hackathons, education, or contact details. How can I assist you?`;
+    } else if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey") || lower.includes("greetings")) {
+      reply = `Hello! I'm Krish AI. I'm here to assist you with Krish Kansagara's machine learning portfolio, projects, skills, or contact info. How can I help?`;
       quickLinks = [
         { label: "View Projects", url: "/projects" },
+        { label: "Contact Krish", url: "/contact" },
+      ];
+    } else {
+      // Clear off-topic polite response
+      reply = `I am specialized exclusively as Krish Kansagara's portfolio assistant. I can only answer questions about Krish's machine learning projects, skills, experience, and contact details.\n\nFeel free to ask me anything about his work!`;
+      quickLinks = [
+        { label: "Explore Projects", url: "/projects" },
+        { label: "About Krish", url: "/about" },
         { label: "Contact Krish", url: "/contact" },
       ];
     }

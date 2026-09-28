@@ -1,18 +1,34 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  User,
+  Mail,
+  Tag,
+  MessageSquare,
+  Sparkles,
+} from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/Textarea";
 import { cn } from "@/lib/utils";
 
 type State = "idle" | "loading" | "success" | "error";
 
+const SUBJECT_OPTIONS = [
+  { label: "💼 Project Inquiry", value: "New Project Inquiry" },
+  { label: "🤝 Collaboration", value: "Collaboration Opportunity" },
+  { label: "🚀 Freelance / Contract", value: "Freelance Work Request" },
+  { label: "☕ Say Hello", value: "Just Saying Hello!" },
+];
+
 export function ContactForm({ email }: { email: string }) {
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
+  const [subjectValue, setSubjectValue] = useState("");
+  const [messageLength, setMessageLength] = useState(0);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,7 +38,7 @@ export function ContactForm({ email }: { email: string }) {
     const payload = {
       name: formData.get("name") as string,
       email: formData.get("email") as string,
-      subject: formData.get("subject") as string,
+      subject: (formData.get("subject") as string) || subjectValue,
       message: formData.get("message") as string,
     };
 
@@ -32,117 +48,205 @@ export function ContactForm({ email }: { email: string }) {
         `Name: ${payload.name}\nEmail: ${payload.email}\n\n${payload.message}`
       );
 
+      // Open mailto link
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
       event.currentTarget.reset();
+      setSubjectValue("");
+      setMessageLength(0);
       setState("success");
-      setTimeout(() => setState("idle"), 5000);
+      setTimeout(() => setState("idle"), 6000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error. Please try again.");
+      setError(err instanceof Error ? err.message : "Error sending message. Please try again.");
       setState("error");
       setTimeout(() => setState("idle"), 5000);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-8">
-      <div className="grid gap-8 md:grid-cols-2">
-        <div className="relative group">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-muted group-focus-within:text-primary transition-colors" htmlFor="name">Full Name</label>
-          <Input
-            id="name"
-            name="name"
-            required
-            minLength={2}
-            placeholder="John Doe"
-            className="mt-2 h-12 bg-transparent border-0 border-b border-border rounded-none px-0 focus:ring-0 focus:border-primary transition-all text-lg placeholder:text-muted/30"
-          />
+    <form onSubmit={onSubmit} className="space-y-6">
+      {/* Quick Topic Selection Chips */}
+      <div className="space-y-2.5">
+        <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text/80">
+          <Sparkles size={13} className="text-primary animate-pulse" />
+          <span>Quick Topic</span>
+          <span className="text-[10px] font-normal normal-case text-muted">(optional preset)</span>
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {SUBJECT_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setSubjectValue(opt.value)}
+              className={cn(
+                "rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 cursor-pointer border",
+                subjectValue === opt.value
+                  ? "bg-primary text-white border-primary shadow-md shadow-primary/25 scale-[1.02]"
+                  : "bg-surface/80 border-border/80 text-text/80 hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        {/* Full Name Field */}
+        <div className="space-y-2">
+          <label
+            htmlFor="name"
+            className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text/80"
+          >
+            <User size={13} className="text-primary" />
+            <span>Full Name</span>
+            <span className="text-primary">*</span>
+          </label>
+          <div className="relative group">
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              minLength={2}
+              placeholder="e.g. Alex Morgan"
+              className="w-full rounded-xl border border-border/80 bg-surface/90 px-4 py-3.5 text-sm sm:text-base text-text placeholder:text-muted/60 transition-all duration-200 outline-none focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/15 shadow-sm group-hover:border-border"
+            />
+          </div>
         </div>
 
+        {/* Email Address Field */}
+        <div className="space-y-2">
+          <label
+            htmlFor="email"
+            className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text/80"
+          >
+            <Mail size={13} className="text-primary" />
+            <span>Email Address</span>
+            <span className="text-primary">*</span>
+          </label>
+          <div className="relative group">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              placeholder="e.g. alex@example.com"
+              className="w-full rounded-xl border border-border/80 bg-surface/90 px-4 py-3.5 text-sm sm:text-base text-text placeholder:text-muted/60 transition-all duration-200 outline-none focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/15 shadow-sm group-hover:border-border"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Subject Field */}
+      <div className="space-y-2">
+        <label
+          htmlFor="subject"
+          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text/80"
+        >
+          <Tag size={13} className="text-primary" />
+          <span>Subject</span>
+          <span className="text-primary">*</span>
+        </label>
         <div className="relative group">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-muted group-focus-within:text-primary transition-colors" htmlFor="email">Email Address</label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
+          <input
+            id="subject"
+            name="subject"
+            type="text"
             required
-            placeholder="john@example.com"
-            className="mt-2 h-12 bg-transparent border-0 border-b border-border rounded-none px-0 focus:ring-0 focus:border-primary transition-all text-lg placeholder:text-muted/30"
+            minLength={3}
+            value={subjectValue}
+            onChange={(e) => setSubjectValue(e.target.value)}
+            placeholder="e.g. Building an AI recommendation engine"
+            className="w-full rounded-xl border border-border/80 bg-surface/90 px-4 py-3.5 text-sm sm:text-base text-text placeholder:text-muted/60 transition-all duration-200 outline-none focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/15 shadow-sm group-hover:border-border"
           />
         </div>
       </div>
 
-      <div className="relative group">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-muted group-focus-within:text-primary transition-colors" htmlFor="subject">Subject</label>
-        <Input
-          id="subject"
-          name="subject"
-          required
-          minLength={3}
-          placeholder="How can I help you?"
-          className="mt-2 h-12 bg-transparent border-0 border-b border-border rounded-none px-0 focus:ring-0 focus:border-primary transition-all text-lg placeholder:text-muted/30"
-        />
+      {/* Message Field */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor="message"
+            className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text/80"
+          >
+            <MessageSquare size={13} className="text-primary" />
+            <span>Message</span>
+            <span className="text-primary">*</span>
+          </label>
+          <span className="text-[11px] font-mono text-muted">
+            {messageLength > 0 ? `${messageLength} chars` : "min 10 chars"}
+          </span>
+        </div>
+        <div className="relative group">
+          <textarea
+            id="message"
+            name="message"
+            required
+            minLength={10}
+            rows={5}
+            onChange={(e) => setMessageLength(e.target.value.length)}
+            placeholder="Tell me about your project, timeline, goals, or just say hello..."
+            className="w-full rounded-xl border border-border/80 bg-surface/90 p-4 text-sm sm:text-base text-text placeholder:text-muted/60 transition-all duration-200 outline-none focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/15 shadow-sm resize-y min-h-[130px] group-hover:border-border leading-relaxed"
+          />
+        </div>
       </div>
 
-      <div className="relative group">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-muted group-focus-within:text-primary transition-colors" htmlFor="message">Message</label>
-        <Textarea
-          id="message"
-          name="message"
-          required
-          minLength={10}
-          placeholder="Describe your project, timeline, or just say hi..."
-          className="mt-2 bg-transparent border-0 border-b border-border rounded-none px-0 focus:ring-0 focus:border-primary transition-all text-lg min-h-[120px] resize-none placeholder:text-muted/30"
-        />
-      </div>
-
-      <div className="pt-4">
+      {/* Alerts and Submit Button */}
+      <div className="pt-2">
         <AnimatePresence mode="wait">
           {state === "success" && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mb-6 flex items-center gap-3 rounded-xl bg-emerald-500/10 p-4 text-emerald-500 border border-emerald-500/20"
+              className="mb-5 flex items-center gap-3 rounded-2xl bg-emerald-500/10 p-4 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-md backdrop-blur-md"
             >
-              <CheckCircle2 size={20} />
-              <span className="font-medium text-sm">Message received! I&apos;ll get back to you shortly.</span>
+              <CheckCircle2 size={22} className="shrink-0 text-emerald-500" />
+              <div className="text-sm">
+                <p className="font-bold">Email draft created successfully!</p>
+                <p className="text-xs opacity-90">Your email client has opened with your message ready to send.</p>
+              </div>
             </motion.div>
           )}
 
           {state === "error" && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mb-6 flex items-center gap-3 rounded-xl bg-red-500/10 p-4 text-red-500 border border-red-500/20"
+              className="mb-5 flex items-center gap-3 rounded-2xl bg-red-500/10 p-4 text-red-600 dark:text-red-400 border border-red-500/20 shadow-md backdrop-blur-md"
             >
-              <AlertCircle size={20} />
-              <span className="font-medium text-sm">{error}</span>
+              <AlertCircle size={22} className="shrink-0 text-red-500" />
+              <span className="font-semibold text-sm">{error}</span>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <Button
+        <motion.button
           type="submit"
           disabled={state === "loading"}
-          size="lg"
+          whileHover={{ scale: 1.015 }}
+          whileTap={{ scale: 0.985 }}
           className={cn(
-            "w-full md:w-auto min-w-[200px] h-14 rounded-2xl text-lg font-semibold transition-all duration-300",
-            state === "loading" ? "opacity-70" : "hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1"
+            "group relative flex w-full sm:w-auto min-w-[220px] items-center justify-center gap-2.5 rounded-2xl bg-primary px-8 py-4 text-base font-bold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:bg-primary-hover hover:shadow-xl hover:shadow-primary/35 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed",
+            state === "loading" && "cursor-wait"
           )}
         >
           {state === "loading" ? (
             <>
-              <Loader2 className="mr-2 animate-spin" size={20} />
-              Sending...
+              <Loader2 className="animate-spin" size={18} />
+              <span>Preparing draft...</span>
             </>
           ) : (
             <>
-              Send Message
-              <Send className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+              <span>Send Message</span>
+              <Send
+                size={18}
+                className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5"
+              />
             </>
           )}
-        </Button>
+        </motion.button>
       </div>
     </form>
   );

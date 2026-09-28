@@ -48,6 +48,23 @@ export function Button(props: ButtonProps | LinkProps) {
 
   if ("href" in props && props.href) {
     const { href, variant: _v, size: _s, icon: _i, className: _c, children: _ch, ...anchorProps } = props;
+    const isStaticFileOrExternal =
+      href.startsWith("http://") ||
+      href.startsWith("https://") ||
+      href.startsWith("mailto:") ||
+      href.startsWith("tel:") ||
+      /\.(pdf|zip|docx?|xlsx?|png|jpe?g|webp|svg|gif)$/i.test(href) ||
+      Boolean(anchorProps.target === "_blank" || anchorProps.download);
+
+    if (isStaticFileOrExternal) {
+      return (
+        <a href={href} className={classes} {...anchorProps}>
+          {icon}
+          {children}
+        </a>
+      );
+    }
+
     return (
       <Link href={href} className={classes} {...anchorProps}>
         {icon}

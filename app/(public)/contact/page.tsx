@@ -44,54 +44,61 @@ export default async function ContactPage() {
         <StaggerContainer staggerDelay={0.1} className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:grid-rows-6">
           {/* Main Contact Form Card */}
           <StaggerItem className="lg:col-span-7 lg:row-span-6">
-            <Card className="h-full p-1 md:p-2 bg-gradient-to-br from-border/50 to-transparent shadow-xl">
-              <div className="h-full rounded-[calc(var(--radius-lg)-4px)] bg-surface p-6 md:p-10">
-                <div className="mb-10">
-                  <h2 className="flex items-center gap-3 text-2xl font-semibold tracking-tight">
-                    <MessageSquare className="text-primary" size={24} />
-                    Send me a message
-                  </h2>
-                  <p className="mt-2 text-muted">I will get back to you promptly.</p>
+            <div className="relative h-full rounded-3xl border border-border/70 bg-surface/95 p-6 sm:p-10 shadow-2xl backdrop-blur-xl transition-all duration-300">
+              <div className="mb-8">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary mb-3">
+                  <MessageSquare size={13} />
+                  <span>Direct Inbox</span>
                 </div>
-                <ContactForm email={settings.email} />
+                <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-text">
+                  Send me a message
+                </h2>
+                <p className="mt-2 text-sm sm:text-base text-muted">
+                  Have a project in mind, a question, or want to collaborate? Fill out the form below.
+                </p>
               </div>
-            </Card>
+              <ContactForm email={settings.email} />
+            </div>
           </StaggerItem>
 
           {/* Contact Details Card */}
           <StaggerItem className="lg:col-span-5 lg:row-span-2">
-            <Card className="h-full flex flex-col justify-between p-8 group hover:border-primary/30 transition-all duration-500">
+            <Card className="h-full flex flex-col justify-between p-7 sm:p-8 group hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 rounded-3xl bg-surface/90">
               <div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                   <Mail size={24} />
                 </div>
-                <h3 className="text-xl font-semibold">Email me</h3>
-                <p className="mt-2 text-muted leading-relaxed">For work opportunities or just to say hi.</p>
+                <h3 className="text-xl font-bold text-text">Email me directly</h3>
+                <p className="mt-1 text-sm text-muted leading-relaxed">For opportunities, questions, or partnerships.</p>
               </div>
-              <a href={`mailto:${settings.email}`} className="mt-8 flex items-center justify-between text-lg font-medium hover:text-primary transition-colors">
-                {settings.email}
-                <ArrowUpRight size={20} className="text-muted group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+              <a
+                href={`mailto:${settings.email}`}
+                className="mt-6 flex items-center justify-between rounded-2xl border border-border/80 bg-bg/50 px-4 py-3 text-sm sm:text-base font-semibold text-text group-hover:border-primary/50 group-hover:bg-primary/5 transition-all"
+              >
+                <span className="truncate">{settings.email}</span>
+                <ArrowUpRight size={18} className="text-muted group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 ml-2" />
               </a>
             </Card>
           </StaggerItem>
 
           {/* Social Links Card */}
           <StaggerItem className="lg:col-span-3 lg:row-span-2">
-            <Card className="h-full p-8 flex flex-col justify-between">
+            <Card className="h-full p-7 sm:p-8 flex flex-col justify-between rounded-3xl bg-surface/90">
               <div>
-                <h3 className="text-lg font-semibold">Socials</h3>
-                <p className="mt-1 text-sm text-muted">Connect across platforms.</p>
+                <h3 className="text-lg font-bold text-text">Socials</h3>
+                <p className="mt-1 text-xs text-muted">Connect across developer profiles.</p>
               </div>
-              <div className="mt-8 grid grid-cols-3 gap-4">
+              <div className="mt-6 grid grid-cols-3 gap-3">
                 {socials.map(({ href, label, icon: Icon, color }) => (
                   <Link
                     key={label}
                     href={href}
                     target="_blank"
-                    className={`flex h-14 w-full items-center justify-center rounded-2xl border border-border bg-bg/50 text-muted transition-all duration-300 hover:border-primary/20 ${color} hover:bg-surface hover:shadow-lg hover:shadow-primary/5`}
+                    className={`flex h-12 sm:h-14 w-full items-center justify-center rounded-2xl border border-border/80 bg-bg/50 text-muted transition-all duration-300 hover:border-primary/40 ${color} hover:bg-surface hover:shadow-lg hover:shadow-primary/10 hover:scale-105 active:scale-95`}
                     aria-label={label}
+                    title={label}
                   >
-                    <Icon size={22} />
+                    <Icon size={20} />
                   </Link>
                 ))}
               </div>
@@ -100,35 +107,37 @@ export default async function ContactPage() {
 
           {/* Status/Availability Card */}
           <StaggerItem className="lg:col-span-2 lg:row-span-2">
-            <Card className="h-full p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
-               <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-               <div className="relative z-10">
-                 <div className="relative mb-6 mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-surface border border-border shadow-inner">
-                    <div className={`absolute inset-0 rounded-full animate-ping opacity-20 ${settings.openToWork ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                    <Sparkles size={28} className={settings.openToWork ? 'text-emerald-500' : 'text-amber-500'} />
-                 </div>
-                 <h3 className="font-semibold">Work status</h3>
-                 <div className="mt-3">
-                   {settings.openToWork ? (
-                     <Badge variant="success" className="px-4 py-1 text-xs font-bold uppercase tracking-wider">Available for work</Badge>
-                   ) : (
-                     <Badge variant="muted" className="px-4 py-1 text-xs font-bold uppercase tracking-wider">Currently busy</Badge>
-                   )}
-                 </div>
-               </div>
+            <Card className="h-full p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden rounded-3xl bg-surface/90 group">
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative z-10">
+                <div className="relative mb-4 mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-surface border border-border shadow-inner">
+                  <div className={`absolute inset-0 rounded-full animate-ping opacity-20 ${settings.openToWork ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                  <Sparkles size={24} className={settings.openToWork ? 'text-emerald-500' : 'text-amber-500'} />
+                </div>
+                <h3 className="font-bold text-sm text-text">Work status</h3>
+                <div className="mt-2.5">
+                  {settings.openToWork ? (
+                    <Badge variant="success" className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider">Available</Badge>
+                  ) : (
+                    <Badge variant="muted" className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider">Busy</Badge>
+                  )}
+                </div>
+              </div>
             </Card>
           </StaggerItem>
 
           {/* Location Card */}
           <StaggerItem className="lg:col-span-5 lg:row-span-2">
-            <Card className="h-full p-8 flex items-center gap-8 group hover:border-primary/30 transition-all duration-500">
-               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/5 text-primary group-hover:scale-110 transition-transform duration-500">
-                 <MapPin size={32} />
-               </div>
-               <div>
-                 <h3 className="text-xl font-semibold">Location</h3>
-                 <p className="mt-1 text-muted leading-relaxed">{settings.location ? `Based in ${settings.location}, open to remote opportunities globally.` : "Open to remote opportunities worldwide."}</p>
-               </div>
+            <Card className="h-full p-7 sm:p-8 flex items-center gap-5 sm:gap-6 group hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 rounded-3xl bg-surface/90">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-500">
+                <MapPin size={28} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-text">Location</h3>
+                <p className="mt-1 text-sm text-muted leading-relaxed">
+                  {settings.location ? `Based in ${settings.location}. Open to remote opportunities worldwide.` : "Open to remote opportunities worldwide."}
+                </p>
+              </div>
             </Card>
           </StaggerItem>
         </StaggerContainer>
